@@ -6,8 +6,12 @@ RUN npm install -g @angular/cli@8.3.23
 
 ##### These commands should be commented out if there is no angular project created yet #####
 COPY ./app-frontend/package.json /home/node/app-frontend/package.json
+COPY ./app-frontend/package-lock.json /home/node/app-frontend/package-lock.json
 
 WORKDIR /home/node/app-frontend
+
+# This is used to make node user the owner instead of root
+RUN mkdir node_modules && chown -R node:node /home/node/app-frontend/node_modules
 
 RUN npm install
 
