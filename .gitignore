@@ -127,3 +127,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# npm
+.npm/
+.config/
+
+# Angular
+.angular-config.json
