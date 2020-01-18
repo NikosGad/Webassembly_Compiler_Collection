@@ -1,0 +1,18 @@
+FROM node:13.6.0 as build-stage
+
+RUN npm install -g @angular/cli@8.3.23
+
+COPY ./app-frontend/package.json /home/node/app-frontend/package.json
+COPY ./app-frontend/package-lock.json /home/node/app-frontend/package-lock.json
+
+WORKDIR /home/node/app-frontend
+
+RUN npm install
+
+COPY ./app-frontend .
+
+RUN ng build --output-path=dist
+
+FROM nginx:1.17.7
+
+COPY --from=build-stage /home/node/app-frontend/dist /usr/share/nginx/html
