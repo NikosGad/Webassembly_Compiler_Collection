@@ -14,8 +14,6 @@ WORKDIR /home/node/app-frontend
 RUN mkdir node_modules && chown -R node:node /home/node/app-frontend/node_modules
 
 RUN npm install
-
-#COPY ./app-frontend .
 #####
 
 USER node
