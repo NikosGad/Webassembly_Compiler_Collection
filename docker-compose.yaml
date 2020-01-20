@@ -16,12 +16,3 @@ services:
         volumes:
             - ${HOST_RESULTS_DIR_PREFIX}${ROOT_RESULTS_DIR}:${ROOT_RESULTS_DIR}
         command: bash -c "FLASK_APP=/app/rest_server.py FLASK_DEBUG=true python3 rest_server.py"
-    emscripten:
-        build: ./backend/emscripten
-        image: ${EMSCRIPTEN}:${IMAGE_VERSION}
-        user: ${APP_USER}
-        volumes:
-            - ${HOST_RESULTS_DIR_PREFIX}${ROOT_RESULTS_DIR}${EMSCRIPTEN}:${ROOT_RESULTS_DIR}${EMSCRIPTEN}
-        stdin_open: true
-        tty: true
-        command: /bin/bash
