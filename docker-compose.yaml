@@ -1,5 +1,12 @@
 version: "3"
 services:
+    nginx:
+        build:
+            context: ./frontend/
+            dockerfile: Dockerfile-nginx
+        image: nginx:v4
+        ports:
+            - "3535:80"
     rest_server:
         build: ./backend/rest_server
         image: ${APP}:${IMAGE_VERSION}
