@@ -16,7 +16,7 @@ def compile():
 @app.route('/', methods=['GET'])
 def show_index():
     # return render_template('./home.html')
-    return "Hello index"
+    return "<h1 style='color:red'>Hello<h1 style='color:yellow'> flask and world</h1>"
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8080)
