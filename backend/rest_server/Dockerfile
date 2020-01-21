@@ -10,6 +10,8 @@ RUN pip install -r requirements.txt && rm -f requirements.txt
 
 # Install the application code
 COPY rest_server.py rest_server.py
+COPY wsgi.py wsgi.py
+COPY uwsgi.ini ./uwsgi.ini
 
 # Manage code base ownership
 RUN groupadd -g 1000 server \
