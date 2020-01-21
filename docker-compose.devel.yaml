@@ -4,16 +4,23 @@ services:
         build:
             context: ./frontend/
             dockerfile: Dockerfile-nginx
-        image: nginx:v4
+        image: nginx:v5
         ports:
             - "3535:80"
+            - "8080:8080"
+        depends_on:
+            - rest_server
     rest_server:
         build: ./backend/rest_server
         image: ${APP}:${IMAGE_VERSION}
         user: ${APP_USER}
-        ports:
-            - "${HOST_PORT}:${REST_SERVER_PORT}"
+        container_name: wasmcc
+        # ports:
+        #     - "${HOST_PORT}:${REST_SERVER_PORT}"
+        expose:
+            - ${REST_SERVER_PORT}
         volumes:
             - "./backend/rest_server/rest_server.py:/app/rest_server.py"
             - ${HOST_RESULTS_DIR_PREFIX}${ROOT_RESULTS_DIR}:${ROOT_RESULTS_DIR}
-        command: bash -c "FLASK_APP=/app/rest_server.py FLASK_ENV=development python3 /app/rest_server.py"
+        # command: bash -c "FLASK_APP=/app/rest_server.py FLASK_ENV=development python3 /app/rest_server.py"
+        command: bash -c "uwsgi --ini /app/uwsgi.ini"
