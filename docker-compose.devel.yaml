@@ -3,19 +3,23 @@ services:
     nginx:
         build:
             context: ./frontend/
-            dockerfile: Dockerfile-nginx
-        image: nginx:${IMAGE_VERSION}
-        container_name: nginx
+            dockerfile: Dockerfile
+        image: angular_cli:${IMAGE_VERSION}
+        container_name: angular_cli_devel
         ports:
-            - "${FRONTEND_HOST_PORT}:${FRONTEND_CONTAINER_PORT}"
+            - "${FRONTEND_HOST_PORT}:4200"
+        volumes:
+            - "/home/nikos/HMMY\ EMP/Diploma\ Thesis/Webassembly_Compiler_Collection/frontend/app-frontend:/home/node/app-frontend"
+            - "/home/node/app-frontend/node_modules"
+        command: bash -c "npm install && ng serve --host 0.0.0.0"
     rest_server:
         build: ./backend/rest_server
-        image: ${APP}:${IMAGE_VERSION}
+        image: ${APP}-devel:${IMAGE_VERSION}
         user: ${APP_USER}
-        container_name: wasmcc
+        container_name: wasmcc-devel
         ports:
             - "${BACKEND_HOST_PORT}:${BACKEND_CONTAINER_PORT}"
         volumes:
             - "./backend/rest_server/rest_server.py:/app/rest_server.py"
-            - ${HOST_RESULTS_DIR_PREFIX}${ROOT_RESULTS_DIR}:${ROOT_RESULTS_DIR}
+            - "${HOST_RESULTS_DIR_PREFIX}${ROOT_RESULTS_DIR}:${ROOT_RESULTS_DIR}"
         command: bash -c "FLASK_APP=/app/rest_server.py FLASK_ENV=development python3 /app/rest_server.py"

@@ -19,5 +19,5 @@ services:
         expose:
             - ${BACKEND_CONTAINER_PORT}
         volumes:
-            - ${HOST_RESULTS_DIR_PREFIX}${ROOT_RESULTS_DIR}:${ROOT_RESULTS_DIR}
+            - "${HOST_RESULTS_DIR_PREFIX}${ROOT_RESULTS_DIR}:${ROOT_RESULTS_DIR}"
         command: bash -c "uwsgi --ini /app/uwsgi.ini"
