@@ -10,8 +10,7 @@ services:
             - "${FRONTEND_HOST_PORT}:4200"
         volumes:
             - "/home/nikos/HMMY\ EMP/Diploma\ Thesis/Webassembly_Compiler_Collection/frontend/app-frontend:/home/node/app-frontend"
-            - "/home/node/app-frontend/node_modules"
-        command: bash -c "npm install && ng serve --host 0.0.0.0"
+        command: bash -c "ng serve --host 0.0.0.0"
     rest_server:
         build: ./backend/rest_server
         image: ${APP}-devel:${IMAGE_VERSION}
