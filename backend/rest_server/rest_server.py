@@ -9,8 +9,14 @@ app = Flask(__name__)
 @app.route('/compile', methods=['POST'])
 def compile():
     client_request = request.json
-    app.logger.debug("Handling POST request: Start compilation of " + str(client_request))
-    return jsonify({'message': 'OK'}), 201
+    app.logger.debug("REQUEST: " + str(request))
+    app.logger.debug("REQUEST FILES DICTIONARY: " + str(request.files))
+    app.logger.debug("REQUEST TEXT FIELDS DICTIONARY: " + str(request.form))
+    app.logger.debug("REQUEST RAW JSON: " + str(client_request))
+    app.logger.debug("Handling POST request: Start compilation of " + str(request.files["mycode"]))
+    file_content = request.files["mycode"].read()
+    app.logger.debug(file_content.decode("ascii"))
+    return jsonify({'message': 'OK', 'file_content': file_content.decode("ascii")}), 201
 
 ######### HTML #########
 @app.route('/', methods=['GET'])
