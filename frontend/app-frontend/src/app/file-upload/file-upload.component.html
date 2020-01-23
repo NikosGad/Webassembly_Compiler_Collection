@@ -1,0 +1,17 @@
+<p>file-upload works!!!!!!NOOOOOOOOOOOOOOOOOOOO</p>
+<div>
+  <label>Hero name:
+    <input #heroName />
+  </label>
+  <!-- (click) passes input value to add() and then clears the input -->
+  <button (click)="add(heroName.value); heroName.value=''">
+    add
+  </button>
+</div>
+<label class="image-upload-container btn btn-bwm">
+<span>Image &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    </span>
+<input #imageInput
+name="mycode"
+ type="file">
+</label>
+<button type="button" name="button" (click)="add(imageInput)">this is a file button to add</button>
