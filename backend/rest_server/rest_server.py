@@ -5,18 +5,37 @@ import logging
 app = Flask(__name__)
 #CORS(app)
 
+def debug_request(request):
+    debug_message = '''
++=================+
+REQUEST
+{request}
+
+HEADERS:
+{request_headers}
+
+FILES:
+{request_files}
+
+TEXT:
+{request_text}
+
+JSON:
+{request_json}
+-=================-\
+'''.format(request=str(request), request_headers=str(request.headers), request_files=str(request.files), request_text=str(request.form), request_json=str(request.json))
+
+    return debug_message
+
 ############ API ############
 @app.route('/compile', methods=['POST'])
 def compile():
     client_request = request.json
-    app.logger.debug("REQUEST: " + str(request))
-    app.logger.debug("REQUEST FILES DICTIONARY: " + str(request.files))
-    app.logger.debug("REQUEST TEXT FIELDS DICTIONARY: " + str(request.form))
-    app.logger.debug("REQUEST RAW JSON: " + str(client_request))
-    app.logger.debug("Handling POST request: Start compilation of " + str(request.files["mycode"]))
+    app.logger.debug(debug_request(request))
+    app.logger.debug("Start compilation of " + str(request.files["mycode"]))
     file_content = request.files["mycode"].read()
-    app.logger.debug(file_content.decode("ascii"))
-    return jsonify({'message': 'OK', 'file_content': file_content.decode("ascii")}), 201
+    app.logger.debug("\n" + file_content.decode("ascii"))
+    return jsonify({'message': 'OK', 'file_content': file_content.decode("ascii")}), 201, {'Access-Control-Allow-Origin': 'http://localhost:3535'}
 
 ######### HTML #########
 @app.route('/', methods=['GET'])
