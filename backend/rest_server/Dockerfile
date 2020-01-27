@@ -1,3 +1,5 @@
+FROM trzeci/emscripten-slim:sdk-tag-1.39.4-64bit as emscriptensdk
+
 # Base Python Image
 FROM python:3.8-slim-buster
 
@@ -27,3 +29,20 @@ RUN groupadd -g 1000 server \
 
 RUN chown server:server rest_server.py \
  && chmod 400 rest_server.py
+
+# For more info on multi stage build to extend emscripten-slim with changing
+# base image, visit: https://hub.docker.com/r/trzeci/emscripten-slim
+COPY --from=emscriptensdk /emsdk_portable /emsdk_portable
+
+# Set emscripten specific environment variables to maintain the entrypoint from
+# base image
+ENV EMSDK /emsdk_portable
+ENV EMSCRIPTEN=${EMSDK}/emscripten/sdk
+
+ENV EM_DATA ${EMSDK}/.data
+ENV EM_CONFIG ${EMSDK}/.emscripten
+ENV EM_CACHE ${EM_DATA}/cache
+ENV EM_PORTS ${EM_DATA}/ports
+
+# Expose tools to system PATH
+ENV PATH="${EMSDK}:${EMSDK}/emscripten/sdk:${EMSDK}/llvm/clang/bin:${EMSDK}/node/current/bin:${EMSDK}/binaryen/bin:${PATH}"
