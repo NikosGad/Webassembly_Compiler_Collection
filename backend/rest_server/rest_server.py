@@ -1,5 +1,7 @@
 from flask import Flask, jsonify, request
 import logging
+import subprocess
+from werkzeug.utils import secure_filename
 #from flask_cors import CORS
 
 app = Flask(__name__)
@@ -30,12 +32,32 @@ JSON:
 ############ API ############
 @app.route('/compile', methods=['POST'])
 def compile():
-    client_request = request.json
     app.logger.debug(debug_request(request))
-    app.logger.debug("Start compilation of " + str(request.files["mycode"]))
-    file_content = request.files["mycode"].read()
-    app.logger.debug("\n" + file_content.decode("ascii"))
-    return jsonify({'message': 'OK', 'file_content': file_content.decode("ascii")}), 201, {'Access-Control-Allow-Origin': 'http://localhost:3535'}
+    client_file = request.files["mycode"]
+    app.logger.debug("Start compilation of " + str(client_file))
+    app.logger.debug(client_file.content_type)
+    app.logger.debug(client_file.filename)
+    filename = secure_filename(client_file.filename)
+    app.logger.debug(filename)
+    # file_content = request.files["mycode"].read()
+    # app.logger.debug(file_content)
+    subprocess.run(["ls", "-la", "/results"])
+    client_file.save("/results/"+filename)
+
+    # app.logger.debug("\n" + file_content.decode("ascii"))
+    # TODO: check for mime type or make sure that it has ascii characters before compiling 
+    # compile_command = ["ls", "-la"]
+    compile_command = ["emcc", "/results/"+filename, "-o", "/results/"+filename+".html"]
+    try:
+        # DONT USE shell=True for security and vulnerabilities
+        completed_compile_file_process = subprocess.run(compile_command)
+        subprocess.run(["ls", "-la", "/results"])
+    except Exception:
+        app.logger.exception("An error occured during: subprocess.run({compile_command})".format(compile_command=compile_command))
+        return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
+
+    app.logger.debug(completed_compile_file_process.returncode)
+    return jsonify({'message': 'OK', 'file_content': 42}), 201, {'Access-Control-Allow-Origin': 'http://localhost:3535'}
 
 ######### HTML #########
 @app.route('/', methods=['GET'])
