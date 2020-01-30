@@ -16,6 +16,8 @@ services:
         image: ${APP}:${IMAGE_VERSION}
         user: ${APP_USER}
         container_name: wasmcc
+        environment:
+            - UPLOAD_PATH_EMSCRIPTEN=${ROOT_RESULTS_DIR}/${EMSCRIPTEN}/
         expose:
             - ${BACKEND_CONTAINER_PORT}
         volumes:
