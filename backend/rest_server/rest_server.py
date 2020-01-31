@@ -84,8 +84,12 @@ def compile():
             results_zip.write(UPLOAD_PATH_EMSCRIPTEN + filename + ".js", filename + ".js")
             results_zip.write(UPLOAD_PATH_EMSCRIPTEN + filename + ".wasm", filename + ".wasm")
 
-        response = make_response(send_from_directory(UPLOAD_PATH_EMSCRIPTEN, "results.zip"), 201)
+        response = make_response(send_from_directory(UPLOAD_PATH_EMSCRIPTEN, "results.zip", as_attachment=True), 201)
         response.headers["Access-Control-Allow-Origin"] = "http://localhost:3535"
+        response.headers["Content-Type"] = "application/zip"
+        app.logger.debug(response.headers)
+        app.logger.debug(response.__dict__)
+        app.logger.debug(response.response.__dict__)
         return response
     return jsonify({'message': 'OK', 'file_content': 42}), 201, {'Access-Control-Allow-Origin': 'http://localhost:3535'}
 
