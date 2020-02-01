@@ -3,6 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
 import { HttpClientModule } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 
 /* Project specific Component */
 import { AppRoutingModule } from './app-routing.module';
@@ -21,7 +22,8 @@ import { SourceCodeFileService } from './source-code-file.service';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    FormsModule,
   ],
   providers: [SourceCodeFileService],
   bootstrap: [AppComponent]
