@@ -4,6 +4,7 @@ import { NgModule } from '@angular/core';
 
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 /* Project specific Component */
 import { AppRoutingModule } from './app-routing.module';
@@ -24,6 +25,7 @@ import { SourceCodeFileService } from './source-code-file.service';
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
+    BrowserAnimationsModule,
   ],
   providers: [SourceCodeFileService],
   bootstrap: [AppComponent]
