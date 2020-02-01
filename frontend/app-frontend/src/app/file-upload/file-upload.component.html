@@ -1,17 +1,15 @@
 <p>file-upload works!!!!!!NOOOOOOOOOOOOOOOOOOOO</p>
-<div>
-  <label>Hero name:
-    <input #heroName />
-  </label>
-  <!-- (click) passes input value to add() and then clears the input -->
-  <button (click)="add(heroName.value); heroName.value=''">
-    add
-  </button>
-</div>
-<label class="image-upload-container btn btn-bwm">
-<span>Image &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    </span>
-<input #imageInput
-name="mycode"
- type="file">
-</label>
-<button type="button" name="button" (click)="add(imageInput)">this is a file button to add</button>
+<form>
+    <div class="file-upload-container btn btn-bwm">
+        <label>Source Code File<br>
+            <input #fileInput name="mycode" id="fileToUpload" type="file" [(ngModel)]="files"/>
+        </label>
+        <!-- <a *ngIf="resultsZipFileBlob" #downloadhref href="#" download="results.zip" target="_blank">click this to download!!</a> -->
+        <button [disabled]="!resultsZipFileBlob.size" [hidden]="!resultsZipFileBlob.size" type="button" name="buttonsave" (click)=saveZip()>
+            Click this to save
+            <a id="downloadhref"></a>
+        </button>
+    </div>
+
+    <button [disabled]="!files" type="button" name="upload-btn" (click)="upload(fileInput)">Upload the file</button>
+</form>

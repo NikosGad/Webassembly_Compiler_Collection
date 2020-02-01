@@ -14,7 +14,17 @@ export class FileUploadComponent implements OnInit {
   ngOnInit() {
   }
 
-  add(file: any): void {
+  saveZip(): void {
+      let url = window.URL.createObjectURL(this.resultsZipFileBlob);
+      let element: HTMLAnchorElement = document.getElementById("downloadhref") as HTMLAnchorElement
+      element.href = url
+      element.download = "results.zip"
+      element.target = "_blank"
+      element.click()
+      // window.location.href = url;
+  }
+
+  upload(file: any): void {
     this.resultsZipFileBlob = new Blob();
 
     this.sourceCodeFileService.uploadFile(file.files[0]).subscribe(
