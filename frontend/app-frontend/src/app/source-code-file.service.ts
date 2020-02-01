@@ -22,21 +22,6 @@ export class SourceCodeFileService {
     console.log(source_code)
     console.log(formData)
 
-    return this.http.post(this.url, formData, {responseType: "blob"}).subscribe(
-      (res) => {
-          // saveAs(res, "results.zip");
-          let blob = new Blob([res], { type: "application/zip"});
-        let url = window.URL.createObjectURL(blob);
-        let pwa = window.open(url);
-        if (!pwa || pwa.closed || typeof pwa.closed == 'undefined') {
-            alert( 'Please disable your Pop-up blocker and try again.');
-        }
-          console.log(res)
-      },
-      (err) => {
-          console.log("this is an error");
-          console.log(err)
-      }
-    );
+    return this.http.post(this.url, formData, {responseType: "blob"});
   }
 }

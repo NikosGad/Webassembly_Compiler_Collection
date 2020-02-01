@@ -7,6 +7,7 @@ import { SourceCodeFileService } from '../source-code-file.service';
   styleUrls: ['./file-upload.component.css']
 })
 export class FileUploadComponent implements OnInit {
+  resultsZipFileBlob: Blob = new Blob();
 
   constructor(private sourceCodeFileService: SourceCodeFileService) { }
 
@@ -14,13 +15,18 @@ export class FileUploadComponent implements OnInit {
   }
 
   add(file: any): void {
-    // name = name.trim();
-    // if (!name) { return; }
-    this.sourceCodeFileService.uploadFile(file.files[0]);
-    // this.heroService.addHero({ name } as Hero)
-    //   .subscribe(hero => {
-    //     this.heroes.push(hero);
-    //   });
+    this.resultsZipFileBlob = new Blob();
+
+    this.sourceCodeFileService.uploadFile(file.files[0]).subscribe(
+      (res) => {
+        this.resultsZipFileBlob = res
+        console.log(res)
+      },
+      (err) => {
+          console.log("this is an error");
+          console.log(err)
+      }
+    );
   }
 
 }
