@@ -5,6 +5,7 @@ import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 /* Project specific Component */
 import { AppRoutingModule } from './app-routing.module';
@@ -14,11 +15,13 @@ import { FileUploadComponent } from './file-upload/file-upload.component';
 
 /* Project specific Services */
 import { SourceCodeFileService } from './source-code-file.service';
+import { HeaderComponent } from './header/header.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    FileUploadComponent
+    FileUploadComponent,
+    HeaderComponent,
   ],
   imports: [
     BrowserModule,
@@ -26,6 +29,7 @@ import { SourceCodeFileService } from './source-code-file.service';
     HttpClientModule,
     FormsModule,
     BrowserAnimationsModule,
+    MatToolbarModule,
   ],
   providers: [SourceCodeFileService],
   bootstrap: [AppComponent]
