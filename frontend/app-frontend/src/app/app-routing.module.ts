@@ -4,7 +4,10 @@ import { Routes, RouterModule } from '@angular/router';
 import { FileUploadComponent } from './file-upload/file-upload.component';
 
 const routes: Routes = [
-    { path: 'compile', component: FileUploadComponent }
+    { path: '', component: FileUploadComponent },
+    { path: 'compile', redirectTo: '' },
+    // TODO: This should be changed to a redirection to an error page
+    { path: '**', redirectTo: '' }
 ];
 
 @NgModule({
