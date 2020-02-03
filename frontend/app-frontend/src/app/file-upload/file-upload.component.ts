@@ -7,6 +7,8 @@ import { SourceCodeFileService } from '../source-code-file.service';
   styleUrls: ['./file-upload.component.css']
 })
 export class FileUploadComponent implements OnInit {
+  language = 'C';
+  optimization_level = 'O0'
   resultsZipFileBlob: Blob = new Blob();
 
   constructor(private sourceCodeFileService: SourceCodeFileService) { }
