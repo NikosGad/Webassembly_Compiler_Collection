@@ -24,7 +24,7 @@
 
     <mat-form-field>
         <mat-label>Select optimization level</mat-label>
-        <mat-select [(value)]="optimization_level">
+        <mat-select [(value)]="c_compilation_options.optimization_level">
             <!-- <mat-option>None</mat-option> -->
             <mat-option value="O0">O0</mat-option>
             <mat-option value="O1">O1</mat-option>
@@ -35,7 +35,7 @@
         </mat-select>
     </mat-form-field>
 
-    <p>You selected: {{optimization_level}}</p>
+    <p>You selected: {{c_compilation_options.optimization_level}}</p>
 
     <button [disabled]="!files" type="button" name="upload-btn" (click)="upload(fileInput)">Upload the file</button>
 </form>

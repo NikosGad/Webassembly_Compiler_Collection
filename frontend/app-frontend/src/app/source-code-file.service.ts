@@ -13,10 +13,12 @@ export class SourceCodeFileService {
 
   constructor(private http: HttpClient) { }
 
-  public uploadFile(source_code: File) {
+  public uploadFile(source_code: File, language: string, compilation_options: any) {
     const formData = new FormData();
 
     formData.append("mycode", source_code);
+    formData.append("language", language);
+    formData.append("compilation_options", JSON.stringify(compilation_options));
 
     console.log("HIIII")
     console.log(source_code)
