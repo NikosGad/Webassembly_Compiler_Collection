@@ -2,9 +2,17 @@ from flask import Flask, jsonify, request, send_from_directory, make_response
 import logging
 import subprocess
 import os
+import json
 from werkzeug.utils import secure_filename
 from zipfile import ZipFile
 #from flask_cors import CORS
+
+# class c_compilation_options(object):
+#     """docstring for ."""
+#     def __init__(self, arg):
+#         super().__init__()
+#         self.optimization_level = optimization_level
+
 
 UPLOAD_PATH_EMSCRIPTEN=os.environ.get("UPLOAD_PATH_EMSCRIPTEN", "/results/emscripten/")
 app = Flask(__name__)
@@ -32,6 +40,17 @@ JSON:
 
     return debug_message
 
+# kwargs is used to throw away any unwanted arguments that come from the request
+def parse_c_compilation_options(optimization_level: str = "O0", **kwargs):
+    compile_command = ["emcc"]
+
+    if optimization_level in ["O0", "O1", "O2", "O3", "Os", "Oz"]:
+        compile_command.append("-" + optimization_level)
+
+    app.logger.debug("Parsed compile command: " + str(compile_command))
+
+    return compile_command
+
 ############ API ############
 @app.route('/compile', methods=['POST'])
 def compile():
@@ -44,8 +63,14 @@ def compile():
     app.logger.debug("Secure Filename: " + filename)
     app.logger.debug("Content-type: " + client_file.content_type)
 
-    # file_content = request.files["mycode"].read()
-    # app.logger.debug(file_content)
+    try:
+        compilation_options_json = json.loads(request.form["compilation_options"])
+    except Exception:
+        app.logger.exception("An error occured while loading compilation options json")
+        return jsonify({"type": "JSONParseError", "message": "Bad JSON Format Error"}), 400
+
+    compile_command = parse_c_compilation_options(**compilation_options_json)
+
     subprocess.run(["ls", "-la", UPLOAD_PATH_EMSCRIPTEN])
 
     try:
@@ -54,9 +79,10 @@ def compile():
         app.logger.exception("An error occured while saving: {filename}". format(filename=filename))
         return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
 
-    # app.logger.debug("\n" + file_content.decode("ascii"))
     # TODO: check for mime type or make sure that it has ascii characters before compiling
-    compile_command = ["emcc", UPLOAD_PATH_EMSCRIPTEN + filename, "-o", UPLOAD_PATH_EMSCRIPTEN + filename + ".html"]
+    compile_command.extend([UPLOAD_PATH_EMSCRIPTEN + filename, "-o", UPLOAD_PATH_EMSCRIPTEN + filename + ".html"])
+    app.logger.debug("Final compile command: " + str(compile_command))
+
     try:
         # DONT USE shell=True for security and vulnerabilities
         completed_compile_file_process = subprocess.run(compile_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -74,7 +100,6 @@ def compile():
         app.logger.exception("An error occured during: subprocess.run({compile_command})".format(compile_command=compile_command))
         return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
 
-    subprocess.run(["ls", "-la", UPLOAD_PATH_EMSCRIPTEN])
     app.logger.debug("Compilation return code: " + str(completed_compile_file_process.returncode))
 
     # TODO: Activate X-Sendfile
@@ -90,7 +115,10 @@ def compile():
         app.logger.debug(response.headers)
         app.logger.debug(response.__dict__)
         app.logger.debug(response.response.__dict__)
+        subprocess.run(["ls", "-la", UPLOAD_PATH_EMSCRIPTEN])
         return response
+
+    subprocess.run(["ls", "-la", UPLOAD_PATH_EMSCRIPTEN])
     return jsonify({'message': 'OK', 'file_content': 42}), 201, {'Access-Control-Allow-Origin': 'http://localhost:3535'}
 
 ######### HTML #########
