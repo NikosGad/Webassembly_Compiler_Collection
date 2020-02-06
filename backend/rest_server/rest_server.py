@@ -41,11 +41,14 @@ JSON:
     return debug_message
 
 # kwargs is used to throw away any unwanted arguments that come from the request
-def parse_c_compilation_options(optimization_level: str = "O0", **kwargs):
+def parse_c_compilation_options(optimization_level="", iso_standard="", **kwargs):
     compile_command = ["emcc"]
 
-    if optimization_level in ["O0", "O1", "O2", "O3", "Os", "Oz"]:
+    if optimization_level in ["O0", "O1", "O2", "O3", "Os", "Oz",]:
         compile_command.append("-" + optimization_level)
+
+    if iso_standard in ["c89", "c90", "c99", "c11", "c17", "gnu89", "gnu90", "gnu99", "gnu11", "gnu17",]:
+        compile_command.append("-std=" + iso_standard)
 
     app.logger.debug("Parsed compile command: " + str(compile_command))
 

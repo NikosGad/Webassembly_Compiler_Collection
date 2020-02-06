@@ -23,19 +23,28 @@
     <p>You selected: {{language}}</p>
 
     <mat-form-field>
-        <mat-label>Select optimization level</mat-label>
+        <mat-label>Optimization level</mat-label>
         <mat-select [(value)]="c_compilation_options.optimization_level">
-            <!-- <mat-option>None</mat-option> -->
-            <mat-option value="O0">O0</mat-option>
-            <mat-option value="O1">O1</mat-option>
-            <mat-option value="O2">O2</mat-option>
-            <mat-option value="O3">O3</mat-option>
-            <mat-option value="Os">Os</mat-option>
-            <mat-option value="Oz">Oz</mat-option>
+            <mat-option>None</mat-option>
+            <mat-option *ngFor="let optimization_level_value of c_compilation_options_allowed_values.optimization_level_allowed_values" [value]="optimization_level_value">
+                {{optimization_level_value}}
+            </mat-option>
         </mat-select>
     </mat-form-field>
 
     <p>You selected: {{c_compilation_options.optimization_level}}</p>
+
+    <mat-form-field>
+        <mat-label>ISO standard</mat-label>
+        <mat-select [(value)]="c_compilation_options.iso_standard">
+            <mat-option>None</mat-option>
+            <mat-option *ngFor="let iso_standard_value of c_compilation_options_allowed_values.iso_standard_allowed_values" [value]="iso_standard_value">
+                {{iso_standard_value}}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <p>You selected: {{c_compilation_options.iso_standard}}</p>
 
     <button [disabled]="!files" type="button" name="upload-btn" (click)="upload(fileInput)">Upload the file</button>
 </form>
