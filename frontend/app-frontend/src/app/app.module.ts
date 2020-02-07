@@ -18,12 +18,14 @@ import { FileUploadComponent } from './file-upload/file-upload.component';
 /* Project specific Services */
 import { SourceCodeFileService } from './source-code-file.service';
 import { HeaderComponent } from './header/header.component';
+import { CUploadFormComponent } from './c-upload-form/c-upload-form.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     FileUploadComponent,
     HeaderComponent,
+    CUploadFormComponent,
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,27 @@
+<mat-form-field>
+    <mat-label>Optimization level</mat-label>
+    <mat-select [(value)]="c_compilation_options.optimization_level">
+        <mat-option>None</mat-option>
+        <mat-option *ngFor="let optimization_level_value of c_compilation_options_allowed_values.optimization_level_allowed_values" [value]="optimization_level_value">
+            {{optimization_level_value}}
+        </mat-option>
+    </mat-select>
+</mat-form-field>
+
+<p>You selected: {{c_compilation_options.optimization_level}}</p>
+
+<mat-form-field>
+    <mat-label>ISO standard</mat-label>
+    <mat-select [(value)]="c_compilation_options.iso_standard">
+        <mat-option>None</mat-option>
+        <mat-option *ngFor="let iso_standard_value of c_compilation_options_allowed_values.iso_standard_allowed_values" [value]="iso_standard_value">
+            {{iso_standard_value}}
+        </mat-option>
+    </mat-select>
+</mat-form-field>
+
+<p>You selected: {{c_compilation_options.iso_standard}}</p>
+
+<mat-slide-toggle labelPosition="before" name="suppress" [(ngModel)]="c_compilation_options.suppress_warnings">Suppress warnings</mat-slide-toggle>
+
+<p>{{c_compilation_options.suppress_warnings}}</p>

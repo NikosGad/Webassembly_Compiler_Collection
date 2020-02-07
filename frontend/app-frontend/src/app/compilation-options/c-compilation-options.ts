@@ -9,17 +9,17 @@ export class CCompilationOptions {
   // }
 }
 
-export class CCompilationOptionsAllowedValues {
-  optimization_level_allowed_values: string[] = [
+export const CCompilationOptionsAllowedValues = Object.freeze({
+  optimization_level_allowed_values: [
       "O0",
       "O1",
       "O2",
       "O3",
       "Os",
       "Oz",
-  ];
+  ],
 
-  iso_standard_allowed_values: string[] = [
+  iso_standard_allowed_values: [
     "c89",
     "c90",
     "c99",
@@ -30,5 +30,5 @@ export class CCompilationOptionsAllowedValues {
     "gnu99",
     "gnu11",
     "gnu17",
-  ];
-}
+  ],
+})
