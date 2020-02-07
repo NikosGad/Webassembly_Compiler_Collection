@@ -1,6 +1,7 @@
 export class CCompilationOptions {
   optimization_level: string;
   iso_standard: string;
+  suppress_warnings: boolean;
 
   // constructor() {
   //     this.optimization_level = ""

@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 /* Project specific Component */
 import { AppRoutingModule } from './app-routing.module';
@@ -32,6 +33,7 @@ import { HeaderComponent } from './header/header.component';
     BrowserAnimationsModule,
     MatToolbarModule,
     MatSelectModule,
+    MatSlideToggleModule,
   ],
   providers: [SourceCodeFileService],
   bootstrap: [AppComponent]
