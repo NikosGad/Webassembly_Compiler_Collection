@@ -25,3 +25,12 @@
 <mat-slide-toggle labelPosition="before" name="suppress" [(ngModel)]="c_compilation_options.suppress_warnings">Suppress warnings</mat-slide-toggle>
 
 <p>{{c_compilation_options.suppress_warnings}}</p>
+
+<!-- TODO: Tooltip pls use only alphanumericl character or the output filename may diverge -->
+<mat-form-field appearance="outline">
+    <mat-label>Output Filename</mat-label>
+    <input matInput value="" type="text" placeholder="example_filename" [(ngModel)]="c_compilation_options.output_filename">
+    <span matSuffix>.html</span>
+</mat-form-field>
+
+<p>{{c_compilation_options.output_filename}}</p>

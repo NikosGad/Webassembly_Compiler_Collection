@@ -2,11 +2,7 @@ export class CCompilationOptions {
   optimization_level: string;
   iso_standard: string;
   suppress_warnings: boolean;
-
-  // constructor() {
-  //     this.optimization_level = ""
-  //     this.iso_standard = ""
-  // }
+  output_filename: string;
 }
 
 export const CCompilationOptionsAllowedValues = Object.freeze({

@@ -8,6 +8,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatInputModule } from '@angular/material/input';
 
 /* Project specific Component */
 import { AppRoutingModule } from './app-routing.module';
@@ -36,6 +37,7 @@ import { CUploadFormComponent } from './c-upload-form/c-upload-form.component';
     MatToolbarModule,
     MatSelectModule,
     MatSlideToggleModule,
+    MatInputModule,
   ],
   providers: [SourceCodeFileService],
   bootstrap: [AppComponent]
