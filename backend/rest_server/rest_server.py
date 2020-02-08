@@ -1,8 +1,9 @@
-from flask import Flask, jsonify, request, send_from_directory, make_response
-import logging
-import subprocess
-import os
 import json
+import logging
+import os
+import re
+import subprocess
+from flask import Flask, jsonify, request, send_from_directory, make_response
 from werkzeug.utils import secure_filename
 from zipfile import ZipFile
 #from flask_cors import CORS
@@ -17,6 +18,8 @@ from zipfile import ZipFile
 UPLOAD_PATH_EMSCRIPTEN=os.environ.get("UPLOAD_PATH_EMSCRIPTEN", "/results/emscripten/")
 app = Flask(__name__)
 #CORS(app)
+
+start_hyphen_sequence_pattern = re.compile('^-+')
 
 def debug_request(request):
     debug_message = '''
@@ -41,7 +44,7 @@ JSON:
     return debug_message
 
 # kwargs is used to throw away any unwanted arguments that come from the request
-def parse_c_compilation_options(optimization_level="", iso_standard="", **kwargs):
+def parse_c_compilation_options(optimization_level="", iso_standard="", suppress_warnings=False, output_filename="", **kwargs):
     compile_command = ["emcc"]
 
     if optimization_level in ["O0", "O1", "O2", "O3", "Os", "Oz",]:
@@ -50,9 +53,19 @@ def parse_c_compilation_options(optimization_level="", iso_standard="", **kwargs
     if iso_standard in ["c89", "c90", "c99", "c11", "c17", "gnu89", "gnu90", "gnu99", "gnu11", "gnu17",]:
         compile_command.append("-std=" + iso_standard)
 
-    app.logger.debug("Parsed compile command: " + str(compile_command))
+    if suppress_warnings == True:
+        compile_command.append("-w")
 
-    return compile_command
+    secured_output_filename = secure_filename(output_filename)
+    if secured_output_filename == "":
+        secured_output_filename = "a.out"
+    else:
+        secured_output_filename = start_hyphen_sequence_pattern.sub('', secured_output_filename)
+
+    app.logger.debug("Parsed compile command: " + str(compile_command))
+    app.logger.debug("Parsed Output Filename: " + secured_output_filename)
+
+    return compile_command, secured_output_filename
 
 ############ API ############
 @app.route('/compile', methods=['POST'])
@@ -72,7 +85,7 @@ def compile():
         app.logger.exception("An error occured while loading compilation options json")
         return jsonify({"type": "JSONParseError", "message": "Bad JSON Format Error"}), 400
 
-    compile_command = parse_c_compilation_options(**compilation_options_json)
+    compile_command, secured_output_filename = parse_c_compilation_options(**compilation_options_json)
 
     subprocess.run(["ls", "-la", UPLOAD_PATH_EMSCRIPTEN])
 
@@ -83,7 +96,7 @@ def compile():
         return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
 
     # TODO: check for mime type or make sure that it has ascii characters before compiling
-    compile_command.extend([UPLOAD_PATH_EMSCRIPTEN + filename, "-o", UPLOAD_PATH_EMSCRIPTEN + filename + ".html"])
+    compile_command.extend(["-o", UPLOAD_PATH_EMSCRIPTEN + secured_output_filename + ".html", UPLOAD_PATH_EMSCRIPTEN + filename])
     app.logger.debug("Final compile command: " + str(compile_command))
 
     try:
@@ -108,9 +121,9 @@ def compile():
     # TODO: Activate X-Sendfile
     if completed_compile_file_process.returncode == 0:
         with ZipFile(UPLOAD_PATH_EMSCRIPTEN + "results.zip", "w") as results_zip:
-            results_zip.write(UPLOAD_PATH_EMSCRIPTEN + filename + ".html", filename + ".html")
-            results_zip.write(UPLOAD_PATH_EMSCRIPTEN + filename + ".js", filename + ".js")
-            results_zip.write(UPLOAD_PATH_EMSCRIPTEN + filename + ".wasm", filename + ".wasm")
+            results_zip.write(UPLOAD_PATH_EMSCRIPTEN + secured_output_filename + ".html", secured_output_filename + ".html")
+            results_zip.write(UPLOAD_PATH_EMSCRIPTEN + secured_output_filename + ".js", secured_output_filename + ".js")
+            results_zip.write(UPLOAD_PATH_EMSCRIPTEN + secured_output_filename + ".wasm", secured_output_filename + ".wasm")
 
         response = make_response(send_from_directory(UPLOAD_PATH_EMSCRIPTEN, "results.zip", as_attachment=True), 201)
         response.headers["Access-Control-Allow-Origin"] = "http://localhost:3535"
