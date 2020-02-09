@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { SourceCodeFileService } from '../source-code-file.service';
 import { CCompilationOptions } from '../compilation-options/c-compilation-options';
+import { CppCompilationOptions } from '../compilation-options/cpp-compilation-options';
 
 @Component({
   selector: 'app-file-upload',
@@ -10,11 +11,13 @@ import { CCompilationOptions } from '../compilation-options/c-compilation-option
 export class FileUploadComponent implements OnInit {
   language: string;
   c_compilation_options: CCompilationOptions;
+  cpp_compilation_options: CppCompilationOptions
   resultsZipFileBlob: Blob;
 
   constructor(private sourceCodeFileService: SourceCodeFileService) {
     this.language = "C";
     this.c_compilation_options = new CCompilationOptions();
+    this.cpp_compilation_options = new CppCompilationOptions();
     this.resultsZipFileBlob = new Blob();
   }
 

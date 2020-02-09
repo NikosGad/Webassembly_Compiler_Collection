@@ -1,0 +1,36 @@
+<mat-form-field>
+    <mat-label>Optimization level</mat-label>
+    <mat-select [(value)]="cpp_compilation_options.optimization_level">
+        <mat-option>None</mat-option>
+        <mat-option *ngFor="let optimization_level_value of cpp_compilation_options_allowed_values.optimization_level_allowed_values" [value]="optimization_level_value">
+            {{optimization_level_value}}
+        </mat-option>
+    </mat-select>
+</mat-form-field>
+
+<p>You selected: {{cpp_compilation_options.optimization_level}}</p>
+
+<mat-form-field>
+    <mat-label>ISO standard</mat-label>
+    <mat-select [(value)]="cpp_compilation_options.iso_standard">
+        <mat-option>None</mat-option>
+        <mat-option *ngFor="let iso_standard_value of cpp_compilation_options_allowed_values.iso_standard_allowed_values" [value]="iso_standard_value">
+            {{iso_standard_value}}
+        </mat-option>
+    </mat-select>
+</mat-form-field>
+
+<p>You selected: {{cpp_compilation_options.iso_standard}}</p>
+
+<mat-slide-toggle labelPosition="before" name="suppress" [(ngModel)]="cpp_compilation_options.suppress_warnings">Suppress warnings</mat-slide-toggle>
+
+<p>{{cpp_compilation_options.suppress_warnings}}</p>
+
+<!-- TODO: Tooltip pls use only alphanumericl character or the output filename may diverge -->
+<mat-form-field appearance="outline">
+    <mat-label>Output Filename</mat-label>
+    <input matInput value="" type="text" placeholder="example_filename" [(ngModel)]="cpp_compilation_options.output_filename">
+    <span matSuffix>.html</span>
+</mat-form-field>
+
+<p>{{cpp_compilation_options.output_filename}}</p>

@@ -20,6 +20,7 @@ import { FileUploadComponent } from './file-upload/file-upload.component';
 import { SourceCodeFileService } from './source-code-file.service';
 import { HeaderComponent } from './header/header.component';
 import { CUploadFormComponent } from './c-upload-form/c-upload-form.component';
+import { CppUploadFormComponent } from './cpp-upload-form/cpp-upload-form.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { CUploadFormComponent } from './c-upload-form/c-upload-form.component';
     FileUploadComponent,
     HeaderComponent,
     CUploadFormComponent,
+    CppUploadFormComponent,
   ],
   imports: [
     BrowserModule,
