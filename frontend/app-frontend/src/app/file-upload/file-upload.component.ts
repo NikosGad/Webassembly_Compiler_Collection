@@ -35,9 +35,20 @@ export class FileUploadComponent implements OnInit {
   }
 
   upload(file: any): void {
+    let compilation_options: any;
     this.resultsZipFileBlob = new Blob();
 
-    this.sourceCodeFileService.uploadFile(file.files[0], this.language, this.c_compilation_options).subscribe(
+    if (this.language == "C") {
+      compilation_options = this.c_compilation_options;
+    }
+    else if (this.language == "C++") {
+      compilation_options = this.cpp_compilation_options;
+    }
+    else {
+      compilation_options = {};
+    }
+
+    this.sourceCodeFileService.uploadFile(file.files[0], this.language, compilation_options).subscribe(
       (res) => {
         this.resultsZipFileBlob = res
         console.log(res)
