@@ -9,12 +9,14 @@ import { CppCompilationOptions } from '../compilation-options/cpp-compilation-op
   styleUrls: ['./file-upload.component.css']
 })
 export class FileUploadComponent implements OnInit {
+  file_path: string;
   language: string;
   c_compilation_options: CCompilationOptions;
   cpp_compilation_options: CppCompilationOptions
   resultsZipFileBlob: Blob;
 
   constructor(private sourceCodeFileService: SourceCodeFileService) {
+    this.file_path = "";
     this.language = "C";
     this.c_compilation_options = new CCompilationOptions();
     this.cpp_compilation_options = new CppCompilationOptions();

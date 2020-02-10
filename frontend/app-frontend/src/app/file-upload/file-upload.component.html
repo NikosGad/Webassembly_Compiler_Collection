@@ -1,7 +1,7 @@
 <form>
     <div class="file-upload-container btn btn-bwm">
         <label>Source Code File<br>
-            <input #fileInput name="mycode" id="fileToUpload" type="file" [(ngModel)]="files"/>
+            <input #fileInput name="mycode" id="fileToUpload" type="file" [(ngModel)]="file_path"/>
         </label>
         <!-- <a *ngIf="resultsZipFileBlob" #downloadhref href="#" download="results.zip" target="_blank">click this to download!!</a> -->
         <button [disabled]="!resultsZipFileBlob.size" [hidden]="!resultsZipFileBlob.size" type="button" name="buttonsave" (click)=saveZip()>
@@ -25,5 +25,5 @@
     <app-c-upload-form *ngIf="language === 'C'" [c_compilation_options]="c_compilation_options"></app-c-upload-form>
     <app-cpp-upload-form *ngIf="language === 'C++'" [cpp_compilation_options]="cpp_compilation_options"></app-cpp-upload-form>
 
-    <button [disabled]="!files" type="button" name="upload-btn" (click)="upload(fileInput)">Upload the file</button>
+    <button [disabled]="!file_path" type="button" name="upload-btn" (click)="upload(fileInput)">Upload the file</button>
 </form>
