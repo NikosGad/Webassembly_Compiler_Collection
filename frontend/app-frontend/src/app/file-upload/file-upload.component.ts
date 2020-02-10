@@ -36,6 +36,10 @@ export class FileUploadComponent implements OnInit {
     // window.location.href = url;
   }
 
+  resetInputFile() {
+    this.file_path = ""
+  }
+
   upload(file: any): void {
     let compilation_options: any;
     this.resultsZipFileBlob = new Blob();
