@@ -5,7 +5,12 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
   providedIn: 'root'
 })
 export class SourceCodeFileService {
-  private url = 'http://127.0.0.1:8080/compile'
+  private scheme = 'http://'
+  private domain = '127.0.0.1'
+  private backend_domain = this.scheme + this.domain
+  private url_c = this.backend_domain + ':8080/compile'
+  private url_cpp = this.backend_domain + ':8080/compile'
+  private url_non_existing = this.backend_domain + ':8080/compile_non_existing'
 
   // httpOptions = {
   //   headers: new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' })
@@ -14,16 +19,26 @@ export class SourceCodeFileService {
   constructor(private http: HttpClient) { }
 
   public uploadFile(source_code: File, language: string, compilation_options: any) {
+    let server_url: string
     const formData = new FormData();
 
     formData.append("mycode", source_code);
     formData.append("language", language);
     formData.append("compilation_options", JSON.stringify(compilation_options));
 
-    console.log("HIIII")
-    console.log(source_code)
-    console.log(formData)
+    if (language == "C") {
+      server_url = this.url_c;
+    }
+    else if (language == "C++") {
+      server_url = this.url_cpp;
+    }
+    else {
+      server_url = this.url_non_existing;
+    }
 
-    return this.http.post(this.url, formData, {responseType: "blob"});
+    console.log("Server url to post: " + server_url)
+    console.log(source_code)
+
+    return this.http.post(server_url, formData, {responseType: "blob"});
   }
 }
