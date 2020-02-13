@@ -20,6 +20,21 @@ ENV EM_PORTS ${EM_DATA}/ports
 # Expose tools to system PATH
 ENV PATH="${EMSDK}:${EMSDK}/emscripten/sdk:${EMSDK}/llvm/clang/bin:${EMSDK}/node/current/bin:${EMSDK}/binaryen/bin:${PATH}"
 
+# Golang Installation
+RUN set -ex\
+ && apt-get update\
+ && apt-get install -y wget\
+ && wget -O /go.tgz "https://golang.org/dl/go1.13.7.linux-amd64.tar.gz"\
+ && echo "b3dd4bd781a0271b33168e627f7f43886b4c5d1c794a4015abf34e99c6526ca3 */go.tgz" | sha256sum -c -\
+ && tar -xzf /go.tgz -C /usr/local\
+ && rm /go.tgz\
+ && apt-get purge -y --auto-remove wget\
+ && rm -rf /var/lib/apt/lists/*\
+ && rm -rf /usr/share/doc/*
+
+ENV GOPATH /results/go
+ENV PATH="$GOPATH/bin:/usr/local/go/bin:$PATH"
+
 # Set application dedicated /app directory as working directory
 WORKDIR /app
 
