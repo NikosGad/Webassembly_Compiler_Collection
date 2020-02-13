@@ -5,7 +5,7 @@ import re
 import subprocess
 from flask import Flask, jsonify, request, send_from_directory, make_response
 from werkzeug.utils import secure_filename
-from zipfile import ZipFile
+from zipfile import ZipFile, ZIP_DEFLATED
 #from flask_cors import CORS
 
 # class c_compilation_options(object):
@@ -16,6 +16,8 @@ from zipfile import ZipFile
 
 
 UPLOAD_PATH_EMSCRIPTEN=os.environ.get("UPLOAD_PATH_EMSCRIPTEN", "/results/emscripten/")
+COMPRESSION=ZIP_DEFLATED
+COMPRESSLEVEL=6
 app = Flask(__name__)
 #CORS(app)
 
@@ -75,7 +77,6 @@ def parse_cpp_compilation_options(optimization_level="", iso_standard="", suppre
 
     if iso_standard in ["c++98", "c++03", "c++11", "c++14", "c++17", "c++2a",
         "gnu++98", "gnu++03", "gnu++11", "gnu++14", "gnu+++17", "gnu+++2a",]:
-    # "c89", "c90", "c99", "c11", "c17", "gnu89", "gnu90", "gnu99", "gnu11", "gnu17",]:
         compile_command.append("-std=" + iso_standard)
 
     if suppress_warnings == True:
@@ -132,12 +133,12 @@ def compile():
         completed_compile_file_process = subprocess.run(compile_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         if completed_compile_file_process.stdout:
-            with open(UPLOAD_PATH_EMSCRIPTEN + "stdout.txt", "w") as f:
-                print(completed_compile_file_process.stdout.decode(encoding="utf-8"), file=f)
+            with open(UPLOAD_PATH_EMSCRIPTEN + "stdout.txt", "w") as f_out:
+                print(completed_compile_file_process.stdout.decode(encoding="utf-8"), file=f_out)
 
         if completed_compile_file_process.stderr:
-            with open(UPLOAD_PATH_EMSCRIPTEN + "stderr.txt", "w") as f:
-                print(completed_compile_file_process.stderr.decode(encoding="utf-8"), file=f)
+            with open(UPLOAD_PATH_EMSCRIPTEN + "stderr.txt", "w") as f_err:
+                print(completed_compile_file_process.stderr.decode(encoding="utf-8"), file=f_err)
 
     except Exception:
         subprocess.run(["ls", "-la", UPLOAD_PATH_EMSCRIPTEN])
@@ -146,24 +147,31 @@ def compile():
 
     app.logger.debug("Compilation return code: " + str(completed_compile_file_process.returncode))
 
+    with ZipFile(file=UPLOAD_PATH_EMSCRIPTEN + "results.zip", mode="w", compression=COMPRESSION, compresslevel=COMPRESSLEVEL) as results_zip:
+        if completed_compile_file_process.stdout:
+            results_zip.write(UPLOAD_PATH_EMSCRIPTEN + "stdout.txt", "stdout.txt")
+
+        if completed_compile_file_process.stderr:
+            results_zip.write(UPLOAD_PATH_EMSCRIPTEN + "stderr.txt", "stderr.txt")
+
     # TODO: Activate X-Sendfile
     if completed_compile_file_process.returncode == 0:
-        with ZipFile(UPLOAD_PATH_EMSCRIPTEN + "results.zip", "w") as results_zip:
+        return_status_code = 200
+        with ZipFile(file=UPLOAD_PATH_EMSCRIPTEN + "results.zip", mode="a", compression=COMPRESSION, compresslevel=COMPRESSLEVEL) as results_zip:
             results_zip.write(UPLOAD_PATH_EMSCRIPTEN + secured_output_filename + ".html", secured_output_filename + ".html")
             results_zip.write(UPLOAD_PATH_EMSCRIPTEN + secured_output_filename + ".js", secured_output_filename + ".js")
             results_zip.write(UPLOAD_PATH_EMSCRIPTEN + secured_output_filename + ".wasm", secured_output_filename + ".wasm")
+    else:
+        return_status_code = 400
 
-        response = make_response(send_from_directory(UPLOAD_PATH_EMSCRIPTEN, "results.zip", as_attachment=True), 201)
-        response.headers["Access-Control-Allow-Origin"] = "http://localhost:3535"
-        response.headers["Content-Type"] = "application/zip"
-        app.logger.debug(response.headers)
-        app.logger.debug(response.__dict__)
-        app.logger.debug(response.response.__dict__)
-        subprocess.run(["ls", "-la", UPLOAD_PATH_EMSCRIPTEN])
-        return response
-
+    response = make_response(send_from_directory(UPLOAD_PATH_EMSCRIPTEN, "results.zip", as_attachment=True), return_status_code)
+    response.headers["Access-Control-Allow-Origin"] = "http://localhost:3535"
+    response.headers["Content-Type"] = "application/zip"
+    app.logger.debug(response.headers)
+    app.logger.debug(response.__dict__)
+    app.logger.debug(response.response.__dict__)
     subprocess.run(["ls", "-la", UPLOAD_PATH_EMSCRIPTEN])
-    return jsonify({'message': 'OK', 'file_content': 42}), 201, {'Access-Control-Allow-Origin': 'http://localhost:3535'}
+    return response
 
 ######### HTML #########
 @app.route('/', methods=['GET'])
