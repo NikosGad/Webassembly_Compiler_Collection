@@ -58,7 +58,7 @@ COPY rest_server.py rest_server.py
 
 # Manage code base ownership
 RUN groupadd -g 1000 server \
-&& useradd -u 1000 -g 1000 server
+&& useradd -u 1000 -g 1000 -d /dev/null -s /usr/bin/nologin -c "This user runs the server" server
 
 RUN chown server:server rest_server.py \
  && chmod 400 rest_server.py
