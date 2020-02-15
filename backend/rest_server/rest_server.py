@@ -95,7 +95,13 @@ def parse_cpp_compilation_options(optimization_level="", iso_standard="", suppre
 
 ############ API ############
 @app.route('/compile', methods=['POST'])
-def compile():
+def compile_c_or_cpp():
+    if request.form["language"] == "C":
+        return compile(UPLOAD_PATH_EMSCRIPTEN, parse_c_compilation_options)
+    elif request.form["language"] == "C++":
+        return compile(UPLOAD_PATH_EMSCRIPTEN, parse_cpp_compilation_options)
+
+def compile(upload_path, parser):
     app.logger.debug(debug_request(request))
 
     client_file = request.files["mycode"]
@@ -111,21 +117,18 @@ def compile():
         app.logger.exception("An error occured while loading compilation options json")
         return jsonify({"type": "JSONParseError", "message": "Bad JSON Format Error"}), 400
 
-    if request.form["language"] == "C":
-        compile_command, secured_output_filename = parse_c_compilation_options(**compilation_options_json)
-    elif request.form["language"] == "C++":
-        compile_command, secured_output_filename = parse_cpp_compilation_options(**compilation_options_json)
+    compile_command, secured_output_filename = parser(**compilation_options_json)
 
-    subprocess.run(["ls", "-la", UPLOAD_PATH_EMSCRIPTEN])
+    subprocess.run(["ls", "-la", upload_path])
 
     try:
-        client_file.save(UPLOAD_PATH_EMSCRIPTEN + filename)
+        client_file.save(upload_path + filename)
     except Exception:
         app.logger.exception("An error occured while saving: {filename}". format(filename=filename))
         return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
 
     # TODO: check for mime type or make sure that it has ascii characters before compiling
-    compile_command.extend(["-o", UPLOAD_PATH_EMSCRIPTEN + secured_output_filename + ".html", UPLOAD_PATH_EMSCRIPTEN + filename])
+    compile_command.extend(["-o", upload_path + secured_output_filename + ".html", upload_path + filename])
     app.logger.debug("Final compile command: " + str(compile_command))
 
     try:
@@ -133,44 +136,44 @@ def compile():
         completed_compile_file_process = subprocess.run(compile_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         if completed_compile_file_process.stdout:
-            with open(UPLOAD_PATH_EMSCRIPTEN + "stdout.txt", "w") as f_out:
+            with open(upload_path + "stdout.txt", "w") as f_out:
                 print(completed_compile_file_process.stdout.decode(encoding="utf-8"), file=f_out)
 
         if completed_compile_file_process.stderr:
-            with open(UPLOAD_PATH_EMSCRIPTEN + "stderr.txt", "w") as f_err:
+            with open(upload_path + "stderr.txt", "w") as f_err:
                 print(completed_compile_file_process.stderr.decode(encoding="utf-8"), file=f_err)
 
     except Exception:
-        subprocess.run(["ls", "-la", UPLOAD_PATH_EMSCRIPTEN])
+        subprocess.run(["ls", "-la", upload_path])
         app.logger.exception("An error occured during: subprocess.run({compile_command})".format(compile_command=compile_command))
         return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
 
     app.logger.debug("Compilation return code: " + str(completed_compile_file_process.returncode))
 
-    with ZipFile(file=UPLOAD_PATH_EMSCRIPTEN + "results.zip", mode="w", compression=COMPRESSION, compresslevel=COMPRESSLEVEL) as results_zip:
+    with ZipFile(file=upload_path + "results.zip", mode="w", compression=COMPRESSION, compresslevel=COMPRESSLEVEL) as results_zip:
         if completed_compile_file_process.stdout:
-            results_zip.write(UPLOAD_PATH_EMSCRIPTEN + "stdout.txt", "stdout.txt")
+            results_zip.write(upload_path + "stdout.txt", "stdout.txt")
 
         if completed_compile_file_process.stderr:
-            results_zip.write(UPLOAD_PATH_EMSCRIPTEN + "stderr.txt", "stderr.txt")
+            results_zip.write(upload_path + "stderr.txt", "stderr.txt")
 
     # TODO: Activate X-Sendfile
     if completed_compile_file_process.returncode == 0:
         return_status_code = 200
-        with ZipFile(file=UPLOAD_PATH_EMSCRIPTEN + "results.zip", mode="a", compression=COMPRESSION, compresslevel=COMPRESSLEVEL) as results_zip:
-            results_zip.write(UPLOAD_PATH_EMSCRIPTEN + secured_output_filename + ".html", secured_output_filename + ".html")
-            results_zip.write(UPLOAD_PATH_EMSCRIPTEN + secured_output_filename + ".js", secured_output_filename + ".js")
-            results_zip.write(UPLOAD_PATH_EMSCRIPTEN + secured_output_filename + ".wasm", secured_output_filename + ".wasm")
+        with ZipFile(file=upload_path + "results.zip", mode="a", compression=COMPRESSION, compresslevel=COMPRESSLEVEL) as results_zip:
+            results_zip.write(upload_path + secured_output_filename + ".html", secured_output_filename + ".html")
+            results_zip.write(upload_path + secured_output_filename + ".js", secured_output_filename + ".js")
+            results_zip.write(upload_path + secured_output_filename + ".wasm", secured_output_filename + ".wasm")
     else:
         return_status_code = 400
 
-    response = make_response(send_from_directory(UPLOAD_PATH_EMSCRIPTEN, "results.zip", as_attachment=True), return_status_code)
+    response = make_response(send_from_directory(upload_path, "results.zip", as_attachment=True), return_status_code)
     response.headers["Access-Control-Allow-Origin"] = "http://localhost:3535"
     response.headers["Content-Type"] = "application/zip"
     app.logger.debug(response.headers)
     app.logger.debug(response.__dict__)
     app.logger.debug(response.response.__dict__)
-    subprocess.run(["ls", "-la", UPLOAD_PATH_EMSCRIPTEN])
+    subprocess.run(["ls", "-la", upload_path])
     return response
 
 ######### HTML #########
