@@ -21,3 +21,18 @@ def parse_c_compilation_options(optimization_level="", iso_standard="", suppress
         secured_output_filename = start_hyphen_sequence_pattern.sub('', secured_output_filename)
 
     return compile_command, secured_output_filename
+
+# In order to allow other function for different languages to have different
+# handling, this function shall return the parsed_compilation_options parameter.
+# With this implementation, this is unnecessary because the initial argument
+# that was passed in this function will also be altered and in the end it will
+# still be pointing to the same list. Thus we are returning a pointer to a list
+# that the caller function already has.
+# However, another function may return a list that is generated exclusively
+# inside it, thus the caller function does not already have a pointer to this
+# list, so the list needs to be returned from the callee function.
+# In order to have a uniform design, this function shall return a list value.
+def generate_c_compile_command(working_directory, parsed_compilation_options, input_filename, output_filename):
+    # TODO: check for mime type or make sure that it has ascii characters before compiling
+    parsed_compilation_options.extend(["-o", working_directory + output_filename + ".html", working_directory + input_filename])
+    return parsed_compilation_options

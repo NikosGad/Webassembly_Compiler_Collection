@@ -75,11 +75,11 @@ def parse_cpp_compilation_options(optimization_level="", iso_standard="", suppre
 @app.route('/compile', methods=['POST'])
 def compile_c_or_cpp():
     if request.form["language"] == "C":
-        return compile(UPLOAD_PATH_EMSCRIPTEN, compile_c.parse_c_compilation_options)
+        return compile(UPLOAD_PATH_EMSCRIPTEN, compile_c.parse_c_compilation_options, compile_c.generate_c_compile_command)
     elif request.form["language"] == "C++":
-        return compile(UPLOAD_PATH_EMSCRIPTEN, parse_cpp_compilation_options)
+        return compile(UPLOAD_PATH_EMSCRIPTEN, parse_cpp_compilation_options, compile_c.generate_c_compile_command)
 
-def compile(upload_path, parser):
+def compile(upload_path, parser, command_generator):
     app.logger.debug(debug_request(request))
 
     client_file = request.files["mycode"]
@@ -99,6 +99,9 @@ def compile(upload_path, parser):
     app.logger.debug("Parsed compile command: " + str(compile_command))
     app.logger.debug("Parsed Output Filename: " + secured_output_filename)
 
+    compile_command = command_generator(upload_path, compile_command, filename, secured_output_filename)
+    app.logger.debug("Final compile command: " + str(compile_command))
+
     subprocess.run(["ls", "-la", upload_path])
 
     try:
@@ -106,10 +109,6 @@ def compile(upload_path, parser):
     except Exception:
         app.logger.exception("An error occured while saving: {filename}". format(filename=filename))
         return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
-
-    # TODO: check for mime type or make sure that it has ascii characters before compiling
-    compile_command.extend(["-o", upload_path + secured_output_filename + ".html", upload_path + filename])
-    app.logger.debug("Final compile command: " + str(compile_command))
 
     try:
         # DONT USE shell=True for security and vulnerabilities
