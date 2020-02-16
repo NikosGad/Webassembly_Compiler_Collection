@@ -6,6 +6,8 @@ import subprocess
 from flask import Flask, jsonify, request, send_from_directory, make_response
 from werkzeug.utils import secure_filename
 from zipfile import ZipFile, ZIP_DEFLATED
+
+import compile_c
 #from flask_cors import CORS
 
 # class c_compilation_options(object):
@@ -45,30 +47,6 @@ JSON:
 
     return debug_message
 
-# kwargs is used to throw away any unwanted arguments that come from the request
-def parse_c_compilation_options(optimization_level="", iso_standard="", suppress_warnings=False, output_filename="", **kwargs):
-    compile_command = ["emcc"]
-
-    if optimization_level in ["O0", "O1", "O2", "O3", "Os", "Oz",]:
-        compile_command.append("-" + optimization_level)
-
-    if iso_standard in ["c89", "c90", "c99", "c11", "c17", "gnu89", "gnu90", "gnu99", "gnu11", "gnu17",]:
-        compile_command.append("-std=" + iso_standard)
-
-    if suppress_warnings == True:
-        compile_command.append("-w")
-
-    secured_output_filename = secure_filename(output_filename)
-    if secured_output_filename == "":
-        secured_output_filename = "a.out"
-    else:
-        secured_output_filename = start_hyphen_sequence_pattern.sub('', secured_output_filename)
-
-    app.logger.debug("Parsed compile command: " + str(compile_command))
-    app.logger.debug("Parsed Output Filename: " + secured_output_filename)
-
-    return compile_command, secured_output_filename
-
 def parse_cpp_compilation_options(optimization_level="", iso_standard="", suppress_warnings=False, output_filename="", **kwargs):
     compile_command = ["em++"]
 
@@ -97,7 +75,7 @@ def parse_cpp_compilation_options(optimization_level="", iso_standard="", suppre
 @app.route('/compile', methods=['POST'])
 def compile_c_or_cpp():
     if request.form["language"] == "C":
-        return compile(UPLOAD_PATH_EMSCRIPTEN, parse_c_compilation_options)
+        return compile(UPLOAD_PATH_EMSCRIPTEN, compile_c.parse_c_compilation_options)
     elif request.form["language"] == "C++":
         return compile(UPLOAD_PATH_EMSCRIPTEN, parse_cpp_compilation_options)
 
@@ -118,6 +96,8 @@ def compile(upload_path, parser):
         return jsonify({"type": "JSONParseError", "message": "Bad JSON Format Error"}), 400
 
     compile_command, secured_output_filename = parser(**compilation_options_json)
+    app.logger.debug("Parsed compile command: " + str(compile_command))
+    app.logger.debug("Parsed Output Filename: " + secured_output_filename)
 
     subprocess.run(["ls", "-la", upload_path])
 
