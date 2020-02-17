@@ -1,13 +1,13 @@
 import json
 import logging
 import os
-import re
 import subprocess
 from flask import Flask, jsonify, request, send_from_directory, make_response
 from werkzeug.utils import secure_filename
 from zipfile import ZipFile, ZIP_DEFLATED
 
 import compile_c
+import compile_cpp
 #from flask_cors import CORS
 
 # class c_compilation_options(object):
@@ -22,8 +22,6 @@ COMPRESSION=ZIP_DEFLATED
 COMPRESSLEVEL=6
 app = Flask(__name__)
 #CORS(app)
-
-start_hyphen_sequence_pattern = re.compile('^-+')
 
 def debug_request(request):
     debug_message = '''
@@ -47,37 +45,13 @@ JSON:
 
     return debug_message
 
-def parse_cpp_compilation_options(optimization_level="", iso_standard="", suppress_warnings=False, output_filename="", **kwargs):
-    compile_command = ["em++"]
-
-    if optimization_level in ["O0", "O1", "O2", "O3", "Os", "Oz",]:
-        compile_command.append("-" + optimization_level)
-
-    if iso_standard in ["c++98", "c++03", "c++11", "c++14", "c++17", "c++2a",
-        "gnu++98", "gnu++03", "gnu++11", "gnu++14", "gnu+++17", "gnu+++2a",]:
-        compile_command.append("-std=" + iso_standard)
-
-    if suppress_warnings == True:
-        compile_command.append("-w")
-
-    secured_output_filename = secure_filename(output_filename)
-    if secured_output_filename == "":
-        secured_output_filename = "a.out"
-    else:
-        secured_output_filename = start_hyphen_sequence_pattern.sub('', secured_output_filename)
-
-    app.logger.debug("Parsed compile command: " + str(compile_command))
-    app.logger.debug("Parsed Output Filename: " + secured_output_filename)
-
-    return compile_command, secured_output_filename
-
 ############ API ############
 @app.route('/compile', methods=['POST'])
 def compile_c_or_cpp():
     if request.form["language"] == "C":
         return compile(UPLOAD_PATH_EMSCRIPTEN, compile_c.parse_c_compilation_options, compile_c.generate_c_compile_command)
     elif request.form["language"] == "C++":
-        return compile(UPLOAD_PATH_EMSCRIPTEN, parse_cpp_compilation_options, compile_c.generate_c_compile_command)
+        return compile(UPLOAD_PATH_EMSCRIPTEN, compile_cpp.parse_cpp_compilation_options, compile_cpp.generate_c_compile_command)
 
 def compile(upload_path, parser, command_generator):
     app.logger.debug(debug_request(request))
