@@ -51,7 +51,7 @@ def compile_c_or_cpp():
     if request.form["language"] == "C":
         return compile(UPLOAD_PATH_EMSCRIPTEN, compile_c.parse_c_compilation_options, compile_c.generate_c_compile_command)
     elif request.form["language"] == "C++":
-        return compile(UPLOAD_PATH_EMSCRIPTEN, compile_cpp.parse_cpp_compilation_options, compile_cpp.generate_c_compile_command)
+        return compile(UPLOAD_PATH_EMSCRIPTEN, compile_cpp.parse_cpp_compilation_options, compile_cpp.generate_cpp_compile_command)
 
 def compile(upload_path, parser, command_generator):
     app.logger.debug(debug_request(request))

@@ -22,6 +22,6 @@ def parse_cpp_compilation_options(optimization_level="", iso_standard="", suppre
 
     return compile_command, secured_output_filename
 
-def generate_c_compile_command(working_directory, parsed_compilation_options, input_filename, output_filename):
+def generate_cpp_compile_command(working_directory, parsed_compilation_options, input_filename, output_filename):
     parsed_compilation_options.extend(["-o", working_directory + output_filename + ".html", working_directory + input_filename])
     return parsed_compilation_options
