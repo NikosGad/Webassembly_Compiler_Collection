@@ -1,5 +1,6 @@
 import re
 from werkzeug.utils import secure_filename
+from zipfile import ZipFile
 
 def parse_cpp_compilation_options(optimization_level="", iso_standard="", suppress_warnings=False, output_filename="", **kwargs):
     compile_command = ["em++"]
@@ -25,3 +26,9 @@ def parse_cpp_compilation_options(optimization_level="", iso_standard="", suppre
 def generate_cpp_compile_command(working_directory, parsed_compilation_options, input_filename, output_filename):
     parsed_compilation_options.extend(["-o", working_directory + output_filename + ".html", working_directory + input_filename])
     return parsed_compilation_options
+
+def append_cpp_results_zip(working_directory, results_zip_name, output_filename, mode, compression, compresslevel):
+    with ZipFile(file=working_directory + results_zip_name, mode=mode, compression=compression, compresslevel=compresslevel) as results_zip:
+        results_zip.write(working_directory + output_filename + ".html", output_filename + ".html")
+        results_zip.write(working_directory + output_filename + ".js", output_filename + ".js")
+        results_zip.write(working_directory + output_filename + ".wasm", output_filename + ".wasm")

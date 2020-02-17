@@ -18,6 +18,7 @@ import compile_cpp
 
 
 UPLOAD_PATH_EMSCRIPTEN=os.environ.get("UPLOAD_PATH_EMSCRIPTEN", "/results/emscripten/")
+RESULTS_ZIP_NAME="results.zip"
 COMPRESSION=ZIP_DEFLATED
 COMPRESSLEVEL=6
 app = Flask(__name__)
@@ -49,11 +50,11 @@ JSON:
 @app.route('/compile', methods=['POST'])
 def compile_c_or_cpp():
     if request.form["language"] == "C":
-        return compile(UPLOAD_PATH_EMSCRIPTEN, compile_c.parse_c_compilation_options, compile_c.generate_c_compile_command)
+        return compile(UPLOAD_PATH_EMSCRIPTEN, compile_c.parse_c_compilation_options, compile_c.generate_c_compile_command, compile_c.append_c_results_zip)
     elif request.form["language"] == "C++":
-        return compile(UPLOAD_PATH_EMSCRIPTEN, compile_cpp.parse_cpp_compilation_options, compile_cpp.generate_cpp_compile_command)
+        return compile(UPLOAD_PATH_EMSCRIPTEN, compile_cpp.parse_cpp_compilation_options, compile_cpp.generate_cpp_compile_command, compile_cpp.append_cpp_results_zip)
 
-def compile(upload_path, parser, command_generator):
+def compile(upload_path, parser, command_generator, results_zip_appender):
     app.logger.debug(debug_request(request))
 
     client_file = request.files["mycode"]
@@ -103,7 +104,7 @@ def compile(upload_path, parser, command_generator):
 
     app.logger.debug("Compilation return code: " + str(completed_compile_file_process.returncode))
 
-    with ZipFile(file=upload_path + "results.zip", mode="w", compression=COMPRESSION, compresslevel=COMPRESSLEVEL) as results_zip:
+    with ZipFile(file=upload_path + RESULTS_ZIP_NAME, mode="w", compression=COMPRESSION, compresslevel=COMPRESSLEVEL) as results_zip:
         if completed_compile_file_process.stdout:
             results_zip.write(upload_path + "stdout.txt", "stdout.txt")
 
@@ -113,14 +114,11 @@ def compile(upload_path, parser, command_generator):
     # TODO: Activate X-Sendfile
     if completed_compile_file_process.returncode == 0:
         return_status_code = 200
-        with ZipFile(file=upload_path + "results.zip", mode="a", compression=COMPRESSION, compresslevel=COMPRESSLEVEL) as results_zip:
-            results_zip.write(upload_path + secured_output_filename + ".html", secured_output_filename + ".html")
-            results_zip.write(upload_path + secured_output_filename + ".js", secured_output_filename + ".js")
-            results_zip.write(upload_path + secured_output_filename + ".wasm", secured_output_filename + ".wasm")
+        results_zip_appender(upload_path, RESULTS_ZIP_NAME, secured_output_filename, "a", COMPRESSION, COMPRESSLEVEL)
     else:
         return_status_code = 400
 
-    response = make_response(send_from_directory(upload_path, "results.zip", as_attachment=True), return_status_code)
+    response = make_response(send_from_directory(upload_path, RESULTS_ZIP_NAME, as_attachment=True), return_status_code)
     response.headers["Access-Control-Allow-Origin"] = "http://localhost:3535"
     response.headers["Content-Type"] = "application/zip"
     app.logger.debug(response.headers)
