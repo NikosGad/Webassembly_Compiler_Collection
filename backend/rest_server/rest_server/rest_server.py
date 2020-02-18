@@ -12,26 +12,10 @@ from . import compile_c
 from . import compile_cpp
 #from flask_cors import CORS
 
-UPLOAD_PATH_EMSCRIPTEN=os.environ.get("UPLOAD_PATH_EMSCRIPTEN", "/results/emscripten/")
 RESULTS_ZIP_NAME="results.zip"
 COMPRESSION=ZIP_DEFLATED
 COMPRESSLEVEL=6
 #CORS(app)
-
-############ API ############
-@app.route('/compile_c', methods=['POST'])
-def perform_c_compilation():
-    if request.form["language"] == "C":
-        return compile(UPLOAD_PATH_EMSCRIPTEN, compile_c.parse_c_compilation_options, compile_c.generate_c_compile_command, compile_c.append_c_results_zip)
-    else:
-        return common.language_uri_mismatch()
-
-@app.route('/compile_cpp', methods=['POST'])
-def perform_cpp_compilation():
-    if request.form["language"] == "C++":
-        return compile(UPLOAD_PATH_EMSCRIPTEN, compile_cpp.parse_cpp_compilation_options, compile_cpp.generate_cpp_compile_command, compile_cpp.append_cpp_results_zip)
-    else:
-        return common.language_uri_mismatch
 
 def compile(upload_path, parser, command_generator, results_zip_appender):
     app.logger.debug(common.debug_request(request))
@@ -105,6 +89,23 @@ def compile(upload_path, parser, command_generator, results_zip_appender):
     app.logger.debug(response.response.__dict__)
     subprocess.run(["ls", "-la", upload_path])
     return response
+
+UPLOAD_PATH_EMSCRIPTEN=os.environ.get("UPLOAD_PATH_EMSCRIPTEN", "/results/emscripten/")
+
+############ API ############
+@app.route('/compile_c', methods=['POST'])
+def perform_c_compilation():
+    if request.form["language"] == "C":
+        return compile(UPLOAD_PATH_EMSCRIPTEN, compile_c.parse_c_compilation_options, compile_c.generate_c_compile_command, compile_c.append_c_results_zip)
+    else:
+        return common.language_uri_mismatch()
+
+@app.route('/compile_cpp', methods=['POST'])
+def perform_cpp_compilation():
+    if request.form["language"] == "C++":
+        return compile(UPLOAD_PATH_EMSCRIPTEN, compile_cpp.parse_cpp_compilation_options, compile_cpp.generate_cpp_compile_command, compile_cpp.append_cpp_results_zip)
+    else:
+        return common.language_uri_mismatch
 
 ######### HTML #########
 @app.route('/', methods=['GET'])
