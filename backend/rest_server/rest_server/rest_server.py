@@ -7,6 +7,7 @@ from flask import jsonify, request, send_from_directory, make_response
 from werkzeug.utils import secure_filename
 from zipfile import ZipFile, ZIP_DEFLATED
 
+from . import common
 from . import compile_c
 from . import compile_cpp
 #from flask_cors import CORS
@@ -17,28 +18,6 @@ COMPRESSION=ZIP_DEFLATED
 COMPRESSLEVEL=6
 #CORS(app)
 
-def debug_request(request):
-    debug_message = '''
-+=================+
-REQUEST
-{request}
-
-HEADERS:
-{request_headers}
-
-FILES:
-{request_files}
-
-TEXT:
-{request_text}
-
-JSON:
-{request_json}
--=================-\
-'''.format(request=str(request), request_headers=str(request.headers), request_files=str(request.files), request_text=str(request.form), request_json=str(request.json))
-
-    return debug_message
-
 ############ API ############
 @app.route('/compile', methods=['POST'])
 def compile_c_or_cpp():
@@ -48,7 +27,7 @@ def compile_c_or_cpp():
         return compile(UPLOAD_PATH_EMSCRIPTEN, compile_cpp.parse_cpp_compilation_options, compile_cpp.generate_cpp_compile_command, compile_cpp.append_cpp_results_zip)
 
 def compile(upload_path, parser, command_generator, results_zip_appender):
-    app.logger.debug(debug_request(request))
+    app.logger.debug(common.debug_request(request))
 
     client_file = request.files["mycode"]
     filename = secure_filename(client_file.filename)
