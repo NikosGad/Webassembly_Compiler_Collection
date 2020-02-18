@@ -1,27 +1,20 @@
+from rest_server import app
 import json
 import logging
 import os
 import subprocess
-from flask import Flask, jsonify, request, send_from_directory, make_response
+from flask import jsonify, request, send_from_directory, make_response
 from werkzeug.utils import secure_filename
 from zipfile import ZipFile, ZIP_DEFLATED
 
-import compile_c
-import compile_cpp
+from . import compile_c
+from . import compile_cpp
 #from flask_cors import CORS
-
-# class c_compilation_options(object):
-#     """docstring for ."""
-#     def __init__(self, arg):
-#         super().__init__()
-#         self.optimization_level = optimization_level
-
 
 UPLOAD_PATH_EMSCRIPTEN=os.environ.get("UPLOAD_PATH_EMSCRIPTEN", "/results/emscripten/")
 RESULTS_ZIP_NAME="results.zip"
 COMPRESSION=ZIP_DEFLATED
 COMPRESSLEVEL=6
-app = Flask(__name__)
 #CORS(app)
 
 def debug_request(request):
@@ -132,6 +125,3 @@ def compile(upload_path, parser, command_generator, results_zip_appender):
 def show_index():
     # return render_template('./home.html')
     return "<h1 style='color:red'>Hello<h1 style='color:yellow'> flask and world</h1>"
-
-if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=8080)
