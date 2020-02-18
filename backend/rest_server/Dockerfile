@@ -39,11 +39,16 @@ RUN set -ex\
  && rm -rf /usr/share/doc/*
 
 # Install the application code
-COPY rest_server.py rest_server.py
+COPY rest_server/ rest_server/
+COPY wsgi.py wsgi.py
 
 # Manage code base ownership
 RUN groupadd -g 1000 server \
 && useradd -u 1000 -g 1000 server
 
-RUN chown server:server rest_server.py \
- && chmod 400 rest_server.py
+RUN chown server:server wsgi.py\
+ && chmod 400 wsgi.py
+
+RUN chown server:server -R rest_server\
+ && chmod 400 -R rest_server\
+ && chmod 500 rest_server
