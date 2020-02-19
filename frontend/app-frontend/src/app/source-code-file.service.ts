@@ -8,8 +8,8 @@ export class SourceCodeFileService {
   private scheme = 'http://'
   private domain = '127.0.0.1'
   private backend_domain = this.scheme + this.domain
-  private url_c = this.backend_domain + ':8080/compile'
-  private url_cpp = this.backend_domain + ':8080/compile'
+  private url_c = this.backend_domain + ':8080/compile_c'
+  private url_cpp = this.backend_domain + ':8080/compile_cpp'
   private url_non_existing = this.backend_domain + ':8080/compile_non_existing'
 
   // httpOptions = {

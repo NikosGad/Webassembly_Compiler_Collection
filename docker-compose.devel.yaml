@@ -26,6 +26,6 @@ services:
         ports:
             - "${BACKEND_HOST_PORT}:${BACKEND_CONTAINER_PORT}"
         volumes:
-            - "./backend/rest_server/rest_server.py:/app/rest_server.py"
+            - "./backend/rest_server:/app"
             - "${HOST_RESULTS_DIR_PREFIX}${ROOT_RESULTS_DIR}:${ROOT_RESULTS_DIR}"
-        command: bash -c "FLASK_APP=/app/rest_server.py FLASK_ENV=development python3 /app/rest_server.py"
+        command: bash -c "FLASK_APP=/app/wsgi.py FLASK_ENV=development python3 /app/wsgi.py"
