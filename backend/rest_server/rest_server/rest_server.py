@@ -10,6 +10,7 @@ from zipfile import ZipFile, ZIP_DEFLATED
 from . import common
 from . import compile_c
 from . import compile_cpp
+from . import compile_golang
 #from flask_cors import CORS
 
 RESULTS_ZIP_NAME="results.zip"
@@ -91,6 +92,7 @@ def compile(upload_path, parser, command_generator, results_zip_appender):
     return response
 
 UPLOAD_PATH_EMSCRIPTEN=os.environ.get("UPLOAD_PATH_EMSCRIPTEN", "/results/emscripten/")
+UPLOAD_PATH_GOLANG=os.environ.get("UPLOAD_PATH_GOLANG", "/results/go/src/")
 
 ############ API ############
 @app.route('/compile_c', methods=['POST'])
@@ -105,7 +107,14 @@ def perform_cpp_compilation():
     if request.form["language"] == "C++":
         return compile(UPLOAD_PATH_EMSCRIPTEN, compile_cpp.parse_cpp_compilation_options, compile_cpp.generate_cpp_compile_command, compile_cpp.append_cpp_results_zip)
     else:
-        return common.language_uri_mismatch
+        return common.language_uri_mismatch()
+
+@app.route('/compile_golang', methods=['POST'])
+def perform_golang_compilation():
+    if request.form["language"] == "Golang":
+        return compile(UPLOAD_PATH_GOLANG, compile_golang.parse_golang_compilation_options, compile_golang.generate_golang_compile_command, compile_golang.append_golang_results_zip)
+    else:
+        return common.language_uri_mismatch()
 
 ######### HTML #########
 @app.route('/', methods=['GET'])
