@@ -23,6 +23,7 @@ services:
             - GOARCH=wasm
             - GOCACHE=${ROOT_RESULTS_DIR}/${GOLANG}/dev_tools/.cache/go-build
             - GOENV=${ROOT_RESULTS_DIR}/${GOLANG}/dev_tools/.config/go/env
+            - GO_INSTALLATION_PATH=/usr/local/go/
         expose:
             - ${BACKEND_CONTAINER_PORT}
         volumes:
