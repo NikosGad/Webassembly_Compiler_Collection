@@ -1,0 +1,8 @@
+<!-- TODO: Tooltip pls use only alphanumerical character or the output filename may diverge -->
+<mat-form-field appearance="outline">
+    <mat-label>Output Filename</mat-label>
+    <input matInput value="" type="text" placeholder="example_filename" [(ngModel)]="golang_compilation_options.output_filename">
+    <span matSuffix>.html</span>
+</mat-form-field>
+
+<p>{{golang_compilation_options.output_filename}}</p>

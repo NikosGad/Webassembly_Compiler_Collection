@@ -10,6 +10,7 @@ export class SourceCodeFileService {
   private backend_domain = this.scheme + this.domain
   private url_c = this.backend_domain + ':8080/compile_c'
   private url_cpp = this.backend_domain + ':8080/compile_cpp'
+  private url_golang = this.backend_domain + ':8080/compile_golang'
   private url_non_existing = this.backend_domain + ':8080/compile_non_existing'
 
   // httpOptions = {
@@ -31,6 +32,9 @@ export class SourceCodeFileService {
     }
     else if (language == "C++") {
       server_url = this.url_cpp;
+    }
+    else if (language == "Golang") {
+      server_url = this.url_golang;
     }
     else {
       server_url = this.url_non_existing;

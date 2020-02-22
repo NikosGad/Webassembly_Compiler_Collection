@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { SourceCodeFileService } from '../source-code-file.service';
 import { CCompilationOptions } from '../compilation-options/c-compilation-options';
 import { CppCompilationOptions } from '../compilation-options/cpp-compilation-options';
+import { GolangCompilationOptions } from '../compilation-options/golang-compilation-options';
 
 @Component({
   selector: 'app-file-upload',
@@ -12,7 +13,8 @@ export class FileUploadComponent implements OnInit {
   file_path: string;
   language: string;
   c_compilation_options: CCompilationOptions;
-  cpp_compilation_options: CppCompilationOptions
+  cpp_compilation_options: CppCompilationOptions;
+  golang_compilation_options: GolangCompilationOptions;
   resultsZipFileBlob: Blob;
 
   constructor(private sourceCodeFileService: SourceCodeFileService) {
@@ -20,6 +22,7 @@ export class FileUploadComponent implements OnInit {
     this.language = "C";
     this.c_compilation_options = new CCompilationOptions();
     this.cpp_compilation_options = new CppCompilationOptions();
+    this.golang_compilation_options = new GolangCompilationOptions();
     this.resultsZipFileBlob = new Blob();
   }
 
@@ -49,6 +52,9 @@ export class FileUploadComponent implements OnInit {
     }
     else if (this.language == "C++") {
       compilation_options = this.cpp_compilation_options;
+    }
+    else if (this.language == "Golang") {
+        compilation_options = this.golang_compilation_options;
     }
     else {
       compilation_options = {};

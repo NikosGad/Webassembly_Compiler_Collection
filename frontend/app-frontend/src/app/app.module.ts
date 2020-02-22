@@ -21,6 +21,7 @@ import { SourceCodeFileService } from './source-code-file.service';
 import { HeaderComponent } from './header/header.component';
 import { CUploadFormComponent } from './c-upload-form/c-upload-form.component';
 import { CppUploadFormComponent } from './cpp-upload-form/cpp-upload-form.component';
+import { GolangUploadFormComponent } from './golang-upload-form/golang-upload-form.component';
 
 @NgModule({
   declarations: [
@@ -29,6 +30,7 @@ import { CppUploadFormComponent } from './cpp-upload-form/cpp-upload-form.compon
     HeaderComponent,
     CUploadFormComponent,
     CppUploadFormComponent,
+    GolangUploadFormComponent,
   ],
   imports: [
     BrowserModule,
