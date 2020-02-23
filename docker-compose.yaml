@@ -1,5 +1,20 @@
 version: "3"
 services:
+    adminer:
+        image: adminer
+        container_name: adminer
+        ports:
+            - "8000:8080"
+    database:
+        build:
+            context: ./backend/database
+            dockerfile: Dockerfile
+        image: database:${IMAGE_VERSION}
+        container_name: database-devel
+        # user: ${APP_USER}
+        environment:
+            - POSTGRES_PASSWORD=example
+            - POSTGRES_USER=database
     nginx:
         build:
             context: ./frontend/
@@ -29,3 +44,5 @@ services:
         volumes:
             - "${HOST_RESULTS_DIR_PREFIX}${ROOT_RESULTS_DIR}:${ROOT_RESULTS_DIR}"
         command: bash -c "uwsgi --ini /app/uwsgi.ini"
+        depends_on:
+            - database
