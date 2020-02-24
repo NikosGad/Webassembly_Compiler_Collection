@@ -56,13 +56,14 @@ RUN set -ex\
 # Install the application code
 COPY rest_server/ rest_server/
 COPY wsgi.py wsgi.py
+COPY database_accepts_connections.py database_accepts_connections.py
 
 # Manage code base ownership
 RUN groupadd -g 1000 server \
 && useradd -u 1000 -g 1000 -d /dev/null -s /usr/bin/nologin -c "This user runs the server" server
 
-RUN chown server:server wsgi.py\
- && chmod 400 wsgi.py
+RUN chown server:server wsgi.py database_accepts_connections.py\
+ && chmod 400 wsgi.py database_accepts_connections.py
 
 RUN chown server:server -R rest_server\
  && chmod 400 -R rest_server\

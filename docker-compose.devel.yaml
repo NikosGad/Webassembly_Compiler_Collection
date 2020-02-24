@@ -44,6 +44,4 @@ services:
         volumes:
             - "./backend/rest_server:/app"
             - "${HOST_RESULTS_DIR_PREFIX}${ROOT_RESULTS_DIR}:${ROOT_RESULTS_DIR}"
-        command: bash -c "FLASK_APP=/app/wsgi.py FLASK_ENV=development python3 /app/wsgi.py"
-        depends_on:
-            - database
+        command: bash -c "until python database_accepts_connections.py; do sleep 5; done; FLASK_APP=/app/wsgi.py FLASK_ENV=development python3 /app/wsgi.py"
