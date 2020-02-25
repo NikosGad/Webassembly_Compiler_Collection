@@ -2,7 +2,7 @@ import socket
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 try:
-    s.connect(('database-devel',5432))
+    s.connect(('ucrm_db',5432))
     s.close()
     print("Connected to PostgreSQL")
     exit(0)
