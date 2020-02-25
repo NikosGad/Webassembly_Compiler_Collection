@@ -2,15 +2,15 @@ version: "3"
 services:
     adminer:
         image: adminer
-        container_name: adminer-devel
+        container_name: adminer
         ports:
             - "8000:8080"
-    database:
+    ucrm_db:
         build:
             context: ./backend/database
             dockerfile: Dockerfile
-        image: database:${IMAGE_VERSION}
-        container_name: database-devel
+        image: ucrm_db:${IMAGE_VERSION}
+        container_name: ucrm_db
         # user: ${APP_USER}
         environment:
             - POSTGRES_PASSWORD=example
@@ -20,7 +20,7 @@ services:
             context: ./frontend/
             dockerfile: Dockerfile
         image: angular_cli:${IMAGE_VERSION}
-        container_name: angular_cli_devel
+        container_name: angular_cli
         ports:
             - "${FRONTEND_HOST_PORT}:4200"
         volumes:
@@ -28,9 +28,9 @@ services:
         command: bash -c "ng serve --host 0.0.0.0"
     rest_server:
         build: ./backend/rest_server
-        image: ${APP}-devel:${IMAGE_VERSION}
+        image: ${APP}:${IMAGE_VERSION}
         user: ${APP_USER}
-        container_name: wasmcc-devel
+        container_name: wasmcc
         environment:
             - UPLOAD_PATH_EMSCRIPTEN=${ROOT_RESULTS_DIR}/${EMSCRIPTEN}/
             - UPLOAD_PATH_GOLANG=${ROOT_RESULTS_DIR}/${GOLANG}/src/
@@ -39,6 +39,8 @@ services:
             - GOCACHE=${ROOT_RESULTS_DIR}/${GOLANG}/dev_tools/.cache/go-build
             - GOENV=${ROOT_RESULTS_DIR}/${GOLANG}/dev_tools/.config/go/env
             - GO_INSTALLATION_PATH=/usr/local/go/
+            - POSTGRES_PASSWORD=example
+            - POSTGRES_USER=database
         ports:
             - "${BACKEND_HOST_PORT}:${BACKEND_CONTAINER_PORT}"
         volumes:

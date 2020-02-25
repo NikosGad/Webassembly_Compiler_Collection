@@ -5,12 +5,12 @@ services:
         container_name: adminer
         ports:
             - "8000:8080"
-    database:
+    ucrm_db:
         build:
             context: ./backend/database
             dockerfile: Dockerfile
-        image: database:${IMAGE_VERSION}
-        container_name: database-devel
+        image: ucrm_db:${IMAGE_VERSION}
+        container_name: ucrm_db
         # user: ${APP_USER}
         environment:
             - POSTGRES_PASSWORD=example
@@ -39,6 +39,8 @@ services:
             - GOCACHE=${ROOT_RESULTS_DIR}/${GOLANG}/dev_tools/.cache/go-build
             - GOENV=${ROOT_RESULTS_DIR}/${GOLANG}/dev_tools/.config/go/env
             - GO_INSTALLATION_PATH=/usr/local/go/
+            - POSTGRES_PASSWORD=example
+            - POSTGRES_USER=database
         expose:
             - ${BACKEND_CONTAINER_PORT}
         volumes:
