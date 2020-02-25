@@ -46,7 +46,7 @@ COPY uwsgi.ini ./uwsgi.ini
 COPY requirements.txt requirements.txt
 RUN set -ex\
  && apt-get update\
- && apt-get install -y gcc\
+ && apt-get install -y gcc libpq-dev\
  && pip install -r requirements.txt\
  && rm -f requirements.txt\
  && apt-get purge -y --auto-remove gcc\
