@@ -1,4 +1,5 @@
 from rest_server import app
+from rest_server import db
 import json
 import logging
 import os
@@ -6,6 +7,8 @@ import subprocess
 from flask import jsonify, request, send_from_directory, make_response
 from werkzeug.utils import secure_filename
 from zipfile import ZipFile, ZIP_DEFLATED
+
+from . import models
 
 from . import common
 from . import compile_c
@@ -115,6 +118,21 @@ def perform_golang_compilation():
         return compile(UPLOAD_PATH_GOLANG, compile_golang.parse_golang_compilation_options, compile_golang.generate_golang_compile_command, compile_golang.append_golang_results_zip)
     else:
         return common.language_uri_mismatch()
+
+@app.route('/storeindb/<username>/<email>', methods=['POST'])
+def storeindb(username, email):
+    try:
+        user = models.User(
+            username=username,
+            email=email,
+        )
+        db.session.add(user)
+        db.session.commit()
+    except Exception:
+        app.logger.exception("It was at this moment he knew...")
+        return jsonify({"type": "StoreError", "message": "It was at this moment he knew... Error"}), 400
+
+    return jsonify({"message": "OK"}), 200
 
 ######### HTML #########
 @app.route('/', methods=['GET'])

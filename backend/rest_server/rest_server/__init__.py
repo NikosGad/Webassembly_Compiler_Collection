@@ -12,7 +12,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 from . import rest_server
-from . import models
+from . import models # Without this import create_all() will NOT create tables
 
 db.create_all()
 print("DB created!")
