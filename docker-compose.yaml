@@ -46,3 +46,5 @@ services:
         volumes:
             - "${HOST_RESULTS_DIR_PREFIX}${ROOT_RESULTS_DIR}:${ROOT_RESULTS_DIR}"
         command: bash -c "until python database_accepts_connections.py; do sleep 5; done; uwsgi --ini /app/uwsgi.ini"
+        depends_on:
+            - ucrm_db
