@@ -28,6 +28,14 @@ class User(db.Model):
         db.session.delete(self)
         db.session.commit()
 
+    @staticmethod
+    def get_user_by_username(username):
+        return db.session.query(User).filter(User.username == username).first()
+
+    @staticmethod
+    def get_user_by_email(email):
+        return db.session.query(User).filter(User.email == email).first()
+
     def __hash_password(self, password):
         return bcrypt.generate_password_hash(password).decode("utf-8")
 

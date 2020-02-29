@@ -20,6 +20,7 @@ RESULTS_ZIP_NAME="results.zip"
 COMPRESSION=ZIP_DEFLATED
 COMPRESSLEVEL=6
 #CORS(app)
+user_schema = models.UserSchema()
 
 def compile(upload_path, parser, command_generator, results_zip_appender):
     app.logger.debug(common.debug_request(request))
@@ -119,20 +120,38 @@ def perform_golang_compilation():
     else:
         return common.language_uri_mismatch()
 
-@app.route('/storeindb/<username>/<email>', methods=['POST'])
-def storeindb(username, email):
-    try:
-        user = models.User(
-            username=username,
-            email=email,
-        )
-        db.session.add(user)
-        db.session.commit()
-    except Exception:
-        app.logger.exception("It was at this moment he knew...")
-        return jsonify({"type": "StoreError", "message": "It was at this moment he knew... Error"}), 400
+@app.route('/api/signup', methods=['POST'])
+def signup():
+    app.logger.debug("Incoming Sign Up Request")
+    sign_up_form = request.form
+    app.logger.debug("User Data Form: " + str(sign_up_form))
 
-    return jsonify({"message": "OK"}), 200
+    try:
+        valid_sign_up_form = user_schema.load(sign_up_form)
+    except ValidationError as e:
+        app.logger.debug(e.messages)
+        return jsonify({"type": "SignUpError", "message": e.messages}), 400, {"Access-Control-Allow-Origin": "http://localhost:3535"}
+
+    app.logger.debug("Valid Sign Up Form: " + str(valid_sign_up_form))
+
+    user_exists = models.User.get_user_by_username(valid_sign_up_form["username"])
+    if user_exists:
+        app.logger.debug("Username {} already exists".format(valid_sign_up_form["username"]))
+        return jsonify({"type": "UniqueUsernameViolation", "message": "Username {} already exists".format(valid_sign_up_form["username"])}), 400, {"Access-Control-Allow-Origin": "http://localhost:3535"}
+
+    user_exists = models.User.get_user_by_email(valid_sign_up_form["email"])
+    if user_exists:
+        app.logger.debug("Email {} already exists".format(valid_sign_up_form["email"]))
+        return jsonify({"type": "UniqueEmailViolation", "message": "Email {} already exists".format(valid_sign_up_form["email"])}), 400, {"Access-Control-Allow-Origin": "http://localhost:3535"}
+
+    try:
+        user = models.User(**valid_sign_up_form)
+        user.create()
+    except Exception:
+        app.logger.exception("An error occured during: user.create()")
+        return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
+
+    return jsonify({"message": "OK"}), 200, {"Access-Control-Allow-Origin": "http://localhost:3535"}
 
 ######### HTML #########
 @app.route('/', methods=['GET'])
