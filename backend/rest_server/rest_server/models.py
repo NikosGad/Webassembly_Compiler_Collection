@@ -1,4 +1,5 @@
 import datetime
+from marshmallow import fields, Schema, validate
 from rest_server import db, bcrypt
 # from sqlalchemy.dialects.postgresql import JSON
 
@@ -34,4 +35,27 @@ class User(db.Model):
         return bcrypt.check_password_hash(self.password, password)
 
     def __repr__(self):
-        return '<id {}, username {}, password {}, email {}>'.format(self.id, self.username, self.password, self.email)
+        return '<id {}, username {}, password {}, email {}, created_at {}, updated_at {}>'.format(self.id, self.username, self.password, self.email, self.created_at, self.updated_at)
+
+class UserSchema(Schema):
+    id = fields.Int(dump_only=True, required=True)
+    username = fields.String(
+        required=True,
+        validate=[
+            validate.Regexp(r"\A[A-Za-z0-9]+[A-Za-z0-9_ ]*[A-Za-z0-9]+\Z",
+                error="Username must contain only letters, numbers, _ and spaces. It must start and end with a letter. It must have length greater than 1."
+            )
+        ]
+    )
+    password = fields.String(
+        required=True,
+        validate=[
+            validate.Length(min=6, error="Password length must be at least {min}"),
+            validate.Regexp(r"\A(\S*)\Z", error="Password must not contain white spaces"),
+            validate.Regexp(r".*\d", error="Password must contain at least 1 number(s)"),
+            validate.Regexp(r".*[A-Za-z]", error="Password must contain at least 1 letter(s)")
+        ]
+    )
+    email = fields.Email(required=True)
+    created_at = fields.DateTime(dump_only=True, required=True)
+    updated_at = fields.DateTime(dump_only=True, required=True)
