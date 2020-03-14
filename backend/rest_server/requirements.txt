@@ -25,3 +25,5 @@ six==1.14.0
 flask-bcrypt==0.7.1
 
 marshmallow==3.5.0
+
+pyjwt==1.7.1
