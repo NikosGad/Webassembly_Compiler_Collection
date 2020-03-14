@@ -187,6 +187,11 @@ def login():
 
     return jsonify({"message": "OK", "jwt": token}), 200, {"Access-Control-Allow-Origin": "http://localhost:3535"}
 
+@app.route('/api/priv', methods=['POST'])
+@authentication.Authentication.authentication_required
+def priv_action():
+    return jsonify({"message": "OK"}), 200, {"Access-Control-Allow-Origin": "http://localhost:3535"}
+
 ######### HTML #########
 @app.route('/', methods=['GET'])
 def show_index():
