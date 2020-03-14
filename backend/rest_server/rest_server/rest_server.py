@@ -9,6 +9,7 @@ from marshmallow import ValidationError
 from werkzeug.utils import secure_filename
 from zipfile import ZipFile, ZIP_DEFLATED
 
+from . import authentication
 from . import models
 
 from . import common
@@ -153,6 +154,38 @@ def signup():
         return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
 
     return jsonify({"message": "OK"}), 200, {"Access-Control-Allow-Origin": "http://localhost:3535"}
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    app.logger.debug("Incoming Log In Request")
+    log_in_form = request.form
+    app.logger.debug("User Log In Data Form: " + str(log_in_form))
+
+    if not log_in_form.get("username") or not log_in_form.get("password"):
+        error_msg = "Both username and password are required to log in."
+        app.logger.debug(error_msg)
+        return jsonify({"type": "LogInError", "message": error_msg}), 400, {"Access-Control-Allow-Origin": "http://localhost:3535"}
+
+    user = models.User.get_user_by_username(log_in_form["username"])
+
+    if not user:
+        app.logger.debug("Username {} is not a valid username".format(log_in_form["username"]))
+        return common.log_in_username_password_incorrect()
+
+    if not user.validate_password(log_in_form["password"]):
+        app.logger.debug("Password {} is not valid for user {}".format(log_in_form["password"], log_in_form["username"]))
+        return common.log_in_username_password_incorrect()
+
+    app.logger.debug("Logged In User: " + str(user))
+    try:
+        token = authentication.Authentication.generate_token(user.id)
+    except Exception as e:
+        app.logger.exception("Error During Token Generation")
+        return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
+
+    app.logger.debug("The generated token is: " + str(token))
+
+    return jsonify({"message": "OK", "jwt": token}), 200, {"Access-Control-Allow-Origin": "http://localhost:3535"}
 
 ######### HTML #########
 @app.route('/', methods=['GET'])
