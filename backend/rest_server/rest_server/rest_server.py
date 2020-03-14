@@ -5,6 +5,7 @@ import logging
 import os
 import subprocess
 from flask import jsonify, request, send_from_directory, make_response
+from marshmallow import ValidationError
 from werkzeug.utils import secure_filename
 from zipfile import ZipFile, ZIP_DEFLATED
 
