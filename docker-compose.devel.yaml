@@ -41,6 +41,7 @@ services:
             - GO_INSTALLATION_PATH=/usr/local/go/
             - POSTGRES_PASSWORD=example
             - POSTGRES_USER=database
+            - JWT_SECRET_KEY=jwt_secret_key
         ports:
             - "${BACKEND_HOST_PORT}:${BACKEND_CONTAINER_PORT}"
         volumes:
