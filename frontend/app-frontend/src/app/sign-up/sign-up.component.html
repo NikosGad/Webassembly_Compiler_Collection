@@ -1,1 +1,31 @@
-<p>sign-up works!</p>
+<h3>Sign Up</h3>
+<form [formGroup]="sign_up_form" (ngSubmit)="onSubmit()">
+    <div>
+        <mat-form-field>
+            <mat-label>Username</mat-label>
+            <input matInput id="signUpUsername" type="text" placeholder="Username" required formControlName="username">
+        </mat-form-field>
+        <div *ngIf="submitted && sign_up_form.controls.username.errors" class="invalid-input">
+          <div *ngIf="sign_up_form.controls.username.errors.required">Username is required</div>
+        </div>
+    </div>
+    <div>
+        <mat-form-field>
+            <mat-label>Email</mat-label>
+            <input matInput id="signUpEmail" type="text" placeholder="example@email.com" required formControlName="email">
+        </mat-form-field>
+    </div>
+    <div>
+        <mat-form-field appearance="outline">
+            <mat-label>Password</mat-label>
+            <input matInput id="signUpPassword" type="password" placeholder="Password" required formControlName="password">
+        </mat-form-field>
+    </div>
+    <div>
+        <mat-form-field appearance="outline">
+            <mat-label>Confirm Password</mat-label>
+            <input matInput id="signUpConfirmPassword" type="password" placeholder="Password" required formControlName="confirm_password">
+        </mat-form-field>
+    </div>
+    <button mat-stroked-button type="submit">Sign Up</button>
+</form>

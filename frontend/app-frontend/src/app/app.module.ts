@@ -3,7 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
 import { HttpClientModule } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSelectModule } from '@angular/material/select';
@@ -48,6 +48,7 @@ import { LogInComponent } from './log-in/log-in.component';
     MatSlideToggleModule,
     MatInputModule,
     MatButtonModule,
+    ReactiveFormsModule,
   ],
   providers: [SourceCodeFileService],
   bootstrap: [AppComponent]
