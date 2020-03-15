@@ -23,6 +23,7 @@ import { CUploadFormComponent } from './c-upload-form/c-upload-form.component';
 import { CppUploadFormComponent } from './cpp-upload-form/cpp-upload-form.component';
 import { GolangUploadFormComponent } from './golang-upload-form/golang-upload-form.component';
 import { SignUpComponent } from './sign-up/sign-up.component';
+import { LogInComponent } from './log-in/log-in.component';
 
 @NgModule({
   declarations: [
@@ -33,6 +34,7 @@ import { SignUpComponent } from './sign-up/sign-up.component';
     CppUploadFormComponent,
     GolangUploadFormComponent,
     SignUpComponent,
+    LogInComponent,
   ],
   imports: [
     BrowserModule,
