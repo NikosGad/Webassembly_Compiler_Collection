@@ -1,1 +1,19 @@
-<p>log-in works!</p>
+<h3>Log In</h3>
+<form [formGroup]="log_in_form" (ngSubmit)="onSubmit()">
+    <div>
+        <mat-form-field>
+            <mat-label>Username</mat-label>
+            <input matInput id="logInUsername" type="text" placeholder="Username" required formControlName="username">
+        </mat-form-field>
+        <div *ngIf="submitted && log_in_form.controls.username.errors" class="invalid-feedback">
+          <div *ngIf="log_in_form.controls.username.errors.required">Username is required</div>
+        </div>
+    </div>
+    <div>
+        <mat-form-field appearance="outline">
+            <mat-label>Password</mat-label>
+            <input matInput id="logInPassword" type="password" placeholder="Password" required formControlName="password">
+        </mat-form-field>
+    </div>
+    <button mat-stroked-button type="submit">Login</button>
+</form>
