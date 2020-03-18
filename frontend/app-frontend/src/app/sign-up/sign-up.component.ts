@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { shouldContainRegexpWithErrorName, fieldsShouldMatch } from '../custom-form-validators';
 
 @Component({
   selector: 'app-sign-up',
@@ -12,10 +13,39 @@ export class SignUpComponent implements OnInit {
 
   constructor(private fb: FormBuilder) {
     this.sign_up_form = this.fb.group({
-        username: ['', [Validators.required, Validators.minLength(2)]],
-        email: ['', [Validators.required, Validators.email]],
-        password: ['', Validators.required],
-        confirm_password: ['', Validators.required]
+      username: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.pattern("^[A-Za-z0-9]+[A-Za-z0-9_ ]*[A-Za-z0-9]+$")
+        ]
+      ],
+      email: [
+        '',
+        [
+          Validators.required,
+          Validators.email
+        ]
+      ],
+      password: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(6),
+          shouldContainRegexpWithErrorName("^\\S*$", "whitespaces"),
+          shouldContainRegexpWithErrorName("^.*\\d.*$", "digitsAmount"),
+          shouldContainRegexpWithErrorName("^.*[A-Za-z].*$", "lettersAmount")
+        ]
+      ],
+      confirm_password: [
+        '',
+        [
+          Validators.required
+        ]
+      ]
+    }, {
+      validator: [fieldsShouldMatch("password", "confirm_password")]
     });
   }
 
