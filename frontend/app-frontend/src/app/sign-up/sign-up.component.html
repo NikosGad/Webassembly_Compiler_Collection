@@ -6,7 +6,15 @@
             <input matInput id="signUpUsername" type="text" placeholder="Username" required formControlName="username">
         </mat-form-field>
         <div *ngIf="submitted && sign_up_form.controls.username.errors" class="invalid-input">
-          <div *ngIf="sign_up_form.controls.username.errors.required">Username is required</div>
+            <div *ngIf="sign_up_form.controls.username.errors.required">
+                Username is required
+            </div>
+            <div *ngIf="sign_up_form.controls.username.errors.minlength">
+                Username length should be at least 2
+            </div>
+            <div *ngIf="sign_up_form.controls.username.errors.pattern">
+                Username should start and end with a letter and should contain only letters, spaces and _
+            </div>
         </div>
     </div>
     <div>
@@ -14,18 +22,51 @@
             <mat-label>Email</mat-label>
             <input matInput id="signUpEmail" type="text" placeholder="example@email.com" required formControlName="email">
         </mat-form-field>
+        <div *ngIf="submitted && sign_up_form.controls.email.errors" class="invalid-input">
+            <div *ngIf="sign_up_form.controls.email.errors.required">
+                Email is required
+            </div>
+            <div *ngIf="sign_up_form.controls.email.errors.email">
+                Invalid Email Address
+            </div>
+        </div>
     </div>
     <div>
         <mat-form-field appearance="outline">
             <mat-label>Password</mat-label>
             <input matInput id="signUpPassword" type="password" placeholder="Password" required formControlName="password">
         </mat-form-field>
+        <div *ngIf="submitted && sign_up_form.controls.password.errors" class="invalid-input">
+            <div *ngIf="sign_up_form.controls.password.errors.required">
+                Password is required
+            </div>
+            <div *ngIf="sign_up_form.controls.password.errors.minlength">
+                Password length should be at least 6
+            </div>
+            <div *ngIf="sign_up_form.controls.password.errors.whitespaces">
+                Password should not contain whitespaces (spaces, tabs, new lines etc.)
+            </div>
+            <div *ngIf="sign_up_form.controls.password.errors.digitsAmount">
+                Password should contain at least 1 number
+            </div>
+            <div *ngIf="sign_up_form.controls.password.errors.lettersAmount">
+                Password should contain at least 1 letter
+            </div>
+        </div>
     </div>
     <div>
         <mat-form-field appearance="outline">
             <mat-label>Confirm Password</mat-label>
             <input matInput id="signUpConfirmPassword" type="password" placeholder="Password" required formControlName="confirm_password">
         </mat-form-field>
+        <div *ngIf="submitted && (sign_up_form.controls.confirm_password.errors || sign_up_form.errors?.passwordMatching)" class="invalid-input">
+            <div *ngIf="sign_up_form.controls.confirm_password.errors?.required">
+                Password confirmation is required
+            </div>
+            <div *ngIf="sign_up_form.errors?.passwordMatching">
+                Passwords should match
+            </div>
+        </div>
     </div>
     <button mat-stroked-button type="submit">Sign Up</button>
 </form>
