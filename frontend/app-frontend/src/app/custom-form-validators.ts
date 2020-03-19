@@ -29,9 +29,6 @@ export function fieldsShouldMatch(original_field: string, matching_field: string
       return null;
     }
 
-    console.log(original_control.value);
-    console.log(matching_control.value);
-
     if (original_control.value !== matching_control.value) {
       let result = {};
       result[original_field + "Matching"] = {originalValue: original_control.value, matchingValue: matching_control.value};
