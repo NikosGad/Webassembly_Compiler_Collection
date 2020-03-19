@@ -23,9 +23,6 @@ import { GolangUploadFormComponent } from './golang-upload-form/golang-upload-fo
 import { SignUpComponent } from './sign-up/sign-up.component';
 import { LogInComponent } from './log-in/log-in.component';
 
-/* Project specific Services */
-import { SourceCodeFileService } from './source-code-file.service';
-
 @NgModule({
   declarations: [
     AppComponent,
@@ -50,7 +47,7 @@ import { SourceCodeFileService } from './source-code-file.service';
     MatButtonModule,
     ReactiveFormsModule,
   ],
-  providers: [SourceCodeFileService],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
