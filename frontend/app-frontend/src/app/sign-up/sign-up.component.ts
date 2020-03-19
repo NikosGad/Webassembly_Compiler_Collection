@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { shouldContainRegexpWithErrorName, fieldsShouldMatch } from '../custom-form-validators';
+import { UserService } from '../models/users/user.service';
+import { first } from 'rxjs/operators';
 
 @Component({
   selector: 'app-sign-up',
@@ -12,7 +14,7 @@ export class SignUpComponent implements OnInit {
   sign_up_form: FormGroup;
   submitted: boolean = false;
 
-  constructor(private fb: FormBuilder, private router: Router) {
+  constructor(private fb: FormBuilder, private router: Router, private userService: UserService) {
     this.sign_up_form = this.fb.group({
       username: [
         '',
@@ -60,10 +62,28 @@ export class SignUpComponent implements OnInit {
       console.log("Invalid Sign Up Form!")
       return;
     }
-    console.log("Sending the form...");
-    console.log("Sent form!");
-    alert("Successfully Signed Up. Redirecting to Log In Page!");
-    this.router.navigate(['login']);
+
+    this.userService.signUp(this.sign_up_form.value).subscribe(
+      (res) => {
+        alert("Successfully Signed Up. Redirecting to Log In Page!");
+        this.router.navigate(['login']);
+      },
+      (err) => {
+        if (err.error.type === "SignUpError") {
+          alert(err.error.message.email);
+        }
+        else if (err.error.type === "UniqueUsernameViolation" || err.error.type === "UniqueEmailViolation") {
+          alert(err.error.message);
+        }
+        else if (err.error.type === "UnexpectedException") {
+          alert(err.error.message + "\n" + "Please try again in 5 minutes.");
+        }
+        else {
+            console.log(err);
+          alert(err.message);
+        }
+      }
+    );
   }
 
 }
