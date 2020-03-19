@@ -12,8 +12,14 @@ export class LogInComponent implements OnInit {
 
   constructor(private fb: FormBuilder) {
     this.log_in_form = this.fb.group({
-        username: ['', Validators.required],
-        password: ['', Validators.required]
+        username: [
+          '',
+          Validators.required
+        ],
+        password: [
+          '',
+          Validators.required
+        ]
     });
   }
 
@@ -22,12 +28,12 @@ export class LogInComponent implements OnInit {
 
   onSubmit() {
     this.submitted = true;
-    console.log("Sending the form...");
     console.log(this.log_in_form);
     if (this.log_in_form.invalid) {
       console.log("Invalid Log In Form!")
       return;
     }
+    console.log("Sending the form...");
     console.log("Sent form!");
   }
 
