@@ -3,7 +3,6 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { shouldContainRegexpWithErrorName, fieldsShouldMatch } from '../custom-form-validators';
 import { UserService } from '../models/users/user.service';
-import { first } from 'rxjs/operators';
 
 @Component({
   selector: 'app-sign-up',
@@ -57,7 +56,7 @@ export class SignUpComponent implements OnInit {
 
   onSubmit() {
     this.submitted = true;
-    console.log(this.sign_up_form);
+    console.log("The Sign Up Form is: ", this.sign_up_form);
     if (this.sign_up_form.invalid) {
       console.log("Invalid Sign Up Form!")
       return;
