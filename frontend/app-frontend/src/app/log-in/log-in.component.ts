@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { AuthenticationService } from '../authentication.service';
 
 @Component({
   selector: 'app-log-in',
@@ -10,7 +11,7 @@ export class LogInComponent implements OnInit {
   log_in_form: FormGroup;
   submitted: boolean = false;
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private authenticationService: AuthenticationService) {
     this.log_in_form = this.fb.group({
         username: [
           '',
@@ -28,13 +29,21 @@ export class LogInComponent implements OnInit {
 
   onSubmit() {
     this.submitted = true;
-    console.log(this.log_in_form);
+    console.log("The Log In Form is: ", this.log_in_form);
     if (this.log_in_form.invalid) {
       console.log("Invalid Log In Form!")
       return;
     }
-    console.log("Sending the form...");
-    console.log("Sent form!");
+
+    this.authenticationService.login(this.log_in_form.value).subscribe(
+      (res) => {
+        console.log("The Token is: ", res);
+      },
+      (err) => {
+        console.log("Nologin!");
+        console.log(err)
+      }
+    );
   }
 
 }
