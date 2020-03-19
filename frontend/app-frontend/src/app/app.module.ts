@@ -11,20 +11,20 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 
-/* Project specific Component */
+/* Project specific Components */
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
 import { FileUploadComponent } from './file-upload/file-upload.component';
-
-/* Project specific Services */
-import { SourceCodeFileService } from './source-code-file.service';
 import { HeaderComponent } from './header/header.component';
 import { CUploadFormComponent } from './c-upload-form/c-upload-form.component';
 import { CppUploadFormComponent } from './cpp-upload-form/cpp-upload-form.component';
 import { GolangUploadFormComponent } from './golang-upload-form/golang-upload-form.component';
 import { SignUpComponent } from './sign-up/sign-up.component';
 import { LogInComponent } from './log-in/log-in.component';
+
+/* Project specific Services */
+import { SourceCodeFileService } from './source-code-file.service';
 
 @NgModule({
   declarations: [
