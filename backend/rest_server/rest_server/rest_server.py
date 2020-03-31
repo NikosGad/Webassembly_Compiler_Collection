@@ -3,6 +3,7 @@ from rest_server import db
 import json
 import logging
 import os
+import socket
 import subprocess
 from flask import jsonify, request, send_from_directory, make_response
 from marshmallow import ValidationError
@@ -191,6 +192,85 @@ def login():
 @authentication.Authentication.authentication_required
 def priv_action():
     return jsonify({"message": "OK"}), 200, {"Access-Control-Allow-Origin": "http://localhost:3535"}
+
+@app.route('/api/healthcheck', methods=['GET'])
+def healthcheck():
+    host_port_tuple_list = [('wasmcc', 8080), ('ucrm_db', 5432), ('nginx', 4200)]
+    err = 0
+
+    proxies = [('nginx', 4200)]
+    proxies_amount = len(proxies)
+    servers = [('wasmcc', 8080)]
+    servers_amount = len(servers)
+    databases = [('ucrm_db', 5432)]
+    databases_amount = len(databases)
+
+    graph = {
+        "nodes": [
+            {"id": "n0", "label": "wasmcc:8080", "container": "wasmcc", "port": 8080, "x": 0, "y": 0, "size": 1, "color": '#008cc2'},
+            {"id": "n1", "label": "ucrm_db:5432", "container": "ucrm_db", "port": 5432, "x": 3, "y": 1, "size": 1, "color": '#008cc2'},
+            {"id": "n2", "label": "nginx:4200", "container": "nginx", "port": 4200, "x": 1, "y": 1, "size": 1, "color": '#008cc2'},
+        ]
+    }
+    graph1 = {"nodes": [], "edges": []}
+    container_list = []
+
+    for index, tuple in enumerate(proxies):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        app.logger.debug("Checking service:" + str(tuple))
+        try:
+            s.connect(tuple)
+            s.close()
+            app.logger.debug("\tConnected to " + str(tuple[0]))
+            graph1["nodes"].append({"id": str(index), "label": tuple[0] + ":" + str(tuple[1]), "container": tuple[0], "port": tuple[1], "x": 0, "y": index, "size": 1, "color": "#008cc2"})
+        except socket.error as ex:
+            app.logger.debug("\tConnection failed with errno {0}: {1}\n\tWaiting for".format(ex.errno, ex.strerror) + str(tuple[0]))
+            container_list.append({"container": tuple[0], "status": "NOK"})
+            graph1["nodes"].append({"id": str(index), "label": tuple[0] + ":" + str(tuple[1]), "container": tuple[0], "port": tuple[1], "x": 0, "y": index, "size": 1, "color": "#000000"})
+            # err = 1
+
+    for index, tuple in enumerate(servers):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        app.logger.debug("Checking service:" + str(tuple))
+        try:
+            s.connect(tuple)
+            s.close()
+            app.logger.debug("\tConnected to " + str(tuple[0]))
+            graph1["nodes"].append({"id": str(index + proxies_amount), "label": tuple[0] + ":" + str(tuple[1]), "container": tuple[0], "port": tuple[1], "x": 1, "y": index, "size": 1, "color": "#008cc2"})
+        except socket.error as ex:
+            app.logger.debug("\tConnection failed with errno {0}: {1}\n\tWaiting for".format(ex.errno, ex.strerror) + str(tuple[0]))
+            container_list.append({"container": tuple[0], "status": "NOK"})
+            graph1["nodes"].append({"id": str(index + proxies_amount), "label": tuple[0] + ":" + str(tuple[1]), "container": tuple[0], "port": tuple[1], "x": 1, "y": index, "size": 1, "color": "#000000"})
+
+    for index, tuple in enumerate(databases):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        app.logger.debug("Checking service:" + str(tuple))
+        try:
+            s.connect(tuple)
+            s.close()
+            app.logger.debug("\tConnected to " + str(tuple[0]))
+            graph1["nodes"].append({"id": str(index + proxies_amount + servers_amount), "label": tuple[0] + ":" + str(tuple[1]), "container": tuple[0], "port": tuple[1], "x": 2, "y": index, "size": 1, "color": "#008cc2"})
+        except socket.error as ex:
+            app.logger.debug("\tConnection failed with errno {0}: {1}\n\tWaiting for".format(ex.errno, ex.strerror) + str(tuple[0]))
+            container_list.append({"container": tuple[0], "status": "NOK"})
+            graph1["nodes"].append({"id": str(index + proxies_amount + servers_amount), "label": tuple[0] + ":" + str(tuple[1]), "container": tuple[0], "port": tuple[1], "x": 2, "y": index, "size": 1, "color": "#000000"})
+
+    # for tuple in host_port_tuple_list:
+    #     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    #     app.logger.debug("Checking service:" + str(tuple))
+    #     try:
+    #         s.connect(tuple)
+    #         s.close()
+    #         app.logger.debug("\tConnected to " + str(tuple[0]))
+    #         # container_list[tuple[0]] = {}"OK"
+    #         container_list.append({"container": tuple[0], "status": "OK"})
+    #     except socket.error as ex:
+    #         app.logger.debug("\tConnection failed with errno {0}: {1}\n\tWaiting for".format(ex.errno, ex.strerror) + str(tuple[0]))
+    #         # container_dict[tuple[1]] = "NOK"
+    #         container_list.append({"container": tuple[0], "status": "NOK"})
+    #         # err = 1
+
+    return jsonify({"message": "OK", "healthcheck": graph1}), 200, {"Access-Control-Allow-Origin": "http://localhost:3535"}
 
 ######### HTML #########
 @app.route('/', methods=['GET'])
