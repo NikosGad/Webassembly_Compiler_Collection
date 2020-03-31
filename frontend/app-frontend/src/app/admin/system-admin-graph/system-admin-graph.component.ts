@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { sigma } from 'sigma';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-system-admin-graph',
@@ -19,7 +20,7 @@ export class SystemAdminGraphComponent implements OnInit {
       {id: "e2", source: "n2", target: "n0", color: '#FF0000', type: 'line', size: 2}
     ]
   };
-  constructor() { }
+  constructor(private http: HttpClient) { }
 
   ngOnInit() {
       this.sigmaJS = new sigma({
@@ -41,6 +42,21 @@ export class SystemAdminGraphComponent implements OnInit {
   logGraph() {
       console.log("Graph", this.sigmaJS);
       this.sigmaJS.refresh();
+  }
+
+  ping_wasmcc() {
+      this.http.get('http://127.0.0.1:8080/api/healthcheck').subscribe(
+          (res:any) => {
+              console.log(res);
+              this.sigmaJS.graph.clear();
+              this.sigmaJS.graph.read(res.healthcheck)
+              this.sigmaJS.refresh();
+              // for(let container of res.healthcheck) {
+              //     console.log(container);
+              //     this.sigmaJS.addNode()
+              // }
+          }
+      );
   }
 
 }
