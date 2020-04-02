@@ -64,7 +64,7 @@ export class SignUpComponent implements OnInit {
 
     this.userService.signUp(this.sign_up_form.value).subscribe(
       (res) => {
-        alert("Successfully Signed Up. Redirecting to Log In Page!");
+        alert("Successfully Signed Up");
         this.router.navigate(['login']);
       },
       (err) => {
