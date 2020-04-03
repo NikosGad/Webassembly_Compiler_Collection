@@ -16,12 +16,11 @@ from . import common
 from . import compile_c
 from . import compile_cpp
 from . import compile_golang
-#from flask_cors import CORS
 
 RESULTS_ZIP_NAME="results.zip"
 COMPRESSION=ZIP_DEFLATED
 COMPRESSLEVEL=6
-#CORS(app)
+
 user_schema = models.UserSchema()
 
 def compile(upload_path, parser, command_generator, results_zip_appender):
@@ -139,7 +138,7 @@ def signup():
     user_exists = models.User.get_user_by_username(valid_sign_up_form["username"])
     if user_exists:
         app.logger.debug("Username {} already exists".format(valid_sign_up_form["username"]))
-        return jsonify({"type": "UniqueUsernameViolation", "message": "Username {} already exists".format(valid_sign_up_form["username"])}), 400, {"Access-Control-Allow-Origin": "http://localhost:3535"}
+        return jsonify({"type": "UniqueUsernameViolation", "message": "Username {} already exists".format(valid_sign_up_form["username"])}), 400
 
     user_exists = models.User.get_user_by_email(valid_sign_up_form["email"])
     if user_exists:
@@ -190,7 +189,7 @@ def login():
 @app.route('/api/priv', methods=['POST'])
 @authentication.Authentication.authentication_required
 def priv_action():
-    return jsonify({"message": "OK"}), 200, {"Access-Control-Allow-Origin": "http://localhost:3535"}
+    return jsonify({"message": "OK"}), 200
 
 ######### HTML #########
 @app.route('/', methods=['GET'])
