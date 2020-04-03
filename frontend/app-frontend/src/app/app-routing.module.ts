@@ -4,6 +4,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { FileUploadComponent } from './file-upload/file-upload.component';
 import { LogInComponent } from './log-in/log-in.component';
 import { SignUpComponent } from './sign-up/sign-up.component';
+import { AuthenticatedUserGuard } from './guards/authenticated-user.guard'
 
 const routes: Routes = [
     { path: '', component: FileUploadComponent },

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { AuthenticationService } from '../authentication.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-log-in',
@@ -11,8 +11,9 @@ import { Router } from '@angular/router';
 export class LogInComponent implements OnInit {
   log_in_form: FormGroup;
   submitted: boolean = false;
+  redirected_from: string;
 
-  constructor(private fb: FormBuilder, private authenticationService: AuthenticationService, private router: Router) {
+  constructor(private fb: FormBuilder, private authenticationService: AuthenticationService, private router: Router, private route: ActivatedRoute) {
     if (this.authenticationService.isLoggedIn()) {
       this.router.navigate(['home']);
     }
@@ -42,7 +43,9 @@ export class LogInComponent implements OnInit {
     this.authenticationService.login(this.log_in_form.value).subscribe(
       (res) => {
         console.log("Successful Login with response:", res);
-        this.router.navigate(['home']);
+        this.redirected_from = this.route.snapshot.queryParams["redirectedFrom"] || "/";
+        console.log("Redirected from:", this.redirected_from);
+        this.router.navigate([this.redirected_from]);
       },
       (err) => {
         console.log("Unsuccessful login!");
