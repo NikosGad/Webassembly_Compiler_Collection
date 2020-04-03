@@ -1,13 +1,20 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthenticationService {
+  private isLoggedInSub: BehaviorSubject<boolean>;
+  public isLoggedInObs: Observable<boolean>;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+    /* If jwt is not null then set the initial value to true (a user is logged in) */
+    this.isLoggedInSub = new BehaviorSubject<boolean>(localStorage.getItem("jwt") != null);
+    this.isLoggedInObs = this.isLoggedInSub.asObservable();
+  }
 
   login(userInfo: any) {
     const formData = new FormData();
@@ -20,6 +27,7 @@ export class AuthenticationService {
         console.log("Login Request Response:", response);
         console.log("Local Storage Before Login:", localStorage);
         localStorage.setItem("jwt", response.jwt);
+        this.isLoggedInSub.next(true);
         console.log("Local Storage After  Login:", localStorage);
         return response.message;
       })
@@ -29,11 +37,16 @@ export class AuthenticationService {
   logout() {
     console.log("Local Storage Before Logout: ", localStorage);
     localStorage.removeItem("jwt");
+    this.isLoggedInSub.next(false);
     console.log("Local Storage After  Logout: ", localStorage);
   }
 
+  /* Return a read only value */
   isLoggedIn() {
-     /* If jwt is not null then return true (a user is logged in) */
-     return localStorage.getItem("jwt") != null
+    return this.isLoggedInSub.value;
+  }
+
+  getJwt() {
+    return localStorage.getItem("jwt");
   }
 }
