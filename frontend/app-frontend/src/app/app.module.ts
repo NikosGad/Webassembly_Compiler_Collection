@@ -15,6 +15,7 @@ import { MatButtonModule } from '@angular/material/button';
 
 /* Project Specific Interceptors */
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
+import { BackendErrorInterceptor } from './interceptors/backend-error.interceptor';
 
 /* Project specific Components */
 import { AppRoutingModule } from './app-routing.module';
@@ -53,7 +54,8 @@ import { LogInComponent } from './log-in/log-in.component';
     ReactiveFormsModule,
   ],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: BackendErrorInterceptor, multi: true },
   ],
   bootstrap: [AppComponent]
 })
