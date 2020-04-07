@@ -68,18 +68,8 @@ export class SignUpComponent implements OnInit {
         this.router.navigate(['login']);
       },
       (err) => {
-        if (err.error.type === "SignUpError") {
-          alert(err.error.message.email);
-        }
-        else if (err.error.type === "UniqueUsernameViolation" || err.error.type === "UniqueEmailViolation") {
-          alert(err.error.message);
-        }
-        else if (err.error.type === "UnexpectedException") {
+        if (err.error.type === "UnexpectedException") {
           alert(err.error.message + "\n" + "Please try again in 5 minutes.");
-        }
-        else {
-            console.log(err);
-          alert(err.message);
         }
       }
     );
