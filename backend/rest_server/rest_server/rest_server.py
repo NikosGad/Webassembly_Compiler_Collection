@@ -88,7 +88,6 @@ def compile(upload_path, parser, command_generator, results_zip_appender):
         return_status_code = 400
 
     response = make_response(send_from_directory(upload_path, RESULTS_ZIP_NAME, as_attachment=True), return_status_code)
-    response.headers["Access-Control-Allow-Origin"] = "http://localhost:3535"
     response.headers["Content-Type"] = "application/zip"
     app.logger.debug(response.headers)
     app.logger.debug(response.__dict__)
@@ -131,7 +130,7 @@ def signup():
         valid_sign_up_form = user_schema.load(sign_up_form)
     except ValidationError as e:
         app.logger.debug(e.messages)
-        return jsonify({"type": "SignUpError", "message": e.messages}), 400, {"Access-Control-Allow-Origin": "http://localhost:3535"}
+        return jsonify({"type": "SignUpError", "message": e.messages}), 400
 
     app.logger.debug("Valid Sign Up Form: " + str(valid_sign_up_form))
 
@@ -143,7 +142,7 @@ def signup():
     user_exists = models.User.get_user_by_email(valid_sign_up_form["email"])
     if user_exists:
         app.logger.debug("Email {} already exists".format(valid_sign_up_form["email"]))
-        return jsonify({"type": "UniqueEmailViolation", "message": "Email {} already exists".format(valid_sign_up_form["email"])}), 400, {"Access-Control-Allow-Origin": "http://localhost:3535"}
+        return jsonify({"type": "UniqueEmailViolation", "message": "Email {} already exists".format(valid_sign_up_form["email"])}), 400
 
     try:
         user = models.User(**valid_sign_up_form)
@@ -163,7 +162,7 @@ def login():
     if not log_in_form.get("username") or not log_in_form.get("password"):
         error_msg = "Both username and password are required to log in."
         app.logger.debug(error_msg)
-        return jsonify({"type": "LogInError", "message": error_msg}), 400, {"Access-Control-Allow-Origin": "http://localhost:3535"}
+        return jsonify({"type": "LogInError", "message": error_msg}), 400
 
     user = models.User.get_user_by_username(log_in_form["username"])
 
