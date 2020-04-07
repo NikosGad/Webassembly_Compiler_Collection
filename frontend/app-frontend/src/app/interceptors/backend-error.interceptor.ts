@@ -3,10 +3,11 @@ import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpResponse } fr
 import { Observable, of, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AuthenticationService } from '../authentication.service';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class BackendErrorInterceptor implements HttpInterceptor {
-  constructor(private authenticationService: AuthenticationService) { }
+  constructor(private authenticationService: AuthenticationService, private router: Router) { }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(request).pipe(
@@ -41,15 +42,28 @@ export class BackendErrorInterceptor implements HttpInterceptor {
                 break;
               }
               default: {
-                alert(err.message)
+                alert(err.message);
                 break;
               }
             }
             break;
           } // End of case: 400
-          case 401:
-            console.log("401 Error!!");
+          case 401: {
+            /* This switch statement is here as a placeholder.
+             * The implementation may change in the future.
+             */
+            switch (err.error.type) {
+              case "AuthorizationViolation":
+              case "AuthorizationSchemaViolation":
+              case "AuthorizationJWTViolation":
+              default: {
+                break;
+              }
+            }
+            this.authenticationService.logout();
+            location.reload(true);
             break;
+          } // End of case: 401
           case 404:
             alert("The resource is not found!");
             break;
