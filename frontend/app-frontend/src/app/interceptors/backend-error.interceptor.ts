@@ -12,31 +12,46 @@ export class BackendErrorInterceptor implements HttpInterceptor {
     return next.handle(request).pipe(
       catchError(err => {
         switch (err.status) {
-          case 400:
+          case 400: {
             switch (err.error.type) {
-              case "application/zip":
+              case "application/zip": {
                 alert("Compilation status was not successful. Returning compilation logs.")
                 console.log("The error:", err);
                 return of(new HttpResponse({body: err.error}));
                 break;
+              }
               case "JSONParseError":
-                alert(err.error.message);
-                break;
               case "LanguageSelectionError":
+              case "LogInError": {
                 alert(err.error.message);
                 break;
-              case "LogInError":
+              }
+              case "SignUpError": {
+                console.log(err.error.message);
+                let alert_message = "";
+                for (let [field_name, field_value] of Object.entries(err.error.message)) {
+                  alert_message += field_name + ": " + field_value + "\n";
+                }
+                alert(alert_message);
                 break;
-              case "SignUpError":
-                break;
-              case "UniqueUsernameViolation":
-                break;
+              }
               case "UniqueEmailViolation":
+              case "UniqueUsernameViolation": {
+                alert(err.error.message);
                 break;
+              }
+              default: {
+                alert(err.message)
+                break;
+              }
             }
             break;
+          } // End of case: 400
           case 401:
             console.log("401 Error!!");
+            break;
+          case 404:
+            alert("The resource is not found!");
             break;
           case 500:
             console.log("500 Error!!");
