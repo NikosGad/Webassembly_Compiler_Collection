@@ -46,10 +46,6 @@ export class LogInComponent implements OnInit {
         this.redirected_from = this.route.snapshot.queryParams["redirectedFrom"] || "/";
         console.log("Redirected from:", this.redirected_from);
         this.router.navigate([this.redirected_from]);
-      },
-      (err) => {
-        console.log("Unsuccessful login!");
-        console.log(err)
       }
     );
   }

@@ -64,10 +64,6 @@ export class FileUploadComponent implements OnInit {
       (res) => {
         this.resultsZipFileBlob = res
         console.log(res)
-      },
-      (err) => {
-          console.log("this is an error");
-          console.log(err)
       }
     );
   }

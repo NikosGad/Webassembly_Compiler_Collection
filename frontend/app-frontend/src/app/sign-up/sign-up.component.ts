@@ -66,11 +66,6 @@ export class SignUpComponent implements OnInit {
       (res) => {
         alert("Successfully Signed Up");
         this.router.navigate(['login']);
-      },
-      (err) => {
-        if (err.error.type === "UnexpectedException") {
-          alert(err.error.message + "\n" + "Please try again in 5 minutes.");
-        }
       }
     );
   }
