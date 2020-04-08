@@ -64,15 +64,26 @@ export class BackendErrorInterceptor implements HttpInterceptor {
             location.reload(true);
             break;
           } // End of case: 401
-          case 404:
+          case 404: {
             alert("The resource is not found!");
             break;
-          case 500:
-            console.log("500 Error!!");
+          } // End of case: 404
+          case 500: {
+            switch (err.error.type) {
+              case "UnexpectedException":
+              default: {
+                break;
+              }
+            }
+          } // End of case: 500
+          default: {
+            let alert_message = err.error.message || err.message;
+            alert_message += "\nPlease try again later.";
+            alert(alert_message);
             break;
+          }
         }
 
-        console.log("Error Occured!");
         return throwError(err);
       })
     );
