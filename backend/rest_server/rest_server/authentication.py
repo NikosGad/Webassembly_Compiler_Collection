@@ -39,7 +39,6 @@ class Authentication():
                 app.logger.debug("Authorization Header is missing")
                 response = make_response(jsonify({"type": "AuthorizationViolation", "message": "Authorization Header is missing"}), 401)
 
-                response.headers["Access-Control-Allow-Origin"] = "http://localhost:3535"
                 response.headers["WWW-Authenticate"] = "Bearer realm=\"Access to user specific resources\""
                 response.headers["Content-Type"] = "application/json"
                 return response
@@ -53,7 +52,6 @@ class Authentication():
                 app.logger.debug("Authorization Header is incorrect")
                 response = make_response(jsonify({"type": "AuthorizationViolation", "message": "Authorization Header {} is incorrect".format(authorization_header)}), 401)
 
-                response.headers["Access-Control-Allow-Origin"] = "http://localhost:3535"
                 response.headers["WWW-Authenticate"] = "Bearer realm=\"Access to user specific resources\""
                 response.headers["Content-Type"] = "application/json"
                 return response
@@ -62,7 +60,6 @@ class Authentication():
                 app.logger.debug("Authorization Schema is incorrect")
                 response = make_response(jsonify({"type": "AuthorizationSchemaViolation", "message": "Authorization Schema {} is incorrect".format(authorization_schema)}), 401)
 
-                response.headers["Access-Control-Allow-Origin"] = "http://localhost:3535"
                 response.headers["WWW-Authenticate"] = "Bearer realm=\"Access to user specific resources\""
                 response.headers["Content-Type"] = "application/json"
                 return response
@@ -73,17 +70,15 @@ class Authentication():
                 app.logger.exception("Error During Token Decode")
                 response = make_response(jsonify({"type": "AuthorizationJWTViolation", "message": "Error During Token Decode"}), 401)
 
-                response.headers["Access-Control-Allow-Origin"] = "http://localhost:3535"
                 response.headers["WWW-Authenticate"] = "Bearer realm=\"Access to user specific resources\""
                 response.headers["Content-Type"] = "application/json"
                 return response
 
-
+            # If the payload is a string then the token is expired or invalid
             if type(payload) == str:
                 app.logger.debug("JWT Decode result is: " + str(payload))
                 response = make_response(jsonify({"type": "AuthorizationJWTViolation", "message": payload}), 401)
 
-                response.headers["Access-Control-Allow-Origin"] = "http://localhost:3535"
                 response.headers["WWW-Authenticate"] = "Bearer realm=\"Access to user specific resources\""
                 response.headers["Content-Type"] = "application/json"
                 return response

@@ -151,7 +151,7 @@ def signup():
         app.logger.exception("An error occured during: user.create()")
         return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
 
-    return jsonify({"message": "OK"}), 200, {"Access-Control-Allow-Origin": "http://localhost:3535"}
+    return jsonify({"message": "OK"}), 200
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -183,7 +183,7 @@ def login():
 
     app.logger.debug("The generated token is: " + str(token))
 
-    return jsonify({"message": "OK", "jwt": token}), 200, {"Access-Control-Allow-Origin": "http://localhost:3535"}
+    return jsonify({"message": "OK", "jwt": token}), 200
 
 @app.route('/api/priv', methods=['POST'])
 @authentication.Authentication.authentication_required
