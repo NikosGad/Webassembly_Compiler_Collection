@@ -3,11 +3,10 @@ import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpResponse } fr
 import { Observable, of, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AuthenticationService } from '../authentication.service';
-import { Router } from '@angular/router';
 
 @Injectable()
 export class BackendErrorInterceptor implements HttpInterceptor {
-  constructor(private authenticationService: AuthenticationService, private router: Router) { }
+  constructor(private authenticationService: AuthenticationService) { }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(request).pipe(
