@@ -1,3 +1,5 @@
+import datetime
+import hashlib
 from flask import jsonify
 
 def debug_request(request):
@@ -27,3 +29,14 @@ def language_uri_mismatch():
 
 def log_in_username_password_incorrect():
     return jsonify({"type": "LogInError", "message": "Username, password or both are incorrect."}), 400
+
+def generate_file_subpath(client_file):
+    sha256_hash = hashlib.sha256()
+
+    for byte_block in iter(lambda: client_file.read(4096),b""):
+        sha256_hash.update(byte_block)
+
+    # Rewind file pointer to the beginning
+    client_file.seek(0)
+
+    return str(datetime.datetime.utcnow()) + "_" + sha256_hash.hexdigest() + "/"

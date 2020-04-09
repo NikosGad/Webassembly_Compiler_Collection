@@ -1,7 +1,6 @@
 from rest_server import app
 from rest_server import db
 import json
-import logging
 import os
 import subprocess
 from flask import jsonify, request, send_from_directory, make_response
@@ -23,7 +22,7 @@ COMPRESSLEVEL=6
 
 user_schema = models.UserSchema()
 
-def compile(upload_path, parser, command_generator, results_zip_appender):
+def compile(language_root_upload_path, parser, command_generator, results_zip_appender):
     app.logger.debug(common.debug_request(request))
 
     client_file = request.files["mycode"]
@@ -32,6 +31,13 @@ def compile(upload_path, parser, command_generator, results_zip_appender):
     app.logger.debug("File information: " + str(client_file))
     app.logger.debug("Secure Filename: " + filename)
     app.logger.debug("Content-type: " + client_file.content_type)
+
+    upload_path = language_root_upload_path + common.generate_file_subpath(client_file)
+    try:
+        os.makedirs(upload_path)
+        app.logger.debug("Path generated: " + upload_path)
+    except FileExistsError:
+        app.logger.debug("Path exists: " + upload_path)
 
     try:
         compilation_options_json = json.loads(request.form["compilation_options"])
