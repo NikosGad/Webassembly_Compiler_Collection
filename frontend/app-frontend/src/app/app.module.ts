@@ -29,6 +29,7 @@ import { GolangUploadFormComponent } from './golang-upload-form/golang-upload-fo
 import { SignUpComponent } from './sign-up/sign-up.component';
 import { LogInComponent } from './log-in/log-in.component';
 import { DummyPrivilegedComponent } from './dummy-privileged/dummy-privileged.component';
+import { PersonalFilesComponent } from './personal-files/personal-files.component';
 
 @NgModule({
   declarations: [
@@ -41,6 +42,7 @@ import { DummyPrivilegedComponent } from './dummy-privileged/dummy-privileged.co
     SignUpComponent,
     LogInComponent,
     DummyPrivilegedComponent,
+    PersonalFilesComponent,
   ],
   imports: [
     BrowserModule,
