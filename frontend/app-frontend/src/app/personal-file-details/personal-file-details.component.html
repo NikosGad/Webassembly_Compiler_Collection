@@ -1,1 +1,26 @@
-<p>personal-file-details works!</p>
+<!-- <div *ngIf="file" class="personal-file-details-div"> -->
+    <mat-card-header [ngSwitch]="file.language">
+        <img mat-card-avatar *ngSwitchCase="'C'" src="assets/images/c-logo.png" alt="Source: https://iconscout.com/icon/c-programming">
+        <img mat-card-avatar *ngSwitchCase="'C++'" src="assets/images/cpp-logo.jpg" alt="Source: https://www.pngguru.com/free-transparent-background-png-clipart-kvmju">
+        <img mat-card-avatar *ngSwitchCase="'Golang'" src="assets/images/golang-logo.png" alt="Source: https://github.com/PKief/vscode-material-icon-theme/issues/257">
+
+        <mat-card-title>Filename: {{file.name}}</mat-card-title>
+        <mat-card-subtitle>Language: {{file.language}}</mat-card-subtitle>
+        <mat-card-subtitle>Status: {{file.status}}</mat-card-subtitle>
+        <mat-card-subtitle>Compilation Options: {{file.options}}</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-actions class="personal-file-details-actions">
+        <button mat-raised-button name="getResultsZipButton" (click)="getResultsZip()">Download</button>
+        <button mat-raised-button name="getPersonalFileButton" (click)="getPersonalFiles()">Recompile</button>
+        <button mat-raised-button color="warn" name="deleteFileButton" (click)="deleteFile()">DELETE</button>
+    </mat-card-actions>
+
+    <mat-card-actions *ngIf="!file.content" class="personal-file-details-actions">
+        <button mat-stroked-button name="getFileSourceCodeButton" (click)="getFileSourceCode()">View Source Code</button>
+    </mat-card-actions>
+
+    <!-- <mat-card-content *ngIf="file.content" class="flex-item-card-content-textarea"> -->
+        <textarea *ngIf="file.content" class="flex-item-file-content-textarea" name="file-content-textarea" readonly>{{file.content}}</textarea>
+    <!-- </mat-card-content> -->
+<!-- </div> -->
