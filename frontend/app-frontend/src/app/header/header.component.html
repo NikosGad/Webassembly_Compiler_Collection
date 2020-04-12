@@ -1,9 +1,10 @@
-<mat-toolbar [ngSwitch]="isLoggedIn">
+<mat-toolbar class="mat-elevation-z3" [ngSwitch]="isLoggedIn">
     <span routerLink="/compile">Wanna-be header :O</span>
 
     <span class="fill-remaining-space"></span>
 
     <button *ngSwitchCase="true" mat-raised-button class="button-margin" name="log_out_btn" (click)="logout()">Logout</button>
+    <button *ngSwitchCase="false" mat-raised-button class="button-margin" name="personal_files_btn" routerLink="/personal_files">My Files</button>
     <button *ngSwitchCase="false" mat-raised-button class="button-margin" name="log_in_btn" routerLink="/login">Log In</button>
     <button *ngSwitchCase="false" mat-raised-button class="button-margin" name="sign_up_btn" routerLink="/signup">Sign Up</button>
 </mat-toolbar>
