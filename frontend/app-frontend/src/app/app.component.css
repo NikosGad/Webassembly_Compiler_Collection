@@ -1,0 +1,15 @@
+.flex-app {
+    height: 100%;
+    display: flex;
+    flex-flow: column nowrap;
+}
+
+.flex-app-header {
+    flex: 0 0 auto;
+}
+
+.flex-app-body {
+    flex: 1 1 auto;
+    display: flex;
+    flex-flow: column nowrap;
+}
