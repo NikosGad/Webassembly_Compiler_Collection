@@ -1,0 +1,43 @@
+.flex-container-personal-files {
+    height: 100%;
+    display: flex;
+    flex-flow: row wrap;
+}
+
+.flex-item-file-list {
+    margin: 0;
+    padding: 0;
+    flex: 3 1 75%;
+}
+
+.flex-item-file-details {
+    flex: 1 1 25%;
+}
+
+.flex-container-personal-file-details-card {
+    margin: 0%;
+    padding: 0%;
+    height: 98%;
+    top: 1%;
+    width: 98%;
+    left: 1%;
+    display: flex;
+    flex-flow: column nowrap;
+}
+
+.flex-item-close-button {
+    text-align: right;
+    flex: 0 1 auto;
+}
+
+.flex-item-app-personal-file-details {
+    flex: 1 1 auto;
+    display: flex;
+    flex-flow: column nowrap;
+    text-align: left;
+}
+
+:host {
+    flex: 1 1 auto;
+    display: block;
+}

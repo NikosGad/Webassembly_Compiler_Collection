@@ -1,1 +1,15 @@
-<p>personal-files works!</p>
+<div class="flex-container-personal-files">
+    <ul class="flex-item-file-list">
+        <p>Your files!</p>
+        <li *ngFor="let file of files" (click)="onFileSelect(file)">{{file.name}}</li>
+    </ul>
+
+    <div *ngIf="selected_file" class="flex-item-file-details">
+        <mat-card class="flex-container-personal-file-details-card">
+            <div class="flex-item-close-button">
+                <button mat-icon-button name="closeSelectedFileButton" (click)="closeDetails()"><mat-icon>close</mat-icon></button>
+            </div>
+            <app-personal-file-details class="flex-item-app-personal-file-details" [file]="selected_file"></app-personal-file-details>
+        </mat-card>
+    </div>
+</div>
