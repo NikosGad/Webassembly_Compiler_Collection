@@ -196,6 +196,22 @@ def login():
 def priv_action():
     return jsonify({"message": "OK"}), 200
 
+@app.route('/api/personal_files', methods=['GET'])
+# @authentication.Authentication.authentication_required
+def get_own_files():
+    upload_path = "/results/emscripten/2020-04-09 20:36:12.116313_f1bcfccb06e22196a782b8e74107dff168d0215224ed1b1116179e8717ed358e/"
+    app.logger.debug("Returned file is: " + upload_path)
+    if os.path.isfile(upload_path):
+        app.logger.debug("Path exists")
+    response = make_response(send_from_directory(upload_path, "hello.c", as_attachment=True), 200)
+    # response.headers["Content-Type"] = "application/text"
+    # app.logger.debug(response.headers)
+    # app.logger.debug(response.__dict__)
+    app.logger.debug(response.response.__dict__)
+    # subprocess.run(["ls", "-la", upload_path])
+    return response
+    # return jsonify({"message": "OK"}), 200
+
 ######### HTML #########
 @app.route('/', methods=['GET'])
 def show_index():
