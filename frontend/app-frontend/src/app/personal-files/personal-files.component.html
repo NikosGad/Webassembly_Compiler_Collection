@@ -1,15 +1,47 @@
 <div class="flex-container-personal-files">
-    <ul class="flex-item-file-list">
-        <p>Your files!</p>
-        <li *ngFor="let file of files" (click)="onFileSelect(file)">{{file.name}}</li>
-    </ul>
+    <div class="flex-item-horizontal-space"></div>
 
-    <div *ngIf="selected_file" class="flex-item-file-details">
-        <mat-card class="flex-container-personal-file-details-card">
+    <div class="flex-item-personal-file-list">
+        <mat-card class="spaced-mat-card flex-container-card">
+            <mat-toolbar class="flex-item-toolbar">
+                <button mat-icon-button name="togglePersonalFileListSidenav" (click)="languages_sidenav.toggle()"><mat-icon>menu</mat-icon></button>
+                <h1>My Files</h1>
+            </mat-toolbar>
+
+            <mat-sidenav-container class="full-size" hasBackdrop="true">
+                <mat-sidenav #languages_sidenav mode="over">
+                    <mat-action-list>
+                        <!-- The first button gets automatically hovered -->
+                        <!-- <button mat-list-item style="height: 0;" name="dummyButton" hidden></button> -->
+                        <button mat-list-item name="showAllFilesButton" (click)="filterFiles('')">All Files</button>
+                        <button *ngFor="let language of available_languages" mat-list-item name="show{{language}}FilesButton" (click)="filterFiles(language)">{{language}} Source Code</button>
+                    </mat-action-list>
+                </mat-sidenav>
+                <mat-sidenav-content class="full-size sidenav-content-personal-file-list">
+                    <h3 *ngIf="filtered_files.length === 0" align="center">No files found!</h3>
+                    <mat-card class="file-list-element" *ngFor="let file of filtered_files" (click)="onFileSelect(file)">
+                        <mat-card-header>
+                            <img mat-card-avatar align="center" src="assets/images/{{file.language}}-logo.png">
+                            <mat-icon *ngIf="file.status === 'Successful'">done</mat-icon>
+                            <mat-icon *ngIf="file.status !== 'Successful'">error</mat-icon>
+                        </mat-card-header>
+                        {{file.name}}
+                    </mat-card>
+                </mat-sidenav-content>
+            </mat-sidenav-container>
+        </mat-card>
+    </div>
+
+    <div class="flex-item-horizontal-space"></div>
+
+    <div *ngIf="selected_file" class="flex-item-personal-file-details">
+        <mat-card class="spaced-mat-card flex-container-card">
             <div class="flex-item-close-button">
                 <button mat-icon-button name="closeSelectedFileButton" (click)="closeDetails()"><mat-icon>close</mat-icon></button>
             </div>
             <app-personal-file-details class="flex-item-app-personal-file-details" [file]="selected_file"></app-personal-file-details>
         </mat-card>
     </div>
+
+    <div *ngIf="selected_file" class="flex-item-horizontal-space"></div>
 </div>
