@@ -1,8 +1,9 @@
 <!-- <div *ngIf="file" class="personal-file-details-div"> -->
-    <mat-card-header [ngSwitch]="file.language">
-        <img mat-card-avatar *ngSwitchCase="'C'" src="assets/images/c-logo.png" alt="Source: https://iconscout.com/icon/c-programming">
-        <img mat-card-avatar *ngSwitchCase="'C++'" src="assets/images/cpp-logo.jpg" alt="Source: https://www.pngguru.com/free-transparent-background-png-clipart-kvmju">
-        <img mat-card-avatar *ngSwitchCase="'Golang'" src="assets/images/golang-logo.png" alt="Source: https://github.com/PKief/vscode-material-icon-theme/issues/257">
+    <mat-card-header>
+        <!-- "Source: https://iconscout.com/icon/c-programming"
+        "Source: https://www.pngguru.com/free-transparent-background-png-clipart-kvmju"
+        "Source: https://github.com/PKief/vscode-material-icon-theme/issues/257" -->
+        <img mat-card-avatar src="assets/images/{{file.language}}-logo.png">
 
         <mat-card-title>Filename: {{file.name}}</mat-card-title>
         <mat-card-subtitle>Language: {{file.language}}</mat-card-subtitle>
