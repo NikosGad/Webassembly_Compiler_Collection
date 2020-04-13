@@ -14,6 +14,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
 
 /* Project Specific Interceptors */
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
@@ -60,6 +62,8 @@ import { PersonalFileDetailsComponent } from './personal-file-details/personal-f
     ReactiveFormsModule,
     MatCardModule,
     MatIconModule,
+    MatSidenavModule,
+    MatListModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
