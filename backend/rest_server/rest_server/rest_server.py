@@ -3,7 +3,7 @@ from rest_server import db
 import json
 import os
 import subprocess
-from flask import jsonify, request, send_from_directory, make_response
+from flask import g, jsonify, request, send_from_directory, make_response
 from marshmallow import ValidationError
 from werkzeug.utils import secure_filename
 from zipfile import ZipFile, ZIP_DEFLATED
@@ -103,6 +103,12 @@ def compile(language_root_upload_path, parser, command_generator, results_zip_ap
 
 UPLOAD_PATH_EMSCRIPTEN=os.environ.get("UPLOAD_PATH_EMSCRIPTEN", "/results/emscripten/")
 UPLOAD_PATH_GOLANG=os.environ.get("UPLOAD_PATH_GOLANG", "/results/go/src/")
+
+ROOT_UPLOAD_PATHS = {
+    "C": UPLOAD_PATH_EMSCRIPTEN,
+    "C++": UPLOAD_PATH_EMSCRIPTEN,
+    "Golang": UPLOAD_PATH_GOLANG,
+}
 
 ############ API ############
 @app.route('/compile_c', methods=['POST'])
@@ -211,6 +217,33 @@ def get_own_files():
     # subprocess.run(["ls", "-la", upload_path])
     return response
     # return jsonify({"message": "OK"}), 200
+
+# TODO: JWT required
+@app.route('/api/file/zip', methods=['GET'])
+def getCompilationResults():
+    # TODO: This line emulates the login. It MUST be REMOVED when the authentication decorator is added
+    g.user = { "id": 1 }
+    language = request.args.get("language")
+    directory = request.args.get("directory")
+    if not language or not directory:
+        return jsonify({"type": "GetResultsError", "message": "A language and a directory parameters should be provided."}), 400
+
+    secured_directory = secure_filename(directory)
+    language_root_upload_path = ROOT_UPLOAD_PATHS.get(language)
+    if not language_root_upload_path:
+        return jsonify({"type": "GetResultsError", "message": "Language {} is not supported.".format(language)}), 400
+
+    path = language_root_upload_path + str(g.user["id"]) + "/" + secured_directory + "/"
+
+    if not os.path.isfile(path + RESULTS_ZIP_NAME):
+        app.logger.debug("Zip File: {} does not exist".format(path + RESULTS_ZIP_NAME))
+        return jsonify({"type": "ResultsNotFound", "message": "The results could not be found. If this was an existing file that belonged to you, please try to delete it and re-upload it."}), 404
+
+    app.logger.debug("Results exist in path: " + path + RESULTS_ZIP_NAME)
+
+    response = make_response(send_from_directory(path, RESULTS_ZIP_NAME, as_attachment=True), 200)
+    response.headers["Content-Type"] = "application/zip"
+    return response
 
 ######### HTML #########
 @app.route('/', methods=['GET'])

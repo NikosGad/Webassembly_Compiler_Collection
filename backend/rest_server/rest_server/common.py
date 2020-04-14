@@ -39,4 +39,4 @@ def generate_file_subpath(client_file):
     # Rewind file pointer to the beginning
     client_file.seek(0)
 
-    return str(datetime.datetime.utcnow()) + "_" + sha256_hash.hexdigest() + "/"
+    return str(datetime.datetime.utcnow().strftime("%Y%m%d%H%M%S%f")) + "_" + sha256_hash.hexdigest() + "/"
