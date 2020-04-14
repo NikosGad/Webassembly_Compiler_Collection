@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AvailableLanguages } from '../models/source-code-file';
+import { AvailableLanguages, SourceCodeFile } from '../models/source-code-file';
 
 @Component({
   selector: 'app-personal-files',
@@ -7,7 +7,7 @@ import { AvailableLanguages } from '../models/source-code-file';
   styleUrls: ['./personal-files.component.css']
 })
 export class PersonalFilesComponent implements OnInit {
-  files = {
+  files: { [key: string]: SourceCodeFile[]; } = {
       "C": [
           { name: "hello.c", path: "/results/emscripten/2020-04-09 20:36:12.116313_f1bcfccb06e22196a782b8e74107dff168d0215224ed1b1116179e8717ed358e/", language: "C", options: "-O2, gnu11", status:"Successful", content: "" },
       ],
@@ -53,26 +53,24 @@ export class PersonalFilesComponent implements OnInit {
   };
 
   available_languages: string[];
-
-  selected_file: any;
-  all_files_list: any;
-  filtered_files: any;
+  selected_file: SourceCodeFile;
+  all_files_list: SourceCodeFile[];
+  filtered_files: SourceCodeFile[];
 
   constructor() { }
 
   ngOnInit() {
     this.available_languages = AvailableLanguages;
-    this.selected_file = "";
+    this.selected_file = null;
     this.all_files_list = [];
 
     for (let language of this.available_languages) {
-      console.log(language);
-      console.log(this.files[language]);
+      console.log(language ,this.files[language]);
       this.all_files_list = this.all_files_list.concat(this.files[language]);
     }
 
     this.filtered_files = this.all_files_list;
-    console.log(this.all_files_list);
+    console.log("All files list:", this.all_files_list);
   }
 
   onFileSelect(file:any): void {
