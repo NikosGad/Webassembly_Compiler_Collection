@@ -20,6 +20,15 @@ export class BackendErrorInterceptor implements HttpInterceptor {
                 return of(new HttpResponse({body: err.error}));
                 break;
               }
+              case "application/json": {
+                const reader = new FileReader();
+                reader.addEventListener('loadend', () => {
+                  alert(JSON.parse(reader.result)["message"]);
+                });
+                reader.readAsText(err.error);
+                break;
+              }
+              case "GetResultsError":
               case "JSONParseError":
               case "LanguageSelectionError":
               case "LogInError": {
@@ -64,7 +73,25 @@ export class BackendErrorInterceptor implements HttpInterceptor {
             break;
           } // End of case: 401
           case 404: {
-            alert("The resource is not found!");
+            switch (err.error.type) {
+              case "application/json": {
+                // alert(err.error.text)
+                const reader = new FileReader();
+                reader.addEventListener('loadend', () => {
+                  alert(JSON.parse(reader.result)["message"]);
+                });
+                reader.readAsText(err.error);
+                break;
+              }
+              case "ResultsNotFound": {
+                alert(err.error.message);
+                break;
+              }
+              default: {
+                alert(err.message)
+                break;
+              }
+            }
             break;
           } // End of case: 404
           case 500: {
@@ -74,6 +101,7 @@ export class BackendErrorInterceptor implements HttpInterceptor {
                 break;
               }
             }
+            break;
           } // End of case: 500
           default: {
             let alert_message = err.error.message || err.message;
