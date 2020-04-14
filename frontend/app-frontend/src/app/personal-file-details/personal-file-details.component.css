@@ -1,21 +1,10 @@
 .flex-item-file-content-textarea {
-    /* width: 100%;
-    height: 50%; */
     flex: 1 1 auto;
     resize: none;
 }
-
-/* .personal-file-details-div {
-    height: 100%;
-    text-align: left;
-} */
 
 .personal-file-details-actions {
     text-align: center;
     margin-left: 0;
     margin-right: 0;
 }
-/*
-.flex-item-card-content-textarea {
-    flex: 1 1 auto;
-} */

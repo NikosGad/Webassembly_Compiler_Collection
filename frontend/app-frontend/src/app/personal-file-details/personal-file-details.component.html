@@ -1,27 +1,23 @@
-<!-- <div *ngIf="file" class="personal-file-details-div"> -->
-    <mat-card-header>
-        <!-- "Source: https://iconscout.com/icon/c-programming"
-        "Source: https://www.pngguru.com/free-transparent-background-png-clipart-kvmju"
-        "Source: https://github.com/PKief/vscode-material-icon-theme/issues/257" -->
-        <img mat-card-avatar src="assets/images/{{file.language}}-logo.png">
+<mat-card-header>
+    <!-- "Source: https://iconscout.com/icon/c-programming"
+    "Source: https://www.pngguru.com/free-transparent-background-png-clipart-kvmju"
+    "Source: https://github.com/PKief/vscode-material-icon-theme/issues/257" -->
+    <img mat-card-avatar src="assets/images/{{file.language}}-logo.png">
 
-        <mat-card-title>Filename: {{file.name}}</mat-card-title>
-        <mat-card-subtitle>Language: {{file.language}}</mat-card-subtitle>
-        <mat-card-subtitle>Status: {{file.status}}</mat-card-subtitle>
-        <mat-card-subtitle>Compilation Options: {{file.options}}</mat-card-subtitle>
-    </mat-card-header>
+    <mat-card-title>Filename: {{file.name}}</mat-card-title>
+    <mat-card-subtitle>Language: {{file.language}}</mat-card-subtitle>
+    <mat-card-subtitle>Status: {{file.status}}</mat-card-subtitle>
+    <mat-card-subtitle>Compilation Options: {{file.options}}</mat-card-subtitle>
+</mat-card-header>
 
-    <mat-card-actions class="personal-file-details-actions">
-        <button mat-raised-button name="getResultsZipButton" (click)="getResultsZip()">Download</button>
-        <button mat-raised-button name="getPersonalFileButton" (click)="getPersonalFiles()">Recompile</button>
-        <button mat-raised-button color="warn" name="deleteFileButton" (click)="deleteFile()">DELETE</button>
-    </mat-card-actions>
+<mat-card-actions class="personal-file-details-actions">
+    <button mat-raised-button name="getResultsZipButton" (click)="getResultsZip()">Download</button>
+    <button mat-raised-button name="getPersonalFileButton" (click)="getPersonalFiles()">Recompile</button>
+    <button mat-raised-button color="warn" name="deleteFileButton" (click)="deleteFile()">DELETE</button>
+</mat-card-actions>
 
-    <mat-card-actions *ngIf="!file.content" class="personal-file-details-actions">
-        <button mat-stroked-button name="getFileSourceCodeButton" (click)="getFileSourceCode()">View Source Code</button>
-    </mat-card-actions>
+<mat-card-actions *ngIf="!file.content" class="personal-file-details-actions">
+    <button mat-stroked-button name="getFileSourceCodeButton" (click)="getFileSourceCode()">View Source Code</button>
+</mat-card-actions>
 
-    <!-- <mat-card-content *ngIf="file.content" class="flex-item-card-content-textarea"> -->
-        <textarea *ngIf="file.content" class="flex-item-file-content-textarea" name="file-content-textarea" readonly>{{file.content}}</textarea>
-    <!-- </mat-card-content> -->
-<!-- </div> -->
+<textarea *ngIf="file.content" class="flex-item-file-content-textarea" name="file-content-textarea" readonly>{{file.content}}</textarea>

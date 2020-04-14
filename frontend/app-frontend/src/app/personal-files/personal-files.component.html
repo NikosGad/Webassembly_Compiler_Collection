@@ -19,7 +19,8 @@
                 </mat-sidenav>
                 <mat-sidenav-content class="full-size sidenav-content-personal-file-list">
                     <h3 *ngIf="filtered_files.length === 0" align="center">No files found!</h3>
-                    <mat-card class="file-list-element" *ngFor="let file of filtered_files" (click)="onFileSelect(file)">
+                    <mat-card class="file-list-element" *ngFor="let file of filtered_files"
+                        [class.mat-elevation-z5]="file === selected_file" [class.selected-element]="file === selected_file" (click)="onFileSelect(file)">
                         <mat-card-header>
                             <img mat-card-avatar align="center" src="assets/images/{{file.language}}-logo.png">
                             <mat-icon *ngIf="file.status === 'Successful'">done</mat-icon>

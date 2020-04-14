@@ -55,6 +55,14 @@
     float: left;
 }
 
+.file-list-element:hover {
+    background: #ddd;
+}
+
+.selected-element {
+    background: #ddd;
+}
+
 /* Inside flex-item-personal-file-details */
 .flex-item-close-button {
     text-align: right;

@@ -83,7 +83,7 @@ export class PersonalFilesComponent implements OnInit {
   }
 
   filterFiles(language: string) {
-    console.log(language);
+    console.log("Filter by language:", language);
 
     if (language) {
       this.filtered_files = this.files[language];
