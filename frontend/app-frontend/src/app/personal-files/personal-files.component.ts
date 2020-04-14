@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { AvailableLanguages } from '../models/source-code-file';
 
 @Component({
   selector: 'app-personal-files',
@@ -51,7 +52,7 @@ export class PersonalFilesComponent implements OnInit {
       "Rust": [],
   };
 
-  available_languages = ["C", "C++", "Golang", "Rust",]
+  available_languages: string[];
 
   selected_file: any;
   all_files_list: any;
@@ -60,6 +61,7 @@ export class PersonalFilesComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
+    this.available_languages = AvailableLanguages;
     this.selected_file = "";
     this.all_files_list = [];
 

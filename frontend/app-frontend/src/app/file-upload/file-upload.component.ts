@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { SourceCodeFileService } from '../source-code-file.service';
+import { AvailableLanguages } from '../models/source-code-file';
 import { CCompilationOptions } from '../compilation-options/c-compilation-options';
 import { CppCompilationOptions } from '../compilation-options/cpp-compilation-options';
 import { GolangCompilationOptions } from '../compilation-options/golang-compilation-options';
@@ -12,6 +13,7 @@ import { GolangCompilationOptions } from '../compilation-options/golang-compilat
 export class FileUploadComponent implements OnInit {
   file_path: string;
   language: string;
+  available_languages: string[];
   c_compilation_options: CCompilationOptions;
   cpp_compilation_options: CppCompilationOptions;
   golang_compilation_options: GolangCompilationOptions;
@@ -20,6 +22,7 @@ export class FileUploadComponent implements OnInit {
   constructor(private sourceCodeFileService: SourceCodeFileService) {
     this.file_path = "";
     this.language = "C";
+    this.available_languages = AvailableLanguages;
     this.c_compilation_options = new CCompilationOptions();
     this.cpp_compilation_options = new CppCompilationOptions();
     this.golang_compilation_options = new GolangCompilationOptions();

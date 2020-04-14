@@ -17,9 +17,7 @@
         <mat-label>Select a language</mat-label>
         <mat-select [(value)]="language">
             <!-- <mat-option>None</mat-option> -->
-            <mat-option value="Golang">Golang</mat-option>
-            <mat-option value="C">C</mat-option>
-            <mat-option value="C++">C++</mat-option>
+            <mat-option *ngFor="let option_language of available_languages" value="{{option_language}}">{{option_language}}</mat-option>
         </mat-select>
     </mat-form-field>
 
