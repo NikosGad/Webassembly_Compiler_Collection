@@ -1,6 +1,6 @@
 import datetime
 from marshmallow import fields, Schema, validate
-from rest_server import db, bcrypt
+from rest_server import db, bcr
 # from sqlalchemy.dialects.postgresql import JSON
 
 class User(db.Model):
@@ -37,10 +37,10 @@ class User(db.Model):
         return db.session.query(User).filter(User.email == email).first()
 
     def __hash_password(self, password):
-        return bcrypt.generate_password_hash(password).decode("utf-8")
+        return bcr.generate_password_hash(password).decode("utf-8")
 
     def validate_password(self, password):
-        return bcrypt.check_password_hash(self.password, password)
+        return bcr.check_password_hash(self.password, password)
 
     def __repr__(self):
         return '<id {}, username {}, password {}, email {}, created_at {}, updated_at {}>'.format(self.id, self.username, self.password, self.email, self.created_at, self.updated_at)

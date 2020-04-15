@@ -13,7 +13,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = DB_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 CORS(app, origins="http://localhost:3535")
 db = SQLAlchemy(app)
-bcrypt = Bcrypt(app)
+bcr = Bcrypt(app)
 
 from . import rest_server
 from . import models # Without this import create_all() will NOT create tables
