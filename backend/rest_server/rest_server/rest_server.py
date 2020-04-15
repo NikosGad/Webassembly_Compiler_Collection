@@ -218,11 +218,9 @@ def get_own_files():
     return response
     # return jsonify({"message": "OK"}), 200
 
-# TODO: JWT required
 @app.route('/api/file/zip', methods=['GET'])
-def getCompilationResults():
-    # TODO: This line emulates the login. It MUST be REMOVED when the authentication decorator is added
-    g.user = { "id": 1 }
+@authentication.Authentication.authentication_required
+def downloadCompilationResults():
     language = request.args.get("language")
     directory = request.args.get("directory")
     if not language or not directory:
