@@ -9,7 +9,7 @@ from werkzeug.utils import secure_filename
 from zipfile import ZipFile, ZIP_DEFLATED
 
 from . import authentication
-from . import models
+from .models import user_model
 
 from . import common
 from . import compile_c
@@ -20,7 +20,7 @@ RESULTS_ZIP_NAME="results.zip"
 COMPRESSION=ZIP_DEFLATED
 COMPRESSLEVEL=6
 
-user_schema = models.UserSchema()
+user_schema = user_model.UserSchema()
 
 def compile(language_root_upload_path, parser, command_generator, results_zip_appender):
     app.logger.debug(common.debug_request(request))
@@ -146,18 +146,18 @@ def signup():
 
     app.logger.debug("Valid Sign Up Form: " + str(valid_sign_up_form))
 
-    user_exists = models.User.get_user_by_username(valid_sign_up_form["username"])
+    user_exists = user_model.User.get_user_by_username(valid_sign_up_form["username"])
     if user_exists:
         app.logger.debug("Username {} already exists".format(valid_sign_up_form["username"]))
         return jsonify({"type": "UniqueUsernameViolation", "message": "Username {} already exists".format(valid_sign_up_form["username"])}), 400
 
-    user_exists = models.User.get_user_by_email(valid_sign_up_form["email"])
+    user_exists = user_model.User.get_user_by_email(valid_sign_up_form["email"])
     if user_exists:
         app.logger.debug("Email {} already exists".format(valid_sign_up_form["email"]))
         return jsonify({"type": "UniqueEmailViolation", "message": "Email {} already exists".format(valid_sign_up_form["email"])}), 400
 
     try:
-        user = models.User(**valid_sign_up_form)
+        user = user_model.User(**valid_sign_up_form)
         user.create()
     except Exception:
         app.logger.exception("An error occured during: user.create()")
@@ -176,7 +176,7 @@ def login():
         app.logger.debug(error_msg)
         return jsonify({"type": "LogInError", "message": error_msg}), 400
 
-    user = models.User.get_user_by_username(log_in_form["username"])
+    user = user_model.User.get_user_by_username(log_in_form["username"])
 
     if not user:
         app.logger.debug("Username {} is not a valid username".format(log_in_form["username"]))

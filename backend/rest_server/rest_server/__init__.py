@@ -15,8 +15,8 @@ CORS(app, origins="http://localhost:3535")
 db = SQLAlchemy(app)
 bcr = Bcrypt(app)
 
+from . import models
 from . import rest_server
-from . import models # Without this import create_all() will NOT create tables
 
 db.create_all()
 print("DB created!")
