@@ -23,7 +23,7 @@ export class BackendErrorInterceptor implements HttpInterceptor {
               case "application/json": {
                 const reader = new FileReader();
                 reader.addEventListener('loadend', () => {
-                  alert(JSON.parse(reader.result)["message"]);
+                  alert(JSON.parse(<string>reader.result)["message"]);
                 });
                 reader.readAsText(err.error);
                 break;
@@ -78,7 +78,7 @@ export class BackendErrorInterceptor implements HttpInterceptor {
                 // alert(err.error.text)
                 const reader = new FileReader();
                 reader.addEventListener('loadend', () => {
-                  alert(JSON.parse(reader.result)["message"]);
+                  alert(JSON.parse(<string>reader.result)["message"]);
                 });
                 reader.readAsText(err.error);
                 break;
