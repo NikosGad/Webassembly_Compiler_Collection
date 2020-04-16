@@ -36,6 +36,10 @@ class User(db.Model):
     def get_user_by_email(email):
         return db.session.query(User).filter(User.email == email).first()
 
+    @staticmethod
+    def get_all_users():
+        return db.session.query(User).all()
+
     def __hash_password(self, password):
         return bcr.generate_password_hash(password).decode("utf-8")
 
