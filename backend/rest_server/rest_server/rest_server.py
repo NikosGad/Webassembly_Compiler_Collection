@@ -10,6 +10,7 @@ from zipfile import ZipFile, ZIP_DEFLATED
 
 from . import authentication
 from .models import user_model
+from .models import file_model
 
 from . import common
 from . import compile_c
@@ -21,6 +22,7 @@ COMPRESSION=ZIP_DEFLATED
 COMPRESSLEVEL=6
 
 user_schema = user_model.UserSchema()
+file_schema = file_model.SourceCodeFileSchema()
 
 def compile(language_root_upload_path, parser, command_generator, results_zip_appender):
     app.logger.debug(common.debug_request(request))
@@ -224,7 +226,7 @@ def downloadCompilationResults():
     language = request.args.get("language")
     directory = request.args.get("directory")
     if not language or not directory:
-        return jsonify({"type": "GetResultsError", "message": "A language and a directory parameters should be provided."}), 400
+        return jsonify({"type": "GetResultsError", "message": "A language and a directory query parameters should be provided."}), 400
 
     secured_directory = secure_filename(directory)
     language_root_upload_path = ROOT_UPLOAD_PATHS.get(language)
@@ -242,6 +244,21 @@ def downloadCompilationResults():
     response = make_response(send_from_directory(path, RESULTS_ZIP_NAME, as_attachment=True), 200)
     response.headers["Content-Type"] = "application/zip"
     return response
+
+@app.route('/api/files/personal', methods=['GET'])
+def get_personal_files():
+    # TODO: Add jwt authentication and remove this hardcoded user id
+    g.user = {"id": 1}
+
+    try:
+        files = file_model.SourceCodeFile.get_files_per_language_by_user_id(g.user["id"])
+        files_as_json = jsonify(files)
+        app.logger.debug(files)
+        app.logger.debug(files_as_json)
+        return jsonify(files), 200
+    except Exception as e:
+        app.logger.exception("Error Getting Personal Files for UserID: {}".format(g.user.get("id")))
+        return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
 
 ######### HTML #########
 @app.route('/', methods=['GET'])
