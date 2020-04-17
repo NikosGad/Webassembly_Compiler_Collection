@@ -28,7 +28,7 @@ export class BackendErrorInterceptor implements HttpInterceptor {
                 reader.readAsText(err.error);
                 break;
               }
-              case "GetResultsError":
+              case "GetFileError":
               case "JSONParseError":
               case "LanguageSelectionError":
               case "LogInError": {
@@ -83,7 +83,7 @@ export class BackendErrorInterceptor implements HttpInterceptor {
                 reader.readAsText(err.error);
                 break;
               }
-              case "ResultsNotFound": {
+              case "FileNotFound": {
                 alert(err.error.message);
                 break;
               }
