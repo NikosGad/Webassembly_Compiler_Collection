@@ -31,10 +31,20 @@ class SourceCodeFile(db.Model):
         db.session.delete(self)
         db.session.commit()
 
-    # TODO: Fix this to return the result in the correct format
     @staticmethod
     def get_files_per_language_by_user_id(user_id):
-        return db.session.query(SourceCodeFile).filter(SourceCodeFile.user_id == user_id).all()
+        return db.session.query(SourceCodeFile.language, db.func.json_agg(db.literal_column(SourceCodeFile.__tablename__))).\
+            filter(SourceCodeFile.user_id == user_id).\
+            group_by(SourceCodeFile.language).\
+            all()
+
+    @staticmethod
+    def get_files_per_language_by_user_id_as_json(user_id):
+        language_files_subquery = db.session.query(SourceCodeFile.language.label("language"), db.func.json_agg(db.literal_column(SourceCodeFile.__tablename__)).label("files_list")).\
+            filter(SourceCodeFile.user_id == user_id).\
+            group_by(SourceCodeFile.language).subquery()
+
+        return db.session.query(db.func.json_object_agg(language_files_subquery.c.language, language_files_subquery.c.files_list)).first()[0]
 
     @staticmethod
     def get_all_files():

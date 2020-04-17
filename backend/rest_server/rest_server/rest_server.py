@@ -246,16 +246,12 @@ def downloadCompilationResults():
     return response
 
 @app.route('/api/files/personal', methods=['GET'])
+@authentication.Authentication.authentication_required
 def get_personal_files():
-    # TODO: Add jwt authentication and remove this hardcoded user id
-    g.user = {"id": 1}
-
     try:
         files = file_model.SourceCodeFile.get_files_per_language_by_user_id(g.user["id"])
-        files_as_json = jsonify(files)
         app.logger.debug(files)
-        app.logger.debug(files_as_json)
-        return jsonify(files), 200
+        return jsonify(dict(files)), 200
     except Exception as e:
         app.logger.exception("Error Getting Personal Files for UserID: {}".format(g.user.get("id")))
         return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
