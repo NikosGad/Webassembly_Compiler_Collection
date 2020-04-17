@@ -204,48 +204,32 @@ def login():
 def priv_action():
     return jsonify({"message": "OK"}), 200
 
-@app.route('/api/personal_files', methods=['GET'])
-# @authentication.Authentication.authentication_required
-def get_own_files():
-    upload_path = "/results/emscripten/2020-04-09 20:36:12.116313_f1bcfccb06e22196a782b8e74107dff168d0215224ed1b1116179e8717ed358e/"
-    app.logger.debug("Returned file is: " + upload_path)
-    if os.path.isfile(upload_path):
-        app.logger.debug("Path exists")
-    response = make_response(send_from_directory(upload_path, "hello.c", as_attachment=True), 200)
-    # response.headers["Content-Type"] = "application/text"
-    # app.logger.debug(response.headers)
-    # app.logger.debug(response.__dict__)
-    app.logger.debug(response.response.__dict__)
-    # subprocess.run(["ls", "-la", upload_path])
-    return response
-    # return jsonify({"message": "OK"}), 200
-
-@app.route('/api/file/zip', methods=['GET'])
+@app.route('/api/files/personal_file_content', methods=['GET'])
 @authentication.Authentication.authentication_required
-def downloadCompilationResults():
+def get_personal_file_content():
     language = request.args.get("language")
     directory = request.args.get("directory")
-    if not language or not directory:
-        return jsonify({"type": "GetResultsError", "message": "A language and a directory query parameters should be provided."}), 400
+    name = request.args.get("name")
+    if not language or not directory or not name:
+        return jsonify({"type": "GetFileError", "message": "A language, a directory and a name query parameters should be provided."}), 400
 
     secured_directory = secure_filename(directory)
+    secured_name = secure_filename(name)
     language_root_upload_path = ROOT_UPLOAD_PATHS.get(language)
     if not language_root_upload_path:
-        return jsonify({"type": "GetResultsError", "message": "Language {} is not supported.".format(language)}), 400
+        return jsonify({"type": "GetFileError", "message": "Language {} is not supported.".format(language)}), 400
 
     path = language_root_upload_path + str(g.user["id"]) + "/" + secured_directory + "/"
 
-    if not os.path.isfile(path + RESULTS_ZIP_NAME):
-        app.logger.debug("Zip File: {} does not exist".format(path + RESULTS_ZIP_NAME))
-        return jsonify({"type": "ResultsNotFound", "message": "The results could not be found. If this was an existing file that belonged to you, please try to delete it and re-upload it."}), 404
+    if not os.path.isfile(path + secured_name):
+        app.logger.debug("File: {} does not exist".format(path + secured_name))
+        return jsonify({"type": "FileNotFound", "message": "The file could not be found. Are you sure it should exists? If this was an existing file that belonged to you, please try to delete it and re-upload it."}), 404
 
-    app.logger.debug("Results exist in path: " + path + RESULTS_ZIP_NAME)
-
-    response = make_response(send_from_directory(path, RESULTS_ZIP_NAME, as_attachment=True), 200)
-    response.headers["Content-Type"] = "application/zip"
+    app.logger.debug("File exists in path: " + path + secured_name)
+    response = make_response(send_from_directory(path, secured_name, as_attachment=True), 200)
     return response
 
-@app.route('/api/files/personal', methods=['GET'])
+@app.route('/api/files/all_personal', methods=['GET'])
 @authentication.Authentication.authentication_required
 def get_personal_files():
     try:
