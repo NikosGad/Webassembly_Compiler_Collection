@@ -240,6 +240,58 @@ def get_personal_files():
         app.logger.exception("Error Getting Personal Files for UserID: {}".format(g.user.get("id")))
         return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
 
+@app.route('/api/files/personal_file/<file_id>', methods=['DELETE'])
+# TODO: Add jwt, remove hardcoded, delete directory
+# @authentication.Authentication.authentication_required
+def delete_personal_file_directory(file_id):
+    g.user = {"id": 1}
+
+    try:
+        file_id_int = int(file_id)
+        if file_id_int <= 0:
+            return jsonify({"type": "FileIDTypeError", "message": "File ID value should be a positive integer"}), 400
+    except ValueError as e:
+        return jsonify({"type": "FileIDTypeError", "message": "File ID value should be a positive integer"}), 400
+
+    try:
+        file = file_model.SourceCodeFile.get_file_by_file_id_and_user_id(file_id_int, g.user["id"])
+        app.logger.debug("Retrieved File: " + str(file))
+    except Exception as e:
+        app.logger.exception("Unexpected Error Getting File with ID: {} for User ID: {} from DB in Delete File".format(file_id_int, g.user.get("id")))
+        return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
+
+    if not file:
+        return jsonify({"type": "FileNotFound", "message": "The file you are trying to delete does not exist"}), 404
+
+    directory_path = ROOT_UPLOAD_PATHS[file.language] + str(g.user["id"]) + "/" + file.directory
+
+    if not os.path.isdir(directory_path):
+        app.logger.error("Inconsistency during delete of file: {}\nPath {} does not exist".format(file, directory_path))
+    else:
+        app.logger.debug("Deleting path: " + directory_path)
+        # TODO: Delete directory here, rearrange the "if" statements below
+        completed_delete_process = subprocess.run(["rm", "-r", directory_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        if completed_delete_process.stdout:
+            app.logger.info(completed_delete_process.stdout.decode(encoding="utf-8"))
+
+        if completed_delete_process.stderr:
+            app.logger.error(completed_delete_process.stderr.decode(encoding="utf-8"))
+            return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
+
+        if completed_delete_process.returncode != 0:
+            app.logger.error("Failed to delete directory")
+            return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
+        else:
+            app.logger.info("Deleted path: " + directory_path)
+
+    try:
+        file.delete()
+        return jsonify({"message": "OK"}), 200
+    except Exception as e:
+        app.logger.exception("Unexpected Error Deleting File with ID: {} from DB in Delete File".format(file_id_int))
+        return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
+
 ######### HTML #########
 @app.route('/', methods=['GET'])
 def show_index():

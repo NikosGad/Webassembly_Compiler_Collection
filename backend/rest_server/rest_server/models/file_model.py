@@ -32,6 +32,11 @@ class SourceCodeFile(db.Model):
         db.session.commit()
 
     @staticmethod
+    def get_file_by_file_id_and_user_id(file_id, user_id):
+        return db.session.query(SourceCodeFile).\
+            filter(SourceCodeFile.id == file_id, SourceCodeFile.user_id == user_id).first()
+
+    @staticmethod
     def get_files_per_language_by_user_id(user_id):
         return db.session.query(SourceCodeFile.language, db.func.json_agg(db.literal_column(SourceCodeFile.__tablename__))).\
             filter(SourceCodeFile.user_id == user_id).\
