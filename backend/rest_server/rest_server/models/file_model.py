@@ -14,7 +14,7 @@ class SourceCodeFile(db.Model):
     created_at = db.Column(db.DateTime, nullable=False)
     updated_at = db.Column(db.DateTime, nullable=False)
 
-    def __init__(self, name, user_id, directory, compilation_options, language):
+    def __init__(self, user_id, name, directory, compilation_options, language):
         self.name = name
         self.user_id = user_id
         self.directory = directory
