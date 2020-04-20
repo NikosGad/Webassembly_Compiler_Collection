@@ -199,11 +199,6 @@ def login():
 
     return jsonify({"message": "OK", "jwt": token}), 200
 
-@app.route('/api/priv', methods=['POST'])
-@authentication.Authentication.authentication_required
-def priv_action():
-    return jsonify({"message": "OK"}), 200
-
 @app.route('/api/files/personal_file_content', methods=['GET'])
 @authentication.Authentication.authentication_required
 def get_personal_file_content():
