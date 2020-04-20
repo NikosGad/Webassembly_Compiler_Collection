@@ -241,11 +241,8 @@ def get_personal_files():
         return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
 
 @app.route('/api/files/personal_file/<file_id>', methods=['DELETE'])
-# TODO: Add jwt, remove hardcoded, delete directory
-# @authentication.Authentication.authentication_required
+@authentication.Authentication.authentication_required
 def delete_personal_file_directory(file_id):
-    g.user = {"id": 1}
-
     try:
         file_id_int = int(file_id)
         if file_id_int <= 0:
@@ -269,24 +266,23 @@ def delete_personal_file_directory(file_id):
         app.logger.error("Inconsistency during delete of file: {}\nPath {} does not exist".format(file, directory_path))
     else:
         app.logger.debug("Deleting path: " + directory_path)
-        # TODO: Delete directory here, rearrange the "if" statements below
         completed_delete_process = subprocess.run(["rm", "-r", directory_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         if completed_delete_process.stdout:
             app.logger.info(completed_delete_process.stdout.decode(encoding="utf-8"))
 
-        if completed_delete_process.stderr:
-            app.logger.error(completed_delete_process.stderr.decode(encoding="utf-8"))
-            return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
-
         if completed_delete_process.returncode != 0:
             app.logger.error("Failed to delete directory")
+            if completed_delete_process.stderr:
+                app.logger.error(completed_delete_process.stderr.decode(encoding="utf-8"))
+
             return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
         else:
-            app.logger.info("Deleted path: " + directory_path)
+            app.logger.info("Deleted directory: " + directory_path)
 
     try:
         file.delete()
+        app.logger.info("Deleted file from DB: " + str(file))
         return jsonify({"message": "OK"}), 200
     except Exception as e:
         app.logger.exception("Unexpected Error Deleting File with ID: {} from DB in Delete File".format(file_id_int))
