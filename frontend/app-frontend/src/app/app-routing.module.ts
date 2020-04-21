@@ -13,7 +13,7 @@ const routes: Routes = [
     { path: 'compile', redirectTo: '' },
     { path: 'login', component: LogInComponent },
     { path: 'signup', component: SignUpComponent },
-    { path: 'personal_files', component: PersonalFilesComponent },
+    { path: 'personal_files', component: PersonalFilesComponent, canActivate: [AuthenticatedUserGuard] },
     // TODO: This should be changed to a redirection to an error page
     { path: '**', redirectTo: '' }
 ];
