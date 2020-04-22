@@ -12,6 +12,7 @@ export class SourceCodeFileService {
   private url_cpp = this.backend_domain + ':8080/compile_cpp'
   private url_golang = this.backend_domain + ':8080/compile_golang'
   private url_non_existing = this.backend_domain + ':8080/compile_non_existing'
+  private url_backend = this.scheme + this.domain + ":8080"
 
   // httpOptions = {
   //   headers: new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' })
@@ -44,5 +45,9 @@ export class SourceCodeFileService {
     console.log(source_code)
 
     return this.http.post(server_url, formData, {responseType: "blob"});
+  }
+
+  getPersonalFiles() {
+      return this.http.get(this.url_backend + "/api/files/all_personal", {responseType: "json"});
   }
 }
