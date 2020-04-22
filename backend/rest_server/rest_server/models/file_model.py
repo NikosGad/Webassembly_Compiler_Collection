@@ -11,15 +11,18 @@ class SourceCodeFile(db.Model):
     directory = db.Column(db.String(), unique=True, nullable=False)
     compilation_options = db.Column(db.ARRAY(db.String()), nullable=True)
     language = db.Column(db.String(), nullable=False)
+    # TODO: Alternative is to use enum: https://docs.sqlalchemy.org/en/13/core/type_basics.html#generic-types
+    status = db.Column(db.String(), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False)
     updated_at = db.Column(db.DateTime, nullable=False)
 
-    def __init__(self, user_id, name, directory, compilation_options, language):
-        self.name = name
+    def __init__(self, user_id, name, directory, compilation_options, language, status):
         self.user_id = user_id
+        self.name = name
         self.directory = directory
         self.compilation_options = compilation_options
         self.language = language
+        self.status = status
         self.created_at = datetime.datetime.utcnow()
         self.updated_at = self.created_at
 
@@ -65,5 +68,6 @@ class SourceCodeFileSchema(Schema):
     directory = fields.String(required=True)
     compilation_options = fields.List(fields.String())
     language = fields.String(required=True)
+    status = fields.String(required=True)
     created_at = fields.DateTime(dump_only=True, required=True)
     updated_at = fields.DateTime(dump_only=True, required=True)
