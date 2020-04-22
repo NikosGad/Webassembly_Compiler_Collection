@@ -14,10 +14,13 @@
                         <!-- The first button gets automatically hovered -->
                         <!-- <button mat-list-item style="height: 0;" name="dummyButton" hidden></button> -->
                         <button mat-list-item name="showAllFilesButton" (click)="filterFiles('')">All Files</button>
-                        <button *ngFor="let language of available_languages" mat-list-item name="show{{language}}FilesButton" (click)="filterFiles(language)">{{language}} Source Code</button>
+                        <button *ngFor="let language of available_languages" [disabled]="loading" mat-list-item name="show{{language}}FilesButton" (click)="filterFiles(language)">{{language}} Source Code</button>
                     </mat-action-list>
                 </mat-sidenav>
-                <mat-sidenav-content class="full-size sidenav-content-personal-file-list">
+                <mat-sidenav-content *ngIf="loading" class="full-size centered-content">
+                    <mat-spinner></mat-spinner>
+                </mat-sidenav-content>
+                <mat-sidenav-content *ngIf="!loading" class="full-size sidenav-content-personal-file-list">
                     <h3 *ngIf="filtered_files.length === 0" align="center">No files found!</h3>
                     <mat-card class="file-list-element" *ngFor="let file of filtered_files"
                         [class.mat-elevation-z5]="file === selected_file" [class.selected-element]="file === selected_file" (click)="onFileSelect(file)">
