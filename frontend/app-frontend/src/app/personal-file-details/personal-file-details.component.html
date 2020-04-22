@@ -7,17 +7,20 @@
     <mat-card-title>Filename: {{file.name}}</mat-card-title>
     <mat-card-subtitle>Language: {{file.language}}</mat-card-subtitle>
     <mat-card-subtitle>Status: {{file.status}}</mat-card-subtitle>
-    <mat-card-subtitle>Compilation Options: {{file.options}}</mat-card-subtitle>
+    <mat-card-subtitle>Compilation Options:
+        <span *ngFor="let option of file.compilation_options">{{option.substring(0, 40)}}, </span>
+    </mat-card-subtitle>
 </mat-card-header>
 
 <mat-card-actions class="personal-file-details-actions">
     <button mat-raised-button name="getResultsZipButton" (click)="getResultsZip()">Download</button>
-    <button mat-raised-button name="getPersonalFileButton" (click)="getPersonalFiles()">Recompile</button>
+    <a id="downloadhrefagain" hidden></a>
+    <!-- <button mat-raised-button name="getPersonalFileButton" (click)="getPersonalFiles()">Recompile</button> -->
     <button mat-raised-button color="warn" name="deleteFileButton" (click)="deleteFile()">DELETE</button>
 </mat-card-actions>
 
-<mat-card-actions *ngIf="!file.content" class="personal-file-details-actions">
-    <button mat-stroked-button name="getFileSourceCodeButton" (click)="getFileSourceCode()">View Source Code</button>
+<mat-card-actions *ngIf="!files_content_dict[file.id]" class="personal-file-details-actions">
+    <button mat-stroked-button name="getFileSourceCodeButton" (click)="getSourceCode()">View Source Code</button>
 </mat-card-actions>
 
-<textarea *ngIf="file.content" class="flex-item-file-content-textarea" name="file-content-textarea" readonly>{{file.content}}</textarea>
+<textarea *ngIf="files_content_dict[file.id]" class="flex-item-file-content-textarea" name="file-content-textarea" readonly>{{files_content_dict[file.id]}}</textarea>

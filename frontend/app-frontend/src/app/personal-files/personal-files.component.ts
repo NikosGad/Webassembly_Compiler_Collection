@@ -53,6 +53,7 @@ export class PersonalFilesComponent implements OnInit {
   };
 
   available_languages: string[];
+  files_content: {[file_id: number]: string};
   selected_file: SourceCodeFile;
   all_files_list: SourceCodeFile[];
   filtered_files: SourceCodeFile[];

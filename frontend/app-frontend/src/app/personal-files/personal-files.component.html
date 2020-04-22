@@ -40,7 +40,7 @@
             <div class="flex-item-close-button">
                 <button mat-icon-button name="closeSelectedFileButton" (click)="closeDetails()"><mat-icon>close</mat-icon></button>
             </div>
-            <app-personal-file-details class="flex-item-app-personal-file-details" [file]="selected_file"></app-personal-file-details>
+            <app-personal-file-details class="flex-item-app-personal-file-details" [file]="selected_file" [files_content_dict]="files_content"></app-personal-file-details>
         </mat-card>
     </div>
 

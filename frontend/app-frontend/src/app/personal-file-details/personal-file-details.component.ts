@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { SourceCodeFile } from '../models/source-code-file';
 
 @Component({
   selector: 'app-personal-file-details',
@@ -7,9 +8,8 @@ import { HttpClient } from '@angular/common/http';
   styleUrls: ['./personal-file-details.component.css']
 })
 export class PersonalFileDetailsComponent implements OnInit {
-  @Input() file: any;
-  // file_content: string;
-  // { name, path, language, options, status, content },
+  @Input() file: SourceCodeFile;
+  @Input() files_content_dict: {[file_id:number]: string};
 
   constructor(private http: HttpClient) { }
 
