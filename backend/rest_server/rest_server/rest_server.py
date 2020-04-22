@@ -140,13 +140,6 @@ def compile_and_store_in_DB(language_root_upload_path, parser, command_generator
     "language": request.form["language"],
     }
 
-    try:
-        file_db = file_model.SourceCodeFile(**file_dictionary)
-        file_db.create()
-    except Exception:
-        app.logger.exception("An error occured during: file_db.create()")
-        return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
-
     compile_command = command_generator(upload_path, compile_command, filename, secured_output_filename)
     app.logger.debug("Final compile command: " + str(compile_command))
 
@@ -187,9 +180,18 @@ def compile_and_store_in_DB(language_root_upload_path, parser, command_generator
     # TODO: Activate X-Sendfile
     if completed_compile_file_process.returncode == 0:
         return_status_code = 200
+        file_dictionary["status"] = "Successful"
         results_zip_appender(upload_path, RESULTS_ZIP_NAME, secured_output_filename, "a", COMPRESSION, COMPRESSLEVEL)
     else:
+        file_dictionary["status"] = "Erroneous"
         return_status_code = 400
+
+    try:
+        file_db = file_model.SourceCodeFile(**file_dictionary)
+        file_db.create()
+    except Exception:
+        app.logger.exception("An error occured during: file_db.create()")
+        return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
 
     response = make_response(send_from_directory(upload_path, RESULTS_ZIP_NAME, as_attachment=True), return_status_code)
     response.headers["Content-Type"] = "application/zip"
