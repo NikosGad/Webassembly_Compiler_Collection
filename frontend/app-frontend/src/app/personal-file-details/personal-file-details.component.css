@@ -1,3 +1,21 @@
+.spaced-mat-card {
+    position: relative;
+    padding: 0;
+    height: 98%;
+    top: 1%;
+    width: 100%;
+}
+
+.flex-container-card {
+    display: flex;
+    flex-flow: column nowrap;
+}
+
+.flex-item-close-button {
+    text-align: right;
+    flex: 0 1 auto;
+}
+
 .flex-item-file-content-textarea {
     flex: 1 1 auto;
     resize: none;

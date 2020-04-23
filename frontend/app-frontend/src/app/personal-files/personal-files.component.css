@@ -31,6 +31,7 @@
 
 .flex-item-personal-file-details {
     flex: 1 1 24.25%;
+    text-align: left;
 }
 
 .spaced-mat-card {
@@ -67,17 +68,4 @@
 
 .selected-element {
     background: #ddd;
-}
-
-/* Inside flex-item-personal-file-details */
-.flex-item-close-button {
-    text-align: right;
-    flex: 0 1 auto;
-}
-
-.flex-item-app-personal-file-details {
-    flex: 1 1 auto;
-    display: flex;
-    flex-flow: column nowrap;
-    text-align: left;
 }

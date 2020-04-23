@@ -38,14 +38,7 @@
 
     <div class="flex-item-horizontal-space"></div>
 
-    <div *ngIf="selected_file" class="flex-item-personal-file-details">
-        <mat-card class="spaced-mat-card flex-container-card">
-            <div class="flex-item-close-button">
-                <button mat-icon-button name="closeSelectedFileButton" (click)="closeDetails()"><mat-icon>close</mat-icon></button>
-            </div>
-            <app-personal-file-details class="flex-item-app-personal-file-details" [file]="selected_file" [files_content_dict]="files_content"></app-personal-file-details>
-        </mat-card>
-    </div>
+    <app-personal-file-details *ngIf="selected_file" class="flex-item-personal-file-details" [(file)]="selected_file" [files_content_dict]="files_content"></app-personal-file-details>
 
     <div *ngIf="selected_file" class="flex-item-horizontal-space"></div>
 </div>

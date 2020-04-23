@@ -58,10 +58,6 @@ export class PersonalFilesComponent implements OnInit {
     console.log("The contents of the selected file are:", this.files_content[file.id]);
   }
 
-  closeDetails() {
-    this.selected_file = null;
-  }
-
   filterFiles(language: string) {
     console.log("Filter by language:", language);
 
