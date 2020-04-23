@@ -23,9 +23,9 @@
         <button mat-raised-button color="warn" name="deleteFileButton" (click)="deleteFile()">DELETE</button>
     </mat-card-actions>
 
-    <mat-card-actions *ngIf="!files_content_dict[file.id]" class="personal-file-details-actions">
+    <mat-card-actions *ngIf="!file_content" class="personal-file-details-actions">
         <button mat-stroked-button name="getFileSourceCodeButton" (click)="getSourceCode()">View Source Code</button>
     </mat-card-actions>
 
-    <textarea *ngIf="files_content_dict[file.id]" class="flex-item-file-content-textarea" name="file-content-textarea" readonly>{{files_content_dict[file.id]}}</textarea>
+    <textarea *ngIf="file_content" class="flex-item-file-content-textarea" name="file-content-textarea" readonly>{{file_content}}</textarea>
 </mat-card>

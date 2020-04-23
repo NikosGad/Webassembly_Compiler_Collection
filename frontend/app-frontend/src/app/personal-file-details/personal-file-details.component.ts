@@ -9,13 +9,15 @@ import { SourceCodeFileService } from '../source-code-file.service';
 })
 export class PersonalFileDetailsComponent implements OnInit {
   @Input() file: SourceCodeFile;
-  @Input() files_content_dict: {[file_id:number]: string};
+  @Input() file_content: string;
 
   @Output() fileChange: EventEmitter<SourceCodeFile>;
-  @Output() onFileDelete: EventEmitter<SourceCodeFile>
+  @Output() file_contentChange: EventEmitter<string>;
+  @Output() onFileDelete: EventEmitter<SourceCodeFile>;
 
   constructor(private sourceCodeFileService: SourceCodeFileService) {
     this.fileChange = new EventEmitter<SourceCodeFile>();
+    this.file_contentChange = new EventEmitter<SourceCodeFile>();
     this.onFileDelete = new EventEmitter<SourceCodeFile>();
   }
 
@@ -42,8 +44,8 @@ export class PersonalFileDetailsComponent implements OnInit {
   getSourceCode() {
     this.sourceCodeFileService.getFileSourceCode(this.file).subscribe(
       (res:any) => {
-        this.files_content_dict[this.file.id] = res;
-        console.log(this.files_content_dict[this.file.id]);
+        this.file_contentChange.emit(res);
+        console.log(res);
       }
     );
   }
