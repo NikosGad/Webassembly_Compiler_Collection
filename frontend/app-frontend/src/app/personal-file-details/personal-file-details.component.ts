@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { SourceCodeFile } from '../models/source-code-file';
+import { SourceCodeFileService } from '../source-code-file.service';
 
 @Component({
   selector: 'app-personal-file-details',
@@ -11,17 +11,37 @@ export class PersonalFileDetailsComponent implements OnInit {
   @Input() file: SourceCodeFile;
   @Input() files_content_dict: {[file_id:number]: string};
 
-  constructor(private http: HttpClient) { }
+  constructor(private sourceCodeFileService: SourceCodeFileService) { }
 
   ngOnInit() {
   }
 
-  getFileSourceCode() {
-    this.http.get('http://127.0.0.1:8080/api/personal_files', { responseType: 'text'}).subscribe(
+  downloadResults() {
+    this.sourceCodeFileService.downloadFileResult(this.file).subscribe(
       (res:any) => {
-        console.log(res);
-        this.file.content = res;
-        console.log(this.file.content);
+        const url= window.URL.createObjectURL(res);
+        let element: HTMLAnchorElement = document.getElementById("downloadResultsAnchor") as HTMLAnchorElement;
+        element.href = url;
+        element.download = "results.zip";
+        element.target = "_blank";
+        element.click();
+      }
+    );
+  }
+
+  getSourceCode() {
+    this.sourceCodeFileService.getFileSourceCode(this.file).subscribe(
+      (res:any) => {
+        this.files_content_dict[this.file.id] = res;
+        console.log(this.files_content_dict[this.file.id]);
+      }
+    );
+  }
+
+  deleteFile() {
+    this.sourceCodeFileService.deleteFile(this.file).subscribe(
+      (res:any) => {
+        console.log("File Deleted");
       }
     );
   }

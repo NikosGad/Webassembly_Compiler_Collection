@@ -13,8 +13,8 @@
 </mat-card-header>
 
 <mat-card-actions class="personal-file-details-actions">
-    <button mat-raised-button name="getResultsZipButton" (click)="getResultsZip()">Download</button>
-    <a id="downloadhrefagain" hidden></a>
+    <button mat-raised-button name="getResultsZipButton" (click)="downloadResults()">Download</button>
+    <a id="downloadResultsAnchor" hidden></a>
     <!-- <button mat-raised-button name="getPersonalFileButton" (click)="getPersonalFiles()">Recompile</button> -->
     <button mat-raised-button color="warn" name="deleteFileButton" (click)="deleteFile()">DELETE</button>
 </mat-card-actions>
