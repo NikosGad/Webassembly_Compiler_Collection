@@ -38,7 +38,7 @@
 
     <div class="flex-item-horizontal-space"></div>
 
-    <app-personal-file-details *ngIf="selected_file" class="flex-item-personal-file-details" [(file)]="selected_file" [files_content_dict]="files_content"></app-personal-file-details>
+    <app-personal-file-details *ngIf="selected_file" class="flex-item-personal-file-details" [(file)]="selected_file" [files_content_dict]="files_content" (onFileDelete)="deleteFile($event)"></app-personal-file-details>
 
     <div *ngIf="selected_file" class="flex-item-horizontal-space"></div>
 </div>

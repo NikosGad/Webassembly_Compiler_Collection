@@ -52,6 +52,31 @@ export class PersonalFilesComponent implements OnInit {
     );
   }
 
+  remove_file_from_array(file: SourceCodeFile, array: SourceCodeFile[], array_name: string) {
+    let index = array.indexOf(file, 0);
+    if (index > -1) {
+      array.splice(index, 1);
+    }
+  }
+
+  deleteFile(file: SourceCodeFile) {
+    console.log("Initial files:", this.files);
+    console.log("Initial all files:", this.filtered_files);
+    console.log("Initial filtered files:", this.filtered_files);
+    console.log("Initial files_content:", this.files_content);
+    console.log("Removing file from lists:", file);
+
+    this.remove_file_from_array(file, this.files[file.language], "files");
+    this.remove_file_from_array(file, this.filtered_files, "filtered files");
+    this.remove_file_from_array(file, this.all_files_list, "all files");
+
+    delete this.files_content[file.id];
+
+    console.log("After deletion files:", this.files);
+    console.log("After deletion filtered files:", this.filtered_files);
+    console.log("After deletion files_content:", this.files_content);
+  }
+
   onFileSelect(file:any): void {
     this.selected_file = file;
     console.log("You selected:", this.selected_file);

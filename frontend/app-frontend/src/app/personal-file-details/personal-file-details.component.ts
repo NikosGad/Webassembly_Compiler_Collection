@@ -11,9 +11,13 @@ export class PersonalFileDetailsComponent implements OnInit {
   @Input() file: SourceCodeFile;
   @Input() files_content_dict: {[file_id:number]: string};
 
-  @Output() fileChange: EventEmitter<SourceCodeFile> = new EventEmitter<SourceCodeFile>();
+  @Output() fileChange: EventEmitter<SourceCodeFile>;
+  @Output() onFileDelete: EventEmitter<SourceCodeFile>
 
-  constructor(private sourceCodeFileService: SourceCodeFileService) { }
+  constructor(private sourceCodeFileService: SourceCodeFileService) {
+    this.fileChange = new EventEmitter<SourceCodeFile>();
+    this.onFileDelete = new EventEmitter<SourceCodeFile>();
+  }
 
   ngOnInit() {
   }
@@ -48,6 +52,8 @@ export class PersonalFileDetailsComponent implements OnInit {
     this.sourceCodeFileService.deleteFile(this.file).subscribe(
       (res:any) => {
         console.log("File Deleted");
+        this.onFileDelete.emit(this.file);
+        this.closeDetails();
       }
     );
   }
