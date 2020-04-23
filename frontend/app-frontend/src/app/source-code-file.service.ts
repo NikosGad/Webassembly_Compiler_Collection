@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
+import {SourceCodeFile} from './models/source-code-file';
 
 @Injectable({
   providedIn: 'root'
@@ -13,10 +14,7 @@ export class SourceCodeFileService {
   private url_golang = this.backend_domain + ':8080/compile_golang'
   private url_non_existing = this.backend_domain + ':8080/compile_non_existing'
   private url_backend = this.scheme + this.domain + ":8080"
-
-  // httpOptions = {
-  //   headers: new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' })
-  // };
+  private url_files = this.url_backend + "/api/files"
 
   constructor(private http: HttpClient) { }
 
@@ -48,6 +46,35 @@ export class SourceCodeFileService {
   }
 
   getPersonalFiles() {
-      return this.http.get(this.url_backend + "/api/files/all_personal", {responseType: "json"});
+    return this.http.get(this.url_files + "/all_personal", {responseType: "json"});
+  }
+
+  downloadFileResult(file: SourceCodeFile) {
+    let query_parameters = {
+      language: file.language,
+      directory: file.directory,
+      name: "results.zip",
+    };
+
+    console.log("Getting File Results With Query Parameters:", query_parameters);
+
+    return this.http.get(this.url_files + "/personal_file_content", {params: query_parameters, responseType: 'blob'});
+  }
+
+  getFileSourceCode(file: SourceCodeFile) {
+    let query_parameters = {
+      language: file.language,
+      directory: file.directory,
+      name: file.name,
+    };
+
+    console.log("Getting File Source Code With Query Parameters:", query_parameters);
+
+    return this.http.get(this.url_files + "/personal_file_content", {params: query_parameters, responseType: 'text'});
+  }
+
+  deleteFile(file: SourceCodeFile) {
+    console.log("Deleting File:", file);
+    return this.http.delete(this.url_files + "/personal_file/" + file.id);
   }
 }
