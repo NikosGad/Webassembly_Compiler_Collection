@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { SourceCodeFile } from '../models/source-code-file';
 import { SourceCodeFileService } from '../source-code-file.service';
 
@@ -11,9 +11,15 @@ export class PersonalFileDetailsComponent implements OnInit {
   @Input() file: SourceCodeFile;
   @Input() files_content_dict: {[file_id:number]: string};
 
+  @Output() fileChange: EventEmitter<SourceCodeFile> = new EventEmitter<SourceCodeFile>();
+
   constructor(private sourceCodeFileService: SourceCodeFileService) { }
 
   ngOnInit() {
+  }
+
+  closeDetails() {
+    this.fileChange.emit(null);
   }
 
   downloadResults() {
