@@ -10,6 +10,7 @@ import { SourceCodeFileService } from '../source-code-file.service';
 export class PersonalFilesComponent implements OnInit {
   loading: boolean;
   available_languages: string[];
+  selected_language: string;
   files: any;
   files_content: {[file_id: number]: string};
   selected_file: SourceCodeFile;
@@ -19,6 +20,7 @@ export class PersonalFilesComponent implements OnInit {
   constructor(private sourceCodeFileService: SourceCodeFileService) {
     this.loading = true;
     this.available_languages = AvailableLanguages;
+    this.selected_language = "All files";
     this.files = {};
     this.files_content = {};
     this.selected_file = null;
@@ -88,9 +90,11 @@ export class PersonalFilesComponent implements OnInit {
 
     if (language) {
       this.filtered_files = this.files[language];
+      this.selected_language = language;
     }
     else {
       this.filtered_files = this.all_files_list;
+      this.selected_language = "All files";
     }
 
     console.log(this.filtered_files);

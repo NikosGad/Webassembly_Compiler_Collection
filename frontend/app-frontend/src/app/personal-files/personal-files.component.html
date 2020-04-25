@@ -6,13 +6,17 @@
             <mat-toolbar class="flex-item-toolbar">
                 <button mat-icon-button name="togglePersonalFileListSidenav" (click)="languages_sidenav.toggle()"><mat-icon>menu</mat-icon></button>
                 <h1>My Files</h1>
+                <mat-chip-list class="chip-list-margin">
+                    <mat-chip>{{selected_language}}</mat-chip>
+                </mat-chip-list>
             </mat-toolbar>
 
             <mat-sidenav-container class="full-size" hasBackdrop="true">
                 <mat-sidenav #languages_sidenav mode="over">
                     <mat-action-list>
-                        <!-- The first button gets automatically hovered -->
-                        <!-- <button mat-list-item style="height: 0;" name="dummyButton" hidden></button> -->
+                        <!-- The first button gets automatically focused
+                        https://github.com/angular/components/issues/10402 -->
+                        <button mat-list-item style="height: 0;" name="dummyButton" hidden></button>
                         <button mat-list-item name="showAllFilesButton" (click)="filterFiles('')">All Files</button>
                         <button *ngFor="let language of available_languages" [disabled]="loading" mat-list-item name="show{{language}}FilesButton" (click)="filterFiles(language)">{{language}} Source Code</button>
                     </mat-action-list>
