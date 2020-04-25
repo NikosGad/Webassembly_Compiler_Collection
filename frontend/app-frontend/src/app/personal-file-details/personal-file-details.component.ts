@@ -17,7 +17,7 @@ export class PersonalFileDetailsComponent implements OnInit {
 
   constructor(private sourceCodeFileService: SourceCodeFileService) {
     this.fileChange = new EventEmitter<SourceCodeFile>();
-    this.file_contentChange = new EventEmitter<SourceCodeFile>();
+    this.file_contentChange = new EventEmitter<string>();
     this.onFileDelete = new EventEmitter<SourceCodeFile>();
   }
 
