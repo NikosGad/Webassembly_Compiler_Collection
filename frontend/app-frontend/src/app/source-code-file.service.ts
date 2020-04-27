@@ -18,7 +18,7 @@ export class SourceCodeFileService {
 
   constructor(private http: HttpClient) { }
 
-  public uploadFile(source_code: File, language: string, compilation_options: any) {
+  public uploadFile(source_code: File, language: string, compilation_options: any, store: boolean) {
     let server_url: string
     const formData = new FormData();
 
@@ -37,6 +37,10 @@ export class SourceCodeFileService {
     }
     else {
       server_url = this.url_non_existing;
+    }
+
+    if (store) {
+      server_url = server_url + "_and_store";
     }
 
     console.log("Server url to post: " + server_url)

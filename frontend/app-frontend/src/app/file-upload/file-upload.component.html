@@ -13,6 +13,9 @@
         <button type="button" name="reset-btn" (click)="resetInputFile()">Reset file</button>
     </div>
 
+    <div>
+        <mat-checkbox #storeFileCheckbox>Store the file in my account</mat-checkbox>
+    </div>
     <mat-form-field>
         <mat-label>Select a language</mat-label>
         <mat-select [(value)]="language">
@@ -27,5 +30,6 @@
     <app-cpp-upload-form *ngIf="language === 'C++'" [cpp_compilation_options]="cpp_compilation_options"></app-cpp-upload-form>
     <app-golang-upload-form *ngIf="language === 'Golang'" [golang_compilation_options]="golang_compilation_options"></app-golang-upload-form>
 
-    <button [disabled]="!file_path" type="button" name="upload-btn" (click)="upload(fileInput)">Upload the file</button>
+    <button *ngIf="!storeFileCheckbox.checked" [disabled]="!file_path" type="button" name="upload-btn" (click)="upload(fileInput, false)">Upload the file</button>
+    <button *ngIf="storeFileCheckbox.checked" [disabled]="!file_path" type="button" name="uploadAndStoreButton" (click)="upload(fileInput, true)">Upload And store</button>
 </form>

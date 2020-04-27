@@ -46,7 +46,7 @@ export class FileUploadComponent implements OnInit {
     this.file_path = ""
   }
 
-  upload(file: any): void {
+  upload(file: any, store: boolean): void {
     let compilation_options: any;
     this.resultsZipFileBlob = new Blob();
 
@@ -63,7 +63,7 @@ export class FileUploadComponent implements OnInit {
       compilation_options = {};
     }
 
-    this.sourceCodeFileService.uploadFile(file.files[0], this.language, compilation_options).subscribe(
+    this.sourceCodeFileService.uploadFile(file.files[0], this.language, compilation_options, store).subscribe(
       (res) => {
         this.resultsZipFileBlob = res
         console.log(res)
