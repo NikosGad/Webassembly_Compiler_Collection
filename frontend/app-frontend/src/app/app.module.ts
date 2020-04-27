@@ -18,6 +18,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 /* Project Specific Interceptors */
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
@@ -68,6 +69,7 @@ import { PersonalFileDetailsComponent } from './personal-file-details/personal-f
     MatListModule,
     MatProgressSpinnerModule,
     MatChipsModule,
+    MatCheckboxModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
