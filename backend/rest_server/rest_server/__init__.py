@@ -16,6 +16,7 @@ db = SQLAlchemy(app)
 bcr = Bcrypt(app)
 
 from . import models
+from . import views
 from . import rest_server
 
 db.create_all()
