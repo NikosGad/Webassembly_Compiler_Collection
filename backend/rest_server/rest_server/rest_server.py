@@ -14,9 +14,9 @@ from .models import user_model
 from .models import file_model
 
 from . import common
-from . import compile_c
-from . import compile_cpp
-from . import compile_golang
+from .compile import compile_c
+from .compile import compile_cpp
+from .compile import compile_golang
 
 RESULTS_ZIP_NAME="results.zip"
 COMPRESSION=ZIP_DEFLATED
