@@ -1,5 +1,6 @@
 from rest_server import app
 from rest_server import db
+from rest_server import UPLOAD_PATH_EMSCRIPTEN, UPLOAD_PATH_GOLANG, ROOT_UPLOAD_PATHS
 import json
 import os
 import subprocess
@@ -200,15 +201,6 @@ def compile_and_store_in_DB(language_root_upload_path, parser, command_generator
     app.logger.debug(response.response.__dict__)
     subprocess.run(["ls", "-la", upload_path])
     return response
-
-UPLOAD_PATH_EMSCRIPTEN=os.environ.get("UPLOAD_PATH_EMSCRIPTEN", "/results/emscripten/")
-UPLOAD_PATH_GOLANG=os.environ.get("UPLOAD_PATH_GOLANG", "/results/go/src/")
-
-ROOT_UPLOAD_PATHS = {
-    "C": UPLOAD_PATH_EMSCRIPTEN,
-    "C++": UPLOAD_PATH_EMSCRIPTEN,
-    "Golang": UPLOAD_PATH_GOLANG,
-}
 
 ############ API ############
 @app.route('/compile_c', methods=['POST'])
