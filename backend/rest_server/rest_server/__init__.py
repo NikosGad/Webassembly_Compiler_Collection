@@ -26,7 +26,6 @@ ROOT_UPLOAD_PATHS = {
 
 from . import models
 from . import views
-from . import rest_server
 
 db.create_all()
 print("DB created!")
