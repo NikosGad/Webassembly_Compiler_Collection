@@ -12,7 +12,9 @@ from ..compile import compile_golang
 @app.route('/compile_c', methods=['POST'])
 def perform_c_compilation():
     if request.form["language"] == "C":
-        return compile(UPLOAD_PATH_EMSCRIPTEN, compile_c.parse_c_compilation_options, compile_c.generate_c_compile_command, compile_c.append_c_results_zip)
+        c_handler = compile_c.CCompilationHandler("C", UPLOAD_PATH_EMSCRIPTEN)
+        app.logger.debug(c_handler)
+        return compile(UPLOAD_PATH_EMSCRIPTEN, c_handler.compilation_options_parser, c_handler.compilation_command_generator, c_handler.results_zip_appender)
     else:
         return common.language_uri_mismatch()
 
@@ -20,7 +22,9 @@ def perform_c_compilation():
 @authentication.Authentication.authentication_required
 def perform_c_compilation_and_store():
     if request.form["language"] == "C":
-        return compile_and_store_in_DB(UPLOAD_PATH_EMSCRIPTEN, compile_c.parse_c_compilation_options, compile_c.generate_c_compile_command, compile_c.append_c_results_zip)
+        c_handler = compile_c.CCompilationHandler("C", UPLOAD_PATH_EMSCRIPTEN)
+        app.logger.debug(c_handler)
+        return compile_and_store_in_DB(UPLOAD_PATH_EMSCRIPTEN, c_handler.compilation_options_parser, c_handler.compilation_command_generator, c_handler.results_zip_appender)
     else:
         return common.language_uri_mismatch()
 
