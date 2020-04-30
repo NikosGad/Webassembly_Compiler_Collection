@@ -31,7 +31,9 @@ def perform_c_compilation_and_store():
 @app.route('/compile_cpp', methods=['POST'])
 def perform_cpp_compilation():
     if request.form["language"] == "C++":
-        return compile(UPLOAD_PATH_EMSCRIPTEN, compile_cpp.parse_cpp_compilation_options, compile_cpp.generate_cpp_compile_command, compile_cpp.append_cpp_results_zip)
+        cpp_handler = compile_cpp.CppCompilationHandler("C++", UPLOAD_PATH_EMSCRIPTEN)
+        app.logger.debug(cpp_handler)
+        return compile(UPLOAD_PATH_EMSCRIPTEN, cpp_handler.compilation_options_parser, cpp_handler.compilation_command_generator, cpp_handler.results_zip_appender)
     else:
         return common.language_uri_mismatch()
 
@@ -39,7 +41,9 @@ def perform_cpp_compilation():
 @authentication.Authentication.authentication_required
 def perform_cpp_compilation_and_store():
     if request.form["language"] == "C++":
-        return compile_and_store_in_DB(UPLOAD_PATH_EMSCRIPTEN, compile_cpp.parse_cpp_compilation_options, compile_cpp.generate_cpp_compile_command, compile_cpp.append_cpp_results_zip)
+        cpp_handler = compile_cpp.CppCompilationHandler("C++", UPLOAD_PATH_EMSCRIPTEN)
+        app.logger.debug(cpp_handler)
+        return compile_and_store_in_DB(UPLOAD_PATH_EMSCRIPTEN, cpp_handler.compilation_options_parser, cpp_handler.compilation_command_generator, cpp_handler.results_zip_appender)
     else:
         return common.language_uri_mismatch()
 
