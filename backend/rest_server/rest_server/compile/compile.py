@@ -1,3 +1,4 @@
+import abc
 import json
 import os
 import subprocess
@@ -13,6 +14,28 @@ from ..models import file_model
 RESULTS_ZIP_NAME="results.zip"
 COMPRESSION=ZIP_DEFLATED
 COMPRESSLEVEL=6
+
+class CompilationHandler(metaclass=abc.ABCMeta):
+    """CompilationHandler is an abstract class that declares all the necessary \
+methods that a language specific compilation handler should implement."""
+    def __init__(self, language, root_upload_path):
+        self.language = language
+        self.root_upload_path = root_upload_path
+
+    def __repr__(self):
+        return "CompilationHandler({!r}, {!r})".format(self.language, self.root_upload_path)
+
+    @abc.abstractmethod
+    def compilation_options_parser(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def compilation_command_generator(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def results_zip_appender(self, *args, **kwargs):
+        pass
 
 def compile(language_root_upload_path, parser, command_generator, results_zip_appender):
     app.logger.debug(common.debug_request(request))
