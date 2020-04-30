@@ -50,7 +50,9 @@ def perform_cpp_compilation_and_store():
 @app.route('/compile_golang', methods=['POST'])
 def perform_golang_compilation():
     if request.form["language"] == "Golang":
-        return compile(UPLOAD_PATH_GOLANG, compile_golang.parse_golang_compilation_options, compile_golang.generate_golang_compile_command, compile_golang.append_golang_results_zip)
+        golang_handler = compile_golang.GolangCompilationHandler("Golang", UPLOAD_PATH_GOLANG)
+        app.logger.debug(golang_handler)
+        return compile(UPLOAD_PATH_GOLANG, golang_handler.compilation_options_parser, golang_handler.compilation_command_generator, golang_handler.results_zip_appender)
     else:
         return common.language_uri_mismatch()
 
@@ -58,6 +60,8 @@ def perform_golang_compilation():
 @authentication.Authentication.authentication_required
 def perform_golang_compilation_and_store():
     if request.form["language"] == "Golang":
-        return compile_and_store_in_DB(UPLOAD_PATH_GOLANG, compile_golang.parse_golang_compilation_options, compile_golang.generate_golang_compile_command, compile_golang.append_golang_results_zip)
+        golang_handler = compile_golang.GolangCompilationHandler("Golang", UPLOAD_PATH_GOLANG)
+        app.logger.debug(golang_handler)
+        return compile_and_store_in_DB(UPLOAD_PATH_GOLANG, golang_handler.compilation_options_parser, golang_handler.compilation_command_generator, golang_handler.results_zip_appender)
     else:
         return common.language_uri_mismatch()
