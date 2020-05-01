@@ -23,7 +23,7 @@ methods that a language specific compilation handler should implement."""
         self.root_upload_path = root_upload_path
 
     def __repr__(self):
-        return "CompilationHandler({!r}, {!r})".format(self.language, self.root_upload_path)
+        return "<Object of {} at {}: CompilationHandler({!r}, {!r})>".format(self.__class__, hex(id(self)), self.language, self.root_upload_path)
 
     @abc.abstractmethod
     def compilation_options_parser(self, *args, **kwargs):
