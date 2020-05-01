@@ -24,9 +24,6 @@ JSON:
 
     return debug_message
 
-def language_uri_mismatch():
-    return jsonify({"type": "LanguageSelectionError", "message": "Selected language does not match with the requested compile URI"}), 400
-
 def log_in_username_password_incorrect():
     return jsonify({"type": "LogInError", "message": "Username, password or both are incorrect."}), 400
 
