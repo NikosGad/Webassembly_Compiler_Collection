@@ -5,9 +5,9 @@ from flask import g, jsonify, make_response, request, send_from_directory
 from werkzeug.utils import secure_filename
 
 from rest_server import app
-from rest_server import ROOT_UPLOAD_PATHS
 from .. import authentication
 from ..models import file_model
+from ..compile import compilation_handlers_dictionary
 
 @app.route('/api/files/personal_file_content', methods=['GET'])
 @authentication.Authentication.authentication_required
@@ -20,11 +20,11 @@ def get_personal_file_content():
 
     secured_directory = secure_filename(directory)
     secured_name = secure_filename(name)
-    language_root_upload_path = ROOT_UPLOAD_PATHS.get(language)
-    if not language_root_upload_path:
+    compilation_handler = compilation_handlers_dictionary.get(language)
+    if not compilation_handler:
         return jsonify({"type": "GetFileError", "message": "Language {} is not supported.".format(language)}), 400
 
-    path = language_root_upload_path + str(g.user["id"]) + "/" + secured_directory + "/"
+    path = compilation_handler.root_upload_path + str(g.user["id"]) + "/" + secured_directory + "/"
 
     if not os.path.isfile(path + secured_name):
         app.logger.debug("File: {} does not exist".format(path + secured_name))
@@ -65,7 +65,7 @@ def delete_personal_file_directory(file_id):
     if not file:
         return jsonify({"type": "FileNotFound", "message": "The file you are trying to delete does not exist"}), 404
 
-    directory_path = ROOT_UPLOAD_PATHS[file.language] + str(g.user["id"]) + "/" + file.directory
+    directory_path = compilation_handlers_dictionary[file.language].root_upload_path + str(g.user["id"]) + "/" + file.directory
 
     if not os.path.isdir(directory_path):
         app.logger.error("Inconsistency during delete of file: {}\nPath {} does not exist".format(file, directory_path))
