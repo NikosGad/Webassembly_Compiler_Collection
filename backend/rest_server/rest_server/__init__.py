@@ -15,15 +15,6 @@ CORS(app, origins="http://localhost:3535")
 db = SQLAlchemy(app)
 bcr = Bcrypt(app)
 
-UPLOAD_PATH_EMSCRIPTEN=os.environ.get("UPLOAD_PATH_EMSCRIPTEN", "/results/emscripten/")
-UPLOAD_PATH_GOLANG=os.environ.get("UPLOAD_PATH_GOLANG", "/results/go/src/")
-
-ROOT_UPLOAD_PATHS = {
-    "C": UPLOAD_PATH_EMSCRIPTEN,
-    "C++": UPLOAD_PATH_EMSCRIPTEN,
-    "Golang": UPLOAD_PATH_GOLANG,
-}
-
 from . import models
 from . import views
 
