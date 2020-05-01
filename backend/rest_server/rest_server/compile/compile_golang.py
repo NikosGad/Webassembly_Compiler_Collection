@@ -6,7 +6,7 @@ from werkzeug.utils import secure_filename
 
 from .compile import CompilationHandler
 
-GO_INSTALLATION_PATH=os.environ.get("GO_INSTALLATION_PATH", "usr/local/go/")
+GO_INSTALLATION_PATH=os.environ["GO_INSTALLATION_PATH"]
 
 class GolangCompilationHandler(CompilationHandler):
     """GolangCompilationHandler implements the abstract methods for Golang."""
