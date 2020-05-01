@@ -10,7 +10,7 @@ def perform_compilation(language):
     if not compilation_handler:
         return jsonify({"type": "LanguageNotSupportedError", "message": "Language {} is not supported.".format(language)}), 400
 
-    return compilation_handler.compile(compilation_handler.root_upload_path, compilation_handler.compilation_options_parser, compilation_handler.compilation_command_generator, compilation_handler.results_zip_appender)
+    return compilation_handler.compile()
 
 @app.route('/api/compile/<language>/store', methods=['POST'])
 @authentication.Authentication.authentication_required
@@ -19,4 +19,4 @@ def perform_compilation_and_store(language):
     if not compilation_handler:
         return jsonify({"type": "LanguageNotSupportedError", "message": "Language {} is not supported.".format(language)}), 400
 
-    return compilation_handler.compile_and_store_in_DB(compilation_handler.root_upload_path, compilation_handler.compilation_options_parser, compilation_handler.compilation_command_generator, compilation_handler.results_zip_appender)
+    return compilation_handler.compile_and_store_in_DB()

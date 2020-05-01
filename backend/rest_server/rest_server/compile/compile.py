@@ -37,7 +37,7 @@ methods that a language specific compilation handler should implement."""
     def results_zip_appender(self, *args, **kwargs):
         pass
 
-    def compile(self, language_root_upload_path, parser, command_generator, results_zip_appender):
+    def compile(self):
         app.logger.debug(common.debug_request(request))
 
         client_file = request.files["mycode"]
@@ -47,7 +47,7 @@ methods that a language specific compilation handler should implement."""
         app.logger.debug("Secure Filename: " + filename)
         app.logger.debug("Content-type: " + client_file.content_type)
 
-        upload_path = language_root_upload_path + common.generate_file_subpath(client_file)
+        upload_path = self.root_upload_path + common.generate_file_subpath(client_file)
         try:
             os.makedirs(upload_path)
             app.logger.debug("Path generated: " + upload_path)
@@ -60,11 +60,11 @@ methods that a language specific compilation handler should implement."""
             app.logger.exception("An error occured while loading compilation options json")
             return jsonify({"type": "JSONParseError", "message": "Bad JSON Format Error"}), 400
 
-        compile_command, secured_output_filename = parser(**compilation_options_json)
+        compile_command, secured_output_filename = self.compilation_options_parser(**compilation_options_json)
         app.logger.debug("Parsed compile command: " + str(compile_command))
         app.logger.debug("Parsed Output Filename: " + secured_output_filename)
 
-        compile_command = command_generator(upload_path, compile_command, filename, secured_output_filename)
+        compile_command = self.compilation_command_generator(upload_path, compile_command, filename, secured_output_filename)
         app.logger.debug("Final compile command: " + str(compile_command))
 
         subprocess.run(["ls", "-la", upload_path])
@@ -104,7 +104,7 @@ methods that a language specific compilation handler should implement."""
         # TODO: Activate X-Sendfile
         if completed_compile_file_process.returncode == 0:
             return_status_code = 200
-            results_zip_appender(upload_path, RESULTS_ZIP_NAME, secured_output_filename, "a", COMPRESSION, COMPRESSLEVEL)
+            self.results_zip_appender(upload_path, RESULTS_ZIP_NAME, secured_output_filename, "a", COMPRESSION, COMPRESSLEVEL)
         else:
             return_status_code = 400
 
@@ -116,7 +116,7 @@ methods that a language specific compilation handler should implement."""
         subprocess.run(["ls", "-la", upload_path])
         return response
 
-    def compile_and_store_in_DB(self, language_root_upload_path, parser, command_generator, results_zip_appender):
+    def compile_and_store_in_DB(self):
         app.logger.debug(common.debug_request(request))
 
         client_file = request.files["mycode"]
@@ -128,7 +128,7 @@ methods that a language specific compilation handler should implement."""
 
         subpath = common.generate_file_subpath(client_file)[:-1]
 
-        upload_path = language_root_upload_path + str(g.user["id"]) + "/" + subpath + "/"
+        upload_path = self.root_upload_path + str(g.user["id"]) + "/" + subpath + "/"
         try:
             os.makedirs(upload_path)
             app.logger.debug("Path generated: " + upload_path)
@@ -141,7 +141,7 @@ methods that a language specific compilation handler should implement."""
             app.logger.exception("An error occured while loading compilation options json")
             return jsonify({"type": "JSONParseError", "message": "Bad JSON Format Error"}), 400
 
-        compile_command, secured_output_filename = parser(**compilation_options_json)
+        compile_command, secured_output_filename = self.compilation_options_parser(**compilation_options_json)
         app.logger.debug("Parsed compile command: " + str(compile_command))
         app.logger.debug("Parsed Output Filename: " + secured_output_filename)
 
@@ -153,7 +153,7 @@ methods that a language specific compilation handler should implement."""
             "language": request.form["language"],
         }
 
-        compile_command = command_generator(upload_path, compile_command, filename, secured_output_filename)
+        compile_command = self.compilation_command_generator(upload_path, compile_command, filename, secured_output_filename)
         app.logger.debug("Final compile command: " + str(compile_command))
 
         subprocess.run(["ls", "-la", upload_path])
@@ -194,7 +194,7 @@ methods that a language specific compilation handler should implement."""
         if completed_compile_file_process.returncode == 0:
             return_status_code = 200
             file_dictionary["status"] = "Successful"
-            results_zip_appender(upload_path, RESULTS_ZIP_NAME, secured_output_filename, "a", COMPRESSION, COMPRESSLEVEL)
+            self.results_zip_appender(upload_path, RESULTS_ZIP_NAME, secured_output_filename, "a", COMPRESSION, COMPRESSLEVEL)
         else:
             file_dictionary["status"] = "Erroneous"
             return_status_code = 400
