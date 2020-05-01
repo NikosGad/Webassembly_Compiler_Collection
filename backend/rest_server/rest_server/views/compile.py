@@ -1,67 +1,23 @@
-from flask import request
+from flask import jsonify
 
 from rest_server import app
-from rest_server import UPLOAD_PATH_EMSCRIPTEN, UPLOAD_PATH_GOLANG, ROOT_UPLOAD_PATHS
 from .. import authentication
-from .. import common
 from ..compile.compile import compile, compile_and_store_in_DB
-from ..compile import compile_c
-from ..compile import compile_cpp
-from ..compile import compile_golang
+from ..compile import compilation_handlers_dictionary
 
-@app.route('/compile_c', methods=['POST'])
-def perform_c_compilation():
-    if request.form["language"] == "C":
-        c_handler = compile_c.CCompilationHandler("C", UPLOAD_PATH_EMSCRIPTEN)
-        app.logger.debug(c_handler)
-        return compile(UPLOAD_PATH_EMSCRIPTEN, c_handler.compilation_options_parser, c_handler.compilation_command_generator, c_handler.results_zip_appender)
-    else:
-        return common.language_uri_mismatch()
+@app.route('/api/compile/<language>', methods=['POST'])
+def perform_compilation(language):
+    compilation_handler = compilation_handlers_dictionary.get(language)
+    if not compilation_handler:
+        return jsonify({"type": "LanguageNotSupportedError", "message": "Language {} is not supported.".format(language)}), 400
 
-@app.route('/compile_c_and_store', methods=['POST'])
+    return compile(compilation_handler.root_upload_path, compilation_handler.compilation_options_parser, compilation_handler.compilation_command_generator, compilation_handler.results_zip_appender)
+
+@app.route('/api/compile/<language>/store', methods=['POST'])
 @authentication.Authentication.authentication_required
-def perform_c_compilation_and_store():
-    if request.form["language"] == "C":
-        c_handler = compile_c.CCompilationHandler("C", UPLOAD_PATH_EMSCRIPTEN)
-        app.logger.debug(c_handler)
-        return compile_and_store_in_DB(UPLOAD_PATH_EMSCRIPTEN, c_handler.compilation_options_parser, c_handler.compilation_command_generator, c_handler.results_zip_appender)
-    else:
-        return common.language_uri_mismatch()
+def perform_compilation_and_store(language):
+    compilation_handler = compilation_handlers_dictionary.get(language)
+    if not compilation_handler:
+        return jsonify({"type": "LanguageNotSupportedError", "message": "Language {} is not supported.".format(language)}), 400
 
-@app.route('/compile_cpp', methods=['POST'])
-def perform_cpp_compilation():
-    if request.form["language"] == "C++":
-        cpp_handler = compile_cpp.CppCompilationHandler("C++", UPLOAD_PATH_EMSCRIPTEN)
-        app.logger.debug(cpp_handler)
-        return compile(UPLOAD_PATH_EMSCRIPTEN, cpp_handler.compilation_options_parser, cpp_handler.compilation_command_generator, cpp_handler.results_zip_appender)
-    else:
-        return common.language_uri_mismatch()
-
-@app.route('/compile_cpp_and_store', methods=['POST'])
-@authentication.Authentication.authentication_required
-def perform_cpp_compilation_and_store():
-    if request.form["language"] == "C++":
-        cpp_handler = compile_cpp.CppCompilationHandler("C++", UPLOAD_PATH_EMSCRIPTEN)
-        app.logger.debug(cpp_handler)
-        return compile_and_store_in_DB(UPLOAD_PATH_EMSCRIPTEN, cpp_handler.compilation_options_parser, cpp_handler.compilation_command_generator, cpp_handler.results_zip_appender)
-    else:
-        return common.language_uri_mismatch()
-
-@app.route('/compile_golang', methods=['POST'])
-def perform_golang_compilation():
-    if request.form["language"] == "Golang":
-        golang_handler = compile_golang.GolangCompilationHandler("Golang", UPLOAD_PATH_GOLANG)
-        app.logger.debug(golang_handler)
-        return compile(UPLOAD_PATH_GOLANG, golang_handler.compilation_options_parser, golang_handler.compilation_command_generator, golang_handler.results_zip_appender)
-    else:
-        return common.language_uri_mismatch()
-
-@app.route('/compile_golang_and_store', methods=['POST'])
-@authentication.Authentication.authentication_required
-def perform_golang_compilation_and_store():
-    if request.form["language"] == "Golang":
-        golang_handler = compile_golang.GolangCompilationHandler("Golang", UPLOAD_PATH_GOLANG)
-        app.logger.debug(golang_handler)
-        return compile_and_store_in_DB(UPLOAD_PATH_GOLANG, golang_handler.compilation_options_parser, golang_handler.compilation_command_generator, golang_handler.results_zip_appender)
-    else:
-        return common.language_uri_mismatch()
+    return compile_and_store_in_DB(compilation_handler.root_upload_path, compilation_handler.compilation_options_parser, compilation_handler.compilation_command_generator, compilation_handler.results_zip_appender)
