@@ -18,7 +18,7 @@ def perform_compilation(language):
     if not source_code_file or not compilation_options_json:
         return jsonify({"type": "IncorrectCompileBodyError", "message": "A form data should be provided that contains a file with key 'code' and a compilation options json with key 'compilation_options'."}), 400
 
-    return compilation_handler.compile()
+    return compilation_handler.compile(source_code_file)
 
 @app.route('/api/compile/<language>/store', methods=['POST'])
 @authentication.Authentication.authentication_required
@@ -34,4 +34,4 @@ def perform_compilation_and_store(language):
     if not source_code_file or not compilation_options_json:
         return jsonify({"type": "IncorrectCompileBodyError", "message": "A form data should be provided that contains a file with key 'code' and a compilation options json with key 'compilation_options'."}), 400
 
-    return compilation_handler.compile(store=True)
+    return compilation_handler.compile(source_code_file, store=True)

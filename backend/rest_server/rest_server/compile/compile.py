@@ -38,10 +38,8 @@ methods that a language specific compilation handler should implement."""
     def results_zip_appender(self, *args, **kwargs):
         pass
 
-    def compile(self, store=False):
-        client_file = request.files["mycode"]
+    def compile(self, client_file, store=False):
         filename = secure_filename(client_file.filename)
-
         app.logger.debug("Secure Filename: " + filename)
 
         subpath = common.generate_file_subpath(client_file)
@@ -68,7 +66,7 @@ methods that a language specific compilation handler should implement."""
         try:
             compilation_options_json = json.loads(request.form["compilation_options"])
         except Exception:
-            app.logger.exception("An error occured while loading compilation options json")
+            app.logger.debug("An error occured while loading compilation options json")
             return jsonify({"type": "JSONParseError", "message": "Bad JSON Format Error"}), 400
 
         parsed_compile_options, secured_output_filename = self.compilation_options_parser(**compilation_options_json)
