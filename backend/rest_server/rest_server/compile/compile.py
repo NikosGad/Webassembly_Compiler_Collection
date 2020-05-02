@@ -39,8 +39,6 @@ methods that a language specific compilation handler should implement."""
         pass
 
     def compile(self, store=False):
-        app.logger.debug(common.debug_request(request))
-
         client_file = request.files["mycode"]
         filename = secure_filename(client_file.filename)
 
