@@ -44,9 +44,7 @@ methods that a language specific compilation handler should implement."""
         client_file = request.files["mycode"]
         filename = secure_filename(client_file.filename)
 
-        app.logger.debug("File information: " + str(client_file))
         app.logger.debug("Secure Filename: " + filename)
-        app.logger.debug("Content-type: " + client_file.content_type)
 
         subpath = common.generate_file_subpath(client_file)
         if store:
