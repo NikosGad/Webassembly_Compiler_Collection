@@ -48,7 +48,7 @@ methods that a language specific compilation handler should implement."""
 
         subpath = common.generate_file_subpath(client_file)
         if store:
-            upload_path = self.root_upload_path + str(g.user["id"]) + "/" + subpath + "/"
+            user_id = str(g.user["id"])
 
             file_dictionary = {
                 "user_id": g.user["id"],
@@ -57,7 +57,9 @@ methods that a language specific compilation handler should implement."""
                 "language": self.language,
             }
         else:
-            upload_path = self.root_upload_path + subpath + "/"
+            user_id = "unknown"
+
+        upload_path = self.root_upload_path + user_id + "/" + subpath + "/"
 
         try:
             os.makedirs(upload_path)
