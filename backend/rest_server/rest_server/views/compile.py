@@ -19,4 +19,4 @@ def perform_compilation_and_store(language):
     if not compilation_handler:
         return jsonify({"type": "LanguageNotSupportedError", "message": "Language {} is not supported.".format(language)}), 400
 
-    return compilation_handler.compile_and_store_in_DB()
+    return compilation_handler.compile(store=True)
