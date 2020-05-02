@@ -48,8 +48,8 @@ methods that a language specific compilation handler should implement."""
         app.logger.debug("Secure Filename: " + filename)
         app.logger.debug("Content-type: " + client_file.content_type)
 
+        subpath = common.generate_file_subpath(client_file)
         if store:
-            subpath = common.generate_file_subpath(client_file)[:-1]
             upload_path = self.root_upload_path + str(g.user["id"]) + "/" + subpath + "/"
 
             file_dictionary = {
@@ -59,7 +59,7 @@ methods that a language specific compilation handler should implement."""
                 "language": self.language,
             }
         else:
-            upload_path = self.root_upload_path + common.generate_file_subpath(client_file)
+            upload_path = self.root_upload_path + subpath + "/"
 
         try:
             os.makedirs(upload_path)
