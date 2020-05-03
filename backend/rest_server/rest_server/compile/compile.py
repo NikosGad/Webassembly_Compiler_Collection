@@ -1,5 +1,7 @@
 import abc
 import copy
+import datetime
+import hashlib
 import json
 import os
 import subprocess
@@ -9,7 +11,6 @@ from werkzeug.utils import secure_filename
 from zipfile import ZipFile, ZIP_DEFLATED
 
 from rest_server import app
-from .. import common
 from ..models import file_model
 
 RESULTS_ZIP_NAME="results.zip"
@@ -38,12 +39,23 @@ methods that a language specific compilation handler should implement."""
     def results_zip_appender(self, *args, **kwargs):
         pass
 
+    def generate_file_subpath(self, client_file):
+        sha256_hash = hashlib.sha256()
+
+        for byte_block in iter(lambda: client_file.read(4096),b""):
+            sha256_hash.update(byte_block)
+
+        # Rewind file pointer to the beginning
+        client_file.seek(0)
+
+        return str(datetime.datetime.utcnow().strftime("%Y%m%d%H%M%S%f")) + "_" + sha256_hash.hexdigest()
+
     def compile(self, client_file, compilation_options_json, store=False):
         try:
             filename = secure_filename(client_file.filename)
             app.logger.debug("Secure Filename: " + filename)
 
-            subpath = common.generate_file_subpath(client_file)
+            subpath = self.generate_file_subpath(client_file)
             if store:
                 user_id = str(g.user["id"])
 
