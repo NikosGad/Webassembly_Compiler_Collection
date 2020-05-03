@@ -9,16 +9,16 @@ class CCompilationHandler(CompilationHandler):
     """CCompilationHandler implements the abstract methods for C."""
     # kwargs is used to throw away any unwanted arguments that come from the request
     def compilation_options_parser(self, optimization_level="", iso_standard="", suppress_warnings=False, output_filename="", **kwargs):
-        compile_command = ["emcc"]
+        parsed_compilation_options = []
 
         if optimization_level in ["O0", "O1", "O2", "O3", "Os", "Oz",]:
-            compile_command.append("-" + optimization_level)
+            parsed_compilation_options.append("-" + optimization_level)
 
         if iso_standard in ["c89", "c90", "c99", "c11", "c17", "gnu89", "gnu90", "gnu99", "gnu11", "gnu17",]:
-            compile_command.append("-std=" + iso_standard)
+            parsed_compilation_options.append("-std=" + iso_standard)
 
         if suppress_warnings == True:
-            compile_command.append("-w")
+            parsed_compilation_options.append("-w")
 
         secured_output_filename = secure_filename(output_filename)
         if secured_output_filename == "":
@@ -26,7 +26,7 @@ class CCompilationHandler(CompilationHandler):
         else:
             secured_output_filename = re.compile('^-+').sub('', secured_output_filename)
 
-        return compile_command, secured_output_filename
+        return parsed_compilation_options, secured_output_filename
 
     # In order to allow other function for different languages to have different
     # handling, this function shall return the parsed_compilation_options parameter.
@@ -39,9 +39,10 @@ class CCompilationHandler(CompilationHandler):
     # list, so the list needs to be returned from the callee function.
     # In order to have a uniform design, this function shall return a list value.
     def compilation_command_generator(self, working_directory, parsed_compilation_options, input_filename, output_filename):
-        # TODO: check for mime type or make sure that it has ascii characters before compiling
-        parsed_compilation_options.extend(["-o", working_directory + output_filename + ".html", working_directory + input_filename])
-        return parsed_compilation_options
+        compilation_command = ["emcc"]
+        compilation_command.extend(parsed_compilation_options)
+        compilation_command.extend(["-o", working_directory + output_filename + ".html", working_directory + input_filename])
+        return compilation_command
 
     def results_zip_appender(self, working_directory, results_zip_name, output_filename, mode, compression, compresslevel):
         with ZipFile(file=working_directory + results_zip_name, mode=mode, compression=compression, compresslevel=compresslevel) as results_zip:

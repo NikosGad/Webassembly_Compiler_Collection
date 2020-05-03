@@ -11,7 +11,7 @@ GO_INSTALLATION_PATH=os.environ["GO_INSTALLATION_PATH"]
 class GolangCompilationHandler(CompilationHandler):
     """GolangCompilationHandler implements the abstract methods for Golang."""
     def compilation_options_parser(self, output_filename="", **kwargs):
-        compile_command = ["go", "build"]
+        parsed_compilation_options = []
 
         secured_output_filename = secure_filename(output_filename)
         if secured_output_filename == "":
@@ -19,11 +19,13 @@ class GolangCompilationHandler(CompilationHandler):
         else:
             secured_output_filename = re.compile('^-+').sub('', secured_output_filename)
 
-        return compile_command, secured_output_filename
+        return parsed_compilation_options, secured_output_filename
 
     def compilation_command_generator(self, working_directory, parsed_compilation_options, input_filename, output_filename):
-        parsed_compilation_options.extend(["-o", working_directory + output_filename + ".wasm", working_directory + input_filename])
-        return parsed_compilation_options
+        compile_command = ["go", "build"]
+        compile_command.extend(parsed_compilation_options)
+        compile_command.extend(["-o", working_directory + output_filename + ".wasm", working_directory + input_filename])
+        return compile_command
 
     def results_zip_appender(self, working_directory, results_zip_name, output_filename, mode, compression, compresslevel):
         line_num = 1
