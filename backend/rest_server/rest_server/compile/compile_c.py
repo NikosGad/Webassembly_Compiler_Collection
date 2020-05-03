@@ -28,16 +28,6 @@ class CCompilationHandler(CompilationHandler):
 
         return parsed_compilation_options, secured_output_filename
 
-    # In order to allow other function for different languages to have different
-    # handling, this function shall return the parsed_compilation_options parameter.
-    # With this implementation, this is unnecessary because the initial argument
-    # that was passed in this function will also be altered and in the end it will
-    # still be pointing to the same list. Thus we are returning a pointer to a list
-    # that the caller function already has.
-    # However, another function may return a list that is generated exclusively
-    # inside it, thus the caller function does not already have a pointer to this
-    # list, so the list needs to be returned from the callee function.
-    # In order to have a uniform design, this function shall return a list value.
     def compilation_command_generator(self, working_directory, parsed_compilation_options, input_filename, output_filename):
         compilation_command = ["emcc"]
         compilation_command.extend(parsed_compilation_options)
