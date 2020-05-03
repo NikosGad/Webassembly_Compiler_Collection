@@ -81,8 +81,6 @@ methods that a language specific compilation handler should implement."""
                 app.logger.exception("Path exists: " + upload_path)
                 return jsonify({"type": "FileExistsError", "message": "The uploaded file already exists"}), 400
 
-            subprocess.run(["ls", "-la", upload_path])
-
             client_file.save(upload_path + filename)
 
             # DONT USE shell=True for security and vulnerabilities
@@ -125,7 +123,6 @@ methods that a language specific compilation handler should implement."""
             app.logger.debug(response.headers)
             app.logger.debug(response.__dict__)
             app.logger.debug(response.response.__dict__)
-            subprocess.run(["ls", "-la", upload_path])
             return response
         except:
             app.logger.exception("Unexpected error occured during compile()")
