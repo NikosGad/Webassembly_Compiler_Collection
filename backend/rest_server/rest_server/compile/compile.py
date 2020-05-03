@@ -58,13 +58,6 @@ methods that a language specific compilation handler should implement."""
             subpath = self.generate_file_subpath(client_file)
             if store:
                 user_id = str(g.user["id"])
-
-                file_dictionary = {
-                    "user_id": g.user["id"],
-                    "name": filename,
-                    "directory":subpath,
-                    "language": self.language,
-                }
             else:
                 user_id = "unknown"
 
@@ -80,11 +73,8 @@ methods that a language specific compilation handler should implement."""
             app.logger.debug("Parsed compilation options: " + str(parsed_compilation_options))
             app.logger.debug("Parsed Output Filename: " + secured_output_filename)
 
-            if store:
-                file_dictionary["compilation_options"] = copy.copy(parsed_compile_options)
             compile_command = self.compilation_command_generator(upload_path, parsed_compilation_options, filename, secured_output_filename)
             app.logger.debug("Compile command: " + str(compile_command))
-
 
             try:
                 os.makedirs(upload_path)
@@ -118,15 +108,21 @@ methods that a language specific compilation handler should implement."""
             # TODO: Activate X-Sendfile
             if completed_compile_file_process.returncode == 0:
                 return_status_code = 200
-                if store:
-                    file_dictionary["status"] = "Successful"
+                compilation_status = "Successful"
                 self.results_zip_appender(upload_path, RESULTS_ZIP_NAME, secured_output_filename, "a", COMPRESSION, COMPRESSLEVEL)
             else:
-                if store:
-                    file_dictionary["status"] = "Erroneous"
                 return_status_code = 400
+                compilation_status = "Erroneous"
 
             if store:
+                file_dictionary = {
+                    "user_id": g.user["id"],
+                    "name": filename,
+                    "directory": subpath,
+                    "compilation_options": parsed_compilation_options,
+                    "language": self.language,
+                    "status": compilation_status,
+                }
                 file_db = file_model.SourceCodeFile(**file_dictionary)
                 file_db.create()
 
