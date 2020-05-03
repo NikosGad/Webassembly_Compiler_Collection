@@ -76,15 +76,15 @@ methods that a language specific compilation handler should implement."""
                 app.logger.debug("An error occured while loading compilation options json")
                 return jsonify({"type": "JSONParseError", "message": "Bad JSON Format Error"}), 400
 
-            parsed_compile_options, secured_output_filename = self.compilation_options_parser(**compilation_options_dict)
-            app.logger.debug("Parsed compile options: " + str(parsed_compile_options))
+            parsed_compilation_options, secured_output_filename = self.compilation_options_parser(**compilation_options_dict)
+            app.logger.debug("Parsed compilation options: " + str(parsed_compilation_options))
             app.logger.debug("Parsed Output Filename: " + secured_output_filename)
 
             if store:
                 file_dictionary["compilation_options"] = copy.copy(parsed_compile_options)
+            compile_command = self.compilation_command_generator(upload_path, parsed_compilation_options, filename, secured_output_filename)
+            app.logger.debug("Compile command: " + str(compile_command))
 
-            compile_command = self.compilation_command_generator(upload_path, parsed_compile_options, filename, secured_output_filename)
-            app.logger.debug("Final compile command: " + str(compile_command))
 
             try:
                 os.makedirs(upload_path)
@@ -136,6 +136,27 @@ methods that a language specific compilation handler should implement."""
             app.logger.debug(response.__dict__)
             app.logger.debug(response.response.__dict__)
             return response
-        except:
+        except Exception:
             app.logger.exception("Unexpected error occured during compile()")
+            app.logger.warning("Asserting that no orphaned directory is created...")
+            try:
+                upload_path
+            except UnboundLocalError as e:
+                upload_path = ""
+
+            if os.path.isdir(upload_path):
+                app.logger.warning("Detected orphaned directory: " + upload_path)
+                completed_delete_process = subprocess.run(["rm", "-r", upload_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                if completed_delete_process.stdout:
+                    app.logger.warning(completed_delete_process.stdout.decode(encoding="utf-8"))
+
+                if completed_delete_process.returncode != 0:
+                    app.logger.error("UNABLE TO DELETE ORPHANED DIRECTORY: " + upload_path)
+                    if completed_delete_process.stderr:
+                        app.logger.error(completed_delete_process.stderr.decode(encoding="utf-8"))
+                else:
+                    app.logger.info("Orphaned directory deleted: " + upload_path)
+            else:
+                app.logger.info("No orphaned directory is created")
+
             return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
