@@ -58,12 +58,6 @@ methods that a language specific compilation handler should implement."""
         upload_path = self.root_upload_path + user_id + "/" + subpath + "/"
 
         try:
-            os.makedirs(upload_path)
-            app.logger.debug("Path generated: " + upload_path)
-        except FileExistsError:
-            app.logger.debug("Path exists: " + upload_path)
-
-        try:
             compilation_options_dict = json.loads(compilation_options_json)
         except Exception:
             app.logger.debug("An error occured while loading compilation options json")
@@ -78,6 +72,13 @@ methods that a language specific compilation handler should implement."""
 
         compile_command = self.compilation_command_generator(upload_path, parsed_compile_options, filename, secured_output_filename)
         app.logger.debug("Final compile command: " + str(compile_command))
+
+        try:
+            os.makedirs(upload_path)
+            app.logger.debug("Path generated: " + upload_path)
+        except FileExistsError:
+            app.logger.exception("Path exists: " + upload_path)
+            return jsonify({"type": "FileExistsError", "message": "The uploaded file already exists"}), 400
 
         subprocess.run(["ls", "-la", upload_path])
 
