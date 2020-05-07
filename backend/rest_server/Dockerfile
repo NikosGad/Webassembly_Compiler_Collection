@@ -67,4 +67,4 @@ RUN chown server:server wsgi.py database_accepts_connections.py\
 
 RUN chown server:server -R rest_server\
  && chmod 400 -R rest_server\
- && chmod 500 rest_server
+ && chmod 500 rest_server rest_server/compile rest_server/models rest_server/views
