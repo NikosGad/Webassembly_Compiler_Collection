@@ -28,9 +28,12 @@ export class BackendErrorInterceptor implements HttpInterceptor {
                 reader.readAsText(err.error);
                 break;
               }
+              case "FileExistsError":
+              case "FileIDTypeError":
               case "GetFileError":
+              case "IncorrectCompileBodyError":
               case "JSONParseError":
-              case "LanguageSelectionError":
+              case "LanguageNotSupportedError":
               case "LogInError": {
                 alert(err.error.message);
                 break;
@@ -75,7 +78,6 @@ export class BackendErrorInterceptor implements HttpInterceptor {
           case 404: {
             switch (err.error.type) {
               case "application/json": {
-                // alert(err.error.text)
                 const reader = new FileReader();
                 reader.addEventListener('loadend', () => {
                   alert(JSON.parse(<string>reader.result)["message"]);
@@ -96,8 +98,20 @@ export class BackendErrorInterceptor implements HttpInterceptor {
           } // End of case: 404
           case 500: {
             switch (err.error.type) {
-              case "UnexpectedException":
+              case "application/json": {
+                const reader = new FileReader();
+                reader.addEventListener('loadend', () => {
+                  alert(JSON.parse(<string>reader.result)["message"] + "\nPlease try again later.");
+                });
+                reader.readAsText(err.error);
+                break;
+              }
+              case "UnexpectedException": {
+                alert(err.error.message + "\nPlease try again later.");
+                break;
+              }
               default: {
+                alert(err.message + "\nPlease try again later.")
                 break;
               }
             }
