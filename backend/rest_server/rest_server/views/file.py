@@ -51,7 +51,7 @@ def delete_personal_file_directory(file_id):
     try:
         file_id_int = int(file_id)
         if file_id_int <= 0:
-            return jsonify({"type": "FileIDTypeError", "message": "File ID value should be a positive integer"}), 400
+            raise ValueError
     except ValueError as e:
         return jsonify({"type": "FileIDTypeError", "message": "File ID value should be a positive integer"}), 400
 
