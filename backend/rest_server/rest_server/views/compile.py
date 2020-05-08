@@ -13,7 +13,7 @@ def perform_compilation(language):
     if not compilation_handler:
         return jsonify({"type": "LanguageNotSupportedError", "message": "Language {} is not supported.".format(language)}), 400
 
-    source_code_file = request.files.get("mycode")
+    source_code_file = request.files.get("code")
     compilation_options_json = request.form.get("compilation_options")
     if not source_code_file or not compilation_options_json:
         return jsonify({"type": "IncorrectCompileBodyError", "message": "A form data should be provided that contains a file with key 'code' and a compilation options json with key 'compilation_options'."}), 400
