@@ -6,15 +6,12 @@ import {SourceCodeFile} from './models/source-code-file';
   providedIn: 'root'
 })
 export class SourceCodeFileService {
-  private scheme = 'http://'
-  private domain = '127.0.0.1'
-  private backend_domain = this.scheme + this.domain
-  private url_c = this.backend_domain + ':8080/compile_c'
-  private url_cpp = this.backend_domain + ':8080/compile_cpp'
-  private url_golang = this.backend_domain + ':8080/compile_golang'
-  private url_non_existing = this.backend_domain + ':8080/compile_non_existing'
-  private url_backend = this.scheme + this.domain + ":8080"
-  private url_files = this.url_backend + "/api/files"
+  private scheme = "http"
+  private domain = "127.0.0.1"
+  private port = "8080"
+  private backend_address = this.scheme + "://" + this.domain + ":" + this.port
+  private url_compile = this.backend_address + "/api/compile"
+  private url_files = this.backend_address + "/api/files"
 
   constructor(private http: HttpClient) { }
 
@@ -22,25 +19,13 @@ export class SourceCodeFileService {
     let server_url: string
     const formData = new FormData();
 
-    formData.append("mycode", source_code);
-    formData.append("language", language);
+    formData.append("code", source_code);
     formData.append("compilation_options", JSON.stringify(compilation_options));
 
-    if (language == "C") {
-      server_url = this.url_c;
-    }
-    else if (language == "C++") {
-      server_url = this.url_cpp;
-    }
-    else if (language == "Golang") {
-      server_url = this.url_golang;
-    }
-    else {
-      server_url = this.url_non_existing;
-    }
+    server_url = this.url_compile + "/" + language
 
     if (store) {
-      server_url = server_url + "_and_store";
+      server_url = server_url + "/store";
     }
 
     console.log("Server url to post: " + server_url)
