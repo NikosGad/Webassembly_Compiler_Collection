@@ -12,6 +12,6 @@ export class SourceCodeFile {
 
 export const AvailableLanguages = [
   "C",
-  "C++",
+  "Cpp",
   "Golang",
 ];
