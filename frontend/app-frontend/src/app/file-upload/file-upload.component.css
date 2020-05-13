@@ -35,7 +35,11 @@ mat-tab-group {
     flex-flow: column nowrap;
 }
 
-.flex-container-vertical-nowrap * {
+.flex-container-vertical-nowrap div,
+.flex-container-vertical-nowrap mat-form-field,
+.flex-container-vertical-nowrap mat-checkbox,
+.flex-container-vertical-nowrap button,
+.flex-container-vertical-nowrap a {
     flex: 0 0 auto;
 }
 
