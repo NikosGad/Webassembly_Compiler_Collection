@@ -1,0 +1,9 @@
+mat-form-field, mat-slide-toggle {
+    display: table;
+    margin: auto;
+}
+
+mat-slide-toggle {
+    font-weight: 400;
+    margin-bottom: 1.25em;
+}

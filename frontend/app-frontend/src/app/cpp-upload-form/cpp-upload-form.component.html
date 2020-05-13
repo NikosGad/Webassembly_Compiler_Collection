@@ -8,8 +8,6 @@
     </mat-select>
 </mat-form-field>
 
-<p>You selected: {{cpp_compilation_options.optimization_level}}</p>
-
 <mat-form-field>
     <mat-label>ISO standard</mat-label>
     <mat-select [(value)]="cpp_compilation_options.iso_standard">
@@ -20,11 +18,7 @@
     </mat-select>
 </mat-form-field>
 
-<p>You selected: {{cpp_compilation_options.iso_standard}}</p>
-
 <mat-slide-toggle labelPosition="before" name="suppress" [(ngModel)]="cpp_compilation_options.suppress_warnings">Suppress warnings</mat-slide-toggle>
-
-<p>{{cpp_compilation_options.suppress_warnings}}</p>
 
 <!-- TODO: Tooltip pls use only alphanumericl character or the output filename may diverge -->
 <mat-form-field appearance="outline">
@@ -32,5 +26,3 @@
     <input matInput value="" type="text" placeholder="example_filename" [(ngModel)]="cpp_compilation_options.output_filename">
     <span matSuffix>.html</span>
 </mat-form-field>
-
-<p>{{cpp_compilation_options.output_filename}}</p>
