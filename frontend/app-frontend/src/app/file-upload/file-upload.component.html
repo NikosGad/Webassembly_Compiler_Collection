@@ -26,10 +26,10 @@
                     </mat-select>
                 </mat-form-field>
 
-                <mat-checkbox #storeFileCheckbox class="vertical-space checkbox-store-file">Store the file in my account</mat-checkbox>
+                <mat-checkbox [hidden]="!isLoggedIn" [checked]="isLoggedIn" #storeFileCheckbox class="vertical-space checkbox-store-file">Store the file in my account</mat-checkbox>
 
                 <button mat-raised-button class="vertical-space" *ngIf="!storeFileCheckbox.checked" [disabled]="!file_path" type="button" name="uploadButton" (click)="upload(fileInput, false)">Upload</button>
-                <button mat-raised-button class="vertical-space" *ngIf="storeFileCheckbox.checked" [disabled]="!file_path" type="button" name="uploadAndStoreButton" (click)="upload(fileInput, true)">Upload And Store</button>
+                <button mat-raised-button class="vertical-space" *ngIf="storeFileCheckbox?.checked" [disabled]="!file_path" type="button" name="uploadAndStoreButton" (click)="upload(fileInput, true)">Upload And Store</button>
 
                 <a [disabled]="!resultsZipFileBlob.size" mat-raised-button id="downloadResultsAnchor" download="results.zip">Download Compilation Results</a>
             </mat-card>

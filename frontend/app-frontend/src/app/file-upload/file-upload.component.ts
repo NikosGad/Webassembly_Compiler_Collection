@@ -1,4 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
+
+import { AuthenticationService } from '../authentication.service';
 import { SourceCodeFileService } from '../source-code-file.service';
 import { AvailableLanguages } from '../models/source-code-file';
 import { CCompilationOptions } from '../compilation-options/c-compilation-options';
@@ -11,6 +14,9 @@ import { GolangCompilationOptions } from '../compilation-options/golang-compilat
   styleUrls: ['./file-upload.component.css']
 })
 export class FileUploadComponent implements OnInit {
+  isLoggedIn: boolean;
+  isLoggedInSubscription: Subscription;
+
   file_path: string;
   language: string;
   available_languages: string[];
@@ -19,7 +25,8 @@ export class FileUploadComponent implements OnInit {
   golang_compilation_options: GolangCompilationOptions;
   resultsZipFileBlob: Blob;
 
-  constructor(private sourceCodeFileService: SourceCodeFileService) {
+  constructor(private authenticationService: AuthenticationService, private sourceCodeFileService: SourceCodeFileService) {
+    this.isLoggedInSubscription = this.authenticationService.isLoggedInObs.subscribe(login_state => this.isLoggedIn = login_state);
     this.file_path = "";
     this.language = "C";
     this.available_languages = AvailableLanguages;
@@ -30,6 +37,12 @@ export class FileUploadComponent implements OnInit {
   }
 
   ngOnInit() {
+  }
+
+  ngOnDestroy() {
+    if (this.isLoggedInSubscription != null) {
+      this.isLoggedInSubscription.unsubscribe();
+    }
   }
 
   downloadZip(): void {
