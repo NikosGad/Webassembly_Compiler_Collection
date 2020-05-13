@@ -1,35 +1,43 @@
-<form>
-    <div class="file-upload-container btn btn-bwm">
-        <label>Source Code File<br>
-            <input #fileInput name="mycode" id="fileToUpload" type="file" [(ngModel)]="file_path"/>
-        </label>
-        <!-- <a *ngIf="resultsZipFileBlob" #downloadhref href="#" download="results.zip" target="_blank">click this to download!!</a> -->
-        <button [disabled]="!resultsZipFileBlob.size" [hidden]="!resultsZipFileBlob.size" type="button" name="buttonsave" (click)=saveZip()>
-            Click this to save
-            <a id="downloadhref"></a>
-        </button>
-    </div>
-    <div>
-        <button type="button" name="reset-btn" (click)="resetInputFile()">Reset file</button>
-    </div>
+<div class="flex-item-title">
+    Compile Your Source Code<br>To<br>Webassembly
+</div>
 
-    <div>
-        <mat-checkbox #storeFileCheckbox>Store the file in my account</mat-checkbox>
-    </div>
-    <mat-form-field>
-        <mat-label>Select a language</mat-label>
-        <mat-select [(value)]="language">
-            <!-- <mat-option>None</mat-option> -->
-            <mat-option *ngFor="let option_language of available_languages" value="{{option_language}}">{{option_language}}</mat-option>
-        </mat-select>
-    </mat-form-field>
+<div class="flex-item-upload">
+    <mat-tab-group mat-align-tabs="center">
+        <mat-tab label="Upload File">
+            <mat-card class="generic-upload flex-container-vertical-nowrap">
+                <div>
+                    <button #BrowseFileButton mat-raised-button type="button" name="browseFileButton" (click)="fileInput.click()">Browse...</button>
+                    <mat-form-field class="browse-file-input" floatLabel="always">
+                        <mat-label> Source Code File</mat-label>
+                        <input matInput #BrowseFileReadonlyInput type="text" name="browseFileReadonlyInput" placeholder="No file selected." readonly>
+                        <input hidden #fileInput name="code" id="fileToUpload" type="file" [(ngModel)]="file_path" (change)="BrowseFileReadonlyInput.value = file_path.split('\\')[2];"/>
+                        <button *ngIf="file_path" matSuffix mat-icon-button aria-label="Clear" (click)="resetInputFile(BrowseFileReadonlyInput)">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    </mat-form-field>
+                </div>
 
-    <p>You selected: {{language}}</p>
+                <mat-form-field>
+                    <mat-label>Select a language</mat-label>
+                    <mat-select [(value)]="language">
+                        <!-- <mat-option>None</mat-option> -->
+                        <mat-option *ngFor="let option_language of available_languages" value="{{option_language}}">{{option_language}}</mat-option>
+                    </mat-select>
+                </mat-form-field>
 
-    <app-c-upload-form *ngIf="language === 'C'" [c_compilation_options]="c_compilation_options"></app-c-upload-form>
-    <app-cpp-upload-form *ngIf="language === 'Cpp'" [cpp_compilation_options]="cpp_compilation_options"></app-cpp-upload-form>
-    <app-golang-upload-form *ngIf="language === 'Golang'" [golang_compilation_options]="golang_compilation_options"></app-golang-upload-form>
+                <mat-checkbox #storeFileCheckbox class="vertical-space checkbox-store-file">Store the file in my account</mat-checkbox>
 
-    <button *ngIf="!storeFileCheckbox.checked" [disabled]="!file_path" type="button" name="upload-btn" (click)="upload(fileInput, false)">Upload the file</button>
-    <button *ngIf="storeFileCheckbox.checked" [disabled]="!file_path" type="button" name="uploadAndStoreButton" (click)="upload(fileInput, true)">Upload And store</button>
-</form>
+                <button mat-raised-button class="vertical-space" *ngIf="!storeFileCheckbox.checked" [disabled]="!file_path" type="button" name="uploadButton" (click)="upload(fileInput, false)">Upload</button>
+                <button mat-raised-button class="vertical-space" *ngIf="storeFileCheckbox.checked" [disabled]="!file_path" type="button" name="uploadAndStoreButton" (click)="upload(fileInput, true)">Upload And Store</button>
+
+                <a [disabled]="!resultsZipFileBlob.size" mat-raised-button id="downloadResultsAnchor" download="results.zip">Download Compilation Results</a>
+            </mat-card>
+        </mat-tab>
+        <mat-tab label="Compilation Options">
+            <app-c-upload-form *ngIf="language === 'C'" [c_compilation_options]="c_compilation_options"></app-c-upload-form>
+            <app-cpp-upload-form *ngIf="language === 'Cpp'" [cpp_compilation_options]="cpp_compilation_options"></app-cpp-upload-form>
+            <app-golang-upload-form *ngIf="language === 'Golang'" [golang_compilation_options]="golang_compilation_options"></app-golang-upload-form>
+        </mat-tab>
+    </mat-tab-group>
+</div>
