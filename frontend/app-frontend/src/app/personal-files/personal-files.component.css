@@ -25,12 +25,12 @@
 }
 
 .flex-item-personal-file-list {
-    flex: 3 1 74.25%;
+    flex: 1 0 74.25%;
     text-align: left;
 }
 
 .flex-item-personal-file-details {
-    flex: 1 1 24.25%;
+    flex: 1 0 24.25%;
     text-align: left;
 }
 
