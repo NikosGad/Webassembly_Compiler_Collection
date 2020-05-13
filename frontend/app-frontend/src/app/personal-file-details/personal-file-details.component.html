@@ -18,7 +18,7 @@
 
     <mat-card-actions class="personal-file-details-actions">
         <button mat-raised-button name="getResultsZipButton" (click)="downloadResults()">Download</button>
-        <a id="downloadResultsAnchor" hidden></a>
+        <a id="downloadResultsAnchor" download="results.zip" hidden></a>
         <!-- <button mat-raised-button name="getPersonalFileButton" (click)="getPersonalFiles()">Recompile</button> -->
         <button mat-raised-button color="warn" name="deleteFileButton" (click)="deleteFile()">DELETE</button>
     </mat-card-actions>

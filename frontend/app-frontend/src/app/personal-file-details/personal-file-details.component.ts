@@ -31,11 +31,8 @@ export class PersonalFileDetailsComponent implements OnInit {
   downloadResults() {
     this.sourceCodeFileService.downloadFileResult(this.file).subscribe(
       (res:any) => {
-        const url= window.URL.createObjectURL(res);
         let element: HTMLAnchorElement = document.getElementById("downloadResultsAnchor") as HTMLAnchorElement;
-        element.href = url;
-        element.download = "results.zip";
-        element.target = "_blank";
+        element.href = window.URL.createObjectURL(res);
         element.click();
       }
     );
