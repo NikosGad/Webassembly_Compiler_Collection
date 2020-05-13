@@ -8,3 +8,7 @@ app-root {
   height: 100%;
   text-align: center;
 }
+
+.mat-tab-body-wrapper {
+    flex: 1 1 auto;
+}
