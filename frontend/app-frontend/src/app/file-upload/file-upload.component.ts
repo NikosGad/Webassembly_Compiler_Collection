@@ -32,18 +32,16 @@ export class FileUploadComponent implements OnInit {
   ngOnInit() {
   }
 
-  saveZip(): void {
-    let url = window.URL.createObjectURL(this.resultsZipFileBlob);
-    let element: HTMLAnchorElement = document.getElementById("downloadhref") as HTMLAnchorElement
-    element.href = url
-    element.download = "results.zip"
-    element.target = "_blank"
-    element.click()
+  downloadZip(): void {
+    let element: HTMLAnchorElement = document.getElementById("downloadResultsAnchor") as HTMLAnchorElement;
+    element.href = window.URL.createObjectURL(this.resultsZipFileBlob);
+    element.click();
     // window.location.href = url;
   }
 
-  resetInputFile() {
-    this.file_path = ""
+  resetInputFile(readonlyInputElement) {
+    this.file_path = "";
+    readonlyInputElement.value = "";
   }
 
   upload(file: any, store: boolean): void {
@@ -65,8 +63,9 @@ export class FileUploadComponent implements OnInit {
 
     this.sourceCodeFileService.uploadFile(file.files[0], this.language, compilation_options, store).subscribe(
       (res) => {
-        this.resultsZipFileBlob = res
         console.log(res)
+        this.resultsZipFileBlob = res;
+        this.downloadZip();
       }
     );
   }
