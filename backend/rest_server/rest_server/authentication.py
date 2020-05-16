@@ -9,9 +9,9 @@ JWT_SECRET_KEY=os.environ.get("JWT_SECRET_KEY", "error_jwt_key")
 
 class Authentication():
     @staticmethod
-    def generate_token(user_id):
+    def generate_token(user_id, minutes=1, seconds=0):
         payload = {
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, minutes=1),
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, minutes=minutes, seconds=seconds),
             'iat': datetime.datetime.utcnow(),
             'sub': user_id
         }
