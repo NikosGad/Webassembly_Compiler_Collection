@@ -28,7 +28,18 @@ class Authentication():
             return payload["sub"]
         except jwt.ExpiredSignatureError:
             return "Token expired. Please Login again."
-        except jwt.InvalidSignatureError:
+        except (
+            jwt.exceptions.InvalidTokenError,
+            jwt.exceptions.DecodeError,
+            jwt.exceptions.InvalidSignatureError,
+            jwt.exceptions.ExpiredSignatureError,
+            jwt.exceptions.InvalidAudienceError,
+            jwt.exceptions.InvalidIssuerError,
+            jwt.exceptions.InvalidIssuedAtError,
+            jwt.exceptions.ImmatureSignatureError,
+            jwt.exceptions.InvalidKeyError,
+            jwt.exceptions.InvalidAlgorithmError,
+            jwt.exceptions.MissingRequiredClaimError):
             return "Invalid Token. Please Login first."
 
     @staticmethod
