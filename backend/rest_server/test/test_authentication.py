@@ -1,7 +1,8 @@
 import time
 import unittest
 
-from rest_server import authentication
+from flask import g
+from rest_server import app, authentication
 
 # class AuthenticationEncodeDecodeFlowTestCase(object):
 #     """Testsuite to test the generate and decode json web token."""
@@ -23,6 +24,9 @@ class AuthenticationTestCase(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         pass
+
+    def dummy_function(self, dummy_parameter):
+        return "Real parameter is {} but dummy_function always returns 42".format(dummy_parameter)
 
     def test_authentication_generate_token(self):
         token = authentication.Authentication.generate_token(1)
@@ -49,21 +53,63 @@ class AuthenticationTestCase(unittest.TestCase):
         self.assertEqual(returned_decoded_token, self.decoded_token_expired)
 
     def test_authentication_authentication_required__authorized(self):
-        pass
+        mock_request_authorization_valid_token = {
+            "headers": {
+                "Authorization": "Bearer " + self.token_valid
+            },
+        }
+
+        with app.test_request_context(**mock_request_authorization_valid_token):
+            result = authentication.Authentication.authentication_required(self.dummy_function)(1)
+
+            self.assertEqual(result, "Real parameter is 1 but dummy_function always returns 42")
+            self.assertEqual(g.user, {"id": self.decoded_token_valid})
 
     def test_authentication_authentication_required__authorization_header_missing(self):
-        pass
+        with app.test_request_context():
+            response = authentication.Authentication.authentication_required(self.dummy_function)(1)
+
+            self.assertEqual(response._status, "401 UNAUTHORIZED")
+            self.assertEqual(response.headers.get("Content-Type"), "application/json")
+            self.assertEqual(response.headers.get("WWW-Authenticate"), "Bearer realm=\"Access to user specific resources\"")
+            self.assertEqual(response.response[0], b'{"message":"Authorization Header is missing","type":"AuthorizationViolation"}\n')
 
     def test_authentication_authentication_required__authorization_header_malformed(self):
         # TODO: Loop over some cases e.g.
-        # Authorization: ,
-        # Authorization: random,
-        # Authorization: Bearer,
-        # Authorization: Bearer<correct_jwt>,
         # Authorization: random1 random2,
         # Authorization: Bearer random,
-        # Authorization: Bearer random1 random2
-        pass
+        malformed_authorization_header_list = [
+            "",
+            self.token_valid,
+            "random_string",
+            "Bearer",
+            "Bearer" + self.token_valid,
+            "Bearer  ",
+            "Bearer string_1 ",
+            "Bearer string_1 string_2",
+            "Bearer " + self.token_valid + " ",
+            "Bearer " + self.token_valid + " " + self.token_valid,
+            "Bearer Bearer Bearer",
+        ]
+
+        for malformed_authorization_header in malformed_authorization_header_list:
+            mock_request = {
+                "headers": {
+                    "Authorization": malformed_authorization_header
+                }
+            }
+
+            with app.test_request_context(**mock_request):
+                response = authentication.Authentication.authentication_required(self.dummy_function)(1)
+
+                self.assertEqual(response._status, "401 UNAUTHORIZED")
+                self.assertEqual(response.headers.get("Content-Type"), "application/json")
+                self.assertEqual(response.headers.get("WWW-Authenticate"), "Bearer realm=\"Access to user specific resources\"")
+                self.assertEqual(response.response[0],
+                    '{{"message":"Authorization Header {header} is incorrect","type":"AuthorizationViolation"}}\n'.format(
+                        header=malformed_authorization_header
+                    ).encode("utf-8")
+                )
 
     def test_authentication_authentication_required__invalid_token(self):
         pass
