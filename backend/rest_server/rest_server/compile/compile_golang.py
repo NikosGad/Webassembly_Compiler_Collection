@@ -1,15 +1,19 @@
-import re
 import os
+import re
 from zipfile import ZipFile
 
 from werkzeug.utils import secure_filename
 
 from .compile import CompilationHandler
 
+UPLOAD_PATH_GOLANG=os.environ["UPLOAD_PATH_GOLANG"]
 GO_INSTALLATION_PATH=os.environ["GO_INSTALLATION_PATH"]
 
 class GolangCompilationHandler(CompilationHandler):
     """GolangCompilationHandler implements the abstract methods for Golang."""
+    def __init__(self):
+        super(GolangCompilationHandler, self).__init__(language="Golang", root_upload_path=UPLOAD_PATH_GOLANG)
+
     def compilation_options_parser(self, output_filename="", **kwargs):
         parsed_compilation_options = []
 

@@ -1,3 +1,4 @@
+import os
 import re
 from zipfile import ZipFile
 
@@ -5,8 +6,13 @@ from werkzeug.utils import secure_filename
 
 from .compile import CompilationHandler
 
+UPLOAD_PATH_EMSCRIPTEN=os.environ["UPLOAD_PATH_EMSCRIPTEN"]
+
 class CppCompilationHandler(CompilationHandler):
     """CppCompilationHandler implements the abstract methods for Cpp."""
+    def __init__(self):
+        super(CppCompilationHandler, self).__init__(language="Cpp", root_upload_path=UPLOAD_PATH_EMSCRIPTEN)
+
     def compilation_options_parser(self, optimization_level="", iso_standard="", suppress_warnings=False, output_filename="", **kwargs):
         parsed_compilation_options = []
 
