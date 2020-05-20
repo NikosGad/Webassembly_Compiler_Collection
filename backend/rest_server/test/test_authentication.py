@@ -4,12 +4,6 @@ import unittest
 from flask import g
 from rest_server import app, authentication
 
-# class AuthenticationEncodeDecodeFlowTestCase(object):
-#     """Testsuite to test the generate and decode json web token."""
-#     def test_authentication_generate_token(self):
-#
-
-
 class AuthenticationTestCase(unittest.TestCase):
     """Testsuite for authentication.py module."""
     @classmethod
@@ -75,9 +69,6 @@ class AuthenticationTestCase(unittest.TestCase):
             self.assertEqual(response.response[0], b'{"message":"Authorization Header is missing","type":"AuthorizationViolation"}\n')
 
     def test_authentication_authentication_required__authorization_header_malformed(self):
-        # TODO: Loop over some cases e.g.
-        # Authorization: random1 random2,
-        # Authorization: Bearer random,
         malformed_authorization_header_list = [
             "",
             self.token_valid,
@@ -111,8 +102,60 @@ class AuthenticationTestCase(unittest.TestCase):
                     ).encode("utf-8")
                 )
 
+    def test_authentication_authentication_required__incorrect_shema(self):
+        mock_request = {
+            "headers": {
+                "Authorization": "string_1 string_2"
+            }
+        }
+
+        with app.test_request_context(**mock_request):
+            response = authentication.Authentication.authentication_required(self.dummy_function)(1)
+
+            self.assertEqual(response._status, "401 UNAUTHORIZED")
+            self.assertEqual(response.headers.get("Content-Type"), "application/json")
+            self.assertEqual(response.headers.get("WWW-Authenticate"), "Bearer realm=\"Access to user specific resources\"")
+            self.assertEqual(response.response[0],
+                '{"message":"Authorization Schema string_1 is incorrect","type":"AuthorizationSchemaViolation"}\n'.encode("utf-8")
+            )
+
     def test_authentication_authentication_required__invalid_token(self):
-        pass
+        mock_request = {
+            "headers": {
+                "Authorization": "Bearer " + self.token_invalid
+            }
+        }
+
+        with app.test_request_context(**mock_request):
+            response = authentication.Authentication.authentication_required(self.dummy_function)(1)
+
+            self.assertEqual(response._status, "401 UNAUTHORIZED")
+            self.assertEqual(response.headers.get("Content-Type"), "application/json")
+            self.assertEqual(response.headers.get("WWW-Authenticate"), "Bearer realm=\"Access to user specific resources\"")
+            self.assertEqual(response.response[0],
+                '{{"message":"{payload}","type":"AuthorizationJWTViolation"}}\n'.format(
+                    payload=self.decoded_token_invalid
+                ).encode("utf-8")
+            )
 
     def test_authentication_authentication_required__expired_token(self):
-        pass
+        mock_request = {
+            "headers": {
+                "Authorization": "Bearer " + self.token_expired
+            }
+        }
+
+        with app.test_request_context(**mock_request):
+            # Sleep is needed to make sure that the token is expired.
+            # The token is instantly expired thus 1 second is enough.
+            time.sleep(1)
+            response = authentication.Authentication.authentication_required(self.dummy_function)(1)
+
+            self.assertEqual(response._status, "401 UNAUTHORIZED")
+            self.assertEqual(response.headers.get("Content-Type"), "application/json")
+            self.assertEqual(response.headers.get("WWW-Authenticate"), "Bearer realm=\"Access to user specific resources\"")
+            self.assertEqual(response.response[0],
+                '{{"message":"{payload}","type":"AuthorizationJWTViolation"}}\n'.format(
+                    payload=self.decoded_token_expired
+                ).encode("utf-8")
+            )
