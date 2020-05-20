@@ -27,10 +27,9 @@ class CCompilationHandler(CompilationHandler):
             parsed_compilation_options.append("-w")
 
         secured_output_filename = secure_filename(output_filename)
+        secured_output_filename = re.compile('^-+').sub('', secured_output_filename)
         if secured_output_filename == "":
             secured_output_filename = "a.out"
-        else:
-            secured_output_filename = re.compile('^-+').sub('', secured_output_filename)
 
         return parsed_compilation_options, secured_output_filename
 
