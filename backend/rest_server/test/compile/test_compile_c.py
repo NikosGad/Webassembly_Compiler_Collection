@@ -1,4 +1,7 @@
+import errno
+import os
 import unittest
+from zipfile import ZipFile, ZIP_DEFLATED
 
 from rest_server.compile import compile_c
 
@@ -8,9 +11,25 @@ class CompileCTestCase(unittest.TestCase):
     def setUpClass(cls):
         cls.handler_c = compile_c.CCompilationHandler()
 
+        cls.test_working_directory = cls.handler_c.root_upload_path
+        cls.test_html_name = "test_output.html"
+        cls.test_js_name = "test_output.js"
+        cls.test_wasm_name = "test_output.wasm"
+        cls.test_zip_name = "test_zip.zip"
+
     @classmethod
     def tearDownClass(cls):
-        pass
+        if os.path.isfile(cls.test_working_directory + "/" + cls.test_html_name):
+            os.remove(cls.test_working_directory + "/" + cls.test_html_name)
+
+        if os.path.isfile(cls.test_working_directory + "/" + cls.test_js_name):
+            os.remove(cls.test_working_directory + "/" + cls.test_js_name)
+
+        if os.path.isfile(cls.test_working_directory + "/" + cls.test_wasm_name):
+            os.remove(cls.test_working_directory + "/" + cls.test_wasm_name)
+
+        if os.path.isfile(cls.test_working_directory + "/" + cls.test_zip_name):
+            os.remove(cls.test_working_directory + "/" + cls.test_zip_name)
 
     def test_CCompilationHandler_init(self):
         self.assertEqual(self.handler_c.language, "C")
@@ -187,4 +206,41 @@ class CompileCTestCase(unittest.TestCase):
             )
 
     def test_CCompilationHandler_results_zip_appender(self):
-        pass
+        test_compression = ZIP_DEFLATED
+        test_compresslevel = 6
+
+        with open(file=self.test_working_directory + "/" + self.test_html_name, mode="w"):
+            pass
+
+        if not os.path.isfile(self.test_working_directory + "/" + self.test_html_name):
+            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), self.test_working_directory + "/" + self.test_html_name)
+
+        with open(file=self.test_working_directory + "/" + self.test_js_name, mode="w"):
+            pass
+
+        if not os.path.isfile(self.test_working_directory + "/" + self.test_js_name):
+            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), self.test_working_directory + "/" + self.test_js_name)
+
+        with open(file=self.test_working_directory + "/" + self.test_wasm_name, mode="w"):
+            pass
+
+        if not os.path.isfile(self.test_working_directory + "/" + self.test_wasm_name):
+            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), self.test_working_directory + "/" + self.test_wasm_name)
+
+        with ZipFile(file=self.test_working_directory + "/" + self.test_zip_name, mode="w", compression=test_compression, compresslevel=test_compresslevel):
+            pass
+
+        if not os.path.isfile(self.test_working_directory + "/" + self.test_zip_name):
+            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), self.test_working_directory + "/" + self.test_zip_name)
+
+        result = self.handler_c.results_zip_appender(
+            working_directory=self.test_working_directory,
+            results_zip_name=self.test_zip_name,
+            output_filename="test_output",
+            compression=test_compression,
+            compresslevel=test_compresslevel)
+
+        self.assertIsNone(result)
+
+        with ZipFile(file=self.test_working_directory + "/" + self.test_zip_name, mode="r") as test_zip:
+            self.assertEqual(test_zip.namelist(), [self.test_html_name, self.test_js_name, self.test_wasm_name])
