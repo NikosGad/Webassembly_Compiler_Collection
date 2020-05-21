@@ -39,8 +39,8 @@ class CCompilationHandler(CompilationHandler):
         compilation_command.extend(["-o", working_directory + output_filename + ".html", working_directory + input_filename])
         return compilation_command
 
-    def results_zip_appender(self, working_directory, results_zip_name, output_filename, mode, compression, compresslevel):
-        with ZipFile(file=working_directory + results_zip_name, mode=mode, compression=compression, compresslevel=compresslevel) as results_zip:
-            results_zip.write(working_directory + output_filename + ".html", output_filename + ".html")
-            results_zip.write(working_directory + output_filename + ".js", output_filename + ".js")
-            results_zip.write(working_directory + output_filename + ".wasm", output_filename + ".wasm")
+    def results_zip_appender(self, working_directory, results_zip_name, output_filename, compression, compresslevel):
+        with ZipFile(file=working_directory + "/" + results_zip_name, mode="a", compression=compression, compresslevel=compresslevel) as results_zip:
+            results_zip.write(working_directory + "/" + output_filename + ".html", output_filename + ".html")
+            results_zip.write(working_directory + "/" + output_filename + ".js", output_filename + ".js")
+            results_zip.write(working_directory + "/" + output_filename + ".wasm", output_filename + ".wasm")

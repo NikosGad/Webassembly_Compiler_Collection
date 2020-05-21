@@ -109,7 +109,7 @@ methods that a language specific compilation handler should implement."""
             if completed_compile_file_process.returncode == 0:
                 return_status_code = 200
                 compilation_status = "Successful"
-                self.results_zip_appender(upload_path, RESULTS_ZIP_NAME, secured_output_filename, "a", COMPRESSION, COMPRESSLEVEL)
+                self.results_zip_appender(upload_path, RESULTS_ZIP_NAME, secured_output_filename, COMPRESSION, COMPRESSLEVEL)
             else:
                 return_status_code = 400
                 compilation_status = "Erroneous"
