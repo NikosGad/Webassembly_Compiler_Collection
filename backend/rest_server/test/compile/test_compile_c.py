@@ -227,8 +227,8 @@ class CompileCTestCase(unittest.TestCase):
         if not os.path.isfile(self.test_working_directory + "/" + self.test_wasm_name):
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), self.test_working_directory + "/" + self.test_wasm_name)
 
-        with ZipFile(file=self.test_working_directory + "/" + self.test_zip_name, mode="w", compression=test_compression, compresslevel=test_compresslevel):
-            pass
+        with ZipFile(file=self.test_working_directory + "/" + self.test_zip_name, mode="w", compression=test_compression, compresslevel=test_compresslevel) as test_zip:
+            self.assertEqual(test_zip.namelist(), [])
 
         if not os.path.isfile(self.test_working_directory + "/" + self.test_zip_name):
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), self.test_working_directory + "/" + self.test_zip_name)
