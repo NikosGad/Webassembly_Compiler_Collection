@@ -166,6 +166,8 @@ class CompileCTestCase(unittest.TestCase):
             ([], "a.out"),
         ]
 
+        self.assertEqual(len(kwargs_list), len(expected_results_list))
+
         for index, kwargs in enumerate(kwargs_list):
             result = self.handler_c.compilation_options_parser(**kwargs)
 
