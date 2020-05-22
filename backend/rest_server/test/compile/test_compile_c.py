@@ -178,13 +178,13 @@ class CompileCTestCase(unittest.TestCase):
     def test_CCompilationHandler_compilation_command_generator(self):
         kwargs_list = [
             {
-                "working_directory": "/path/to/upload/dir/",
+                "working_directory": "/path/to/upload/dir",
                 "parsed_compilation_options": [],
                 "input_filename": "input_filename.in",
                 "output_filename": "output_filename"
             },
             {
-                "working_directory": "/path/to/upload/dir/",
+                "working_directory": "/path/to/upload/dir",
                 "parsed_compilation_options": ["-O0", "-std=c89", "-w"],
                 "input_filename": "input_filename.in",
                 "output_filename": "a.out"
