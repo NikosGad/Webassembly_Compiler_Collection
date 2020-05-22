@@ -61,7 +61,7 @@ methods that a language specific compilation handler should implement."""
             else:
                 user_id = "unknown"
 
-            upload_path = self.root_upload_path + "/" + user_id + "/" + subpath + "/"
+            upload_path = self.root_upload_path + "/" + user_id + "/" + subpath
 
             try:
                 compilation_options_dict = json.loads(compilation_options_json)
@@ -89,21 +89,21 @@ methods that a language specific compilation handler should implement."""
             completed_compile_file_process = subprocess.run(compile_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
             if completed_compile_file_process.stdout:
-                with open(upload_path + "stdout.txt", "w") as f_out:
+                with open(upload_path + "/stdout.txt", "w") as f_out:
                     print(completed_compile_file_process.stdout.decode(encoding="utf-8"), file=f_out)
 
             if completed_compile_file_process.stderr:
-                with open(upload_path + "stderr.txt", "w") as f_err:
+                with open(upload_path + "/stderr.txt", "w") as f_err:
                     print(completed_compile_file_process.stderr.decode(encoding="utf-8"), file=f_err)
 
             app.logger.debug("Compilation return code: " + str(completed_compile_file_process.returncode))
 
-            with ZipFile(file=upload_path + RESULTS_ZIP_NAME, mode="w", compression=COMPRESSION, compresslevel=COMPRESSLEVEL) as results_zip:
+            with ZipFile(file=upload_path + "/" + RESULTS_ZIP_NAME, mode="w", compression=COMPRESSION, compresslevel=COMPRESSLEVEL) as results_zip:
                 if completed_compile_file_process.stdout:
-                    results_zip.write(upload_path + "stdout.txt", "stdout.txt")
+                    results_zip.write(upload_path + "/stdout.txt", "stdout.txt")
 
                 if completed_compile_file_process.stderr:
-                    results_zip.write(upload_path + "stderr.txt", "stderr.txt")
+                    results_zip.write(upload_path + "/stderr.txt", "stderr.txt")
 
             # TODO: Activate X-Sendfile
             if completed_compile_file_process.returncode == 0:

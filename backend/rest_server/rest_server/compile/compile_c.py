@@ -36,7 +36,7 @@ class CCompilationHandler(CompilationHandler):
     def compilation_command_generator(self, working_directory, parsed_compilation_options, input_filename, output_filename):
         compilation_command = ["emcc"]
         compilation_command.extend(parsed_compilation_options)
-        compilation_command.extend(["-o", working_directory + output_filename + ".html", working_directory + input_filename])
+        compilation_command.extend(["-o", working_directory + "/" + output_filename + ".html", working_directory + "/" + input_filename])
         return compilation_command
 
     def results_zip_appender(self, working_directory, results_zip_name, output_filename, compression, compresslevel):
