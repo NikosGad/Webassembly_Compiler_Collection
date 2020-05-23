@@ -18,24 +18,22 @@ class GolangCompilationHandler(CompilationHandler):
         parsed_compilation_options = []
 
         secured_output_filename = secure_filename(output_filename)
+        secured_output_filename = re.compile('^-+').sub('', secured_output_filename)
         if secured_output_filename == "":
             secured_output_filename = "a.out"
-        else:
-            secured_output_filename = re.compile('^-+').sub('', secured_output_filename)
 
         return parsed_compilation_options, secured_output_filename
 
     def compilation_command_generator(self, working_directory, parsed_compilation_options, input_filename, output_filename):
         compile_command = ["go", "build"]
         compile_command.extend(parsed_compilation_options)
-        compile_command.extend(["-o", working_directory + output_filename + ".wasm", working_directory + input_filename])
+        compile_command.extend(["-o", working_directory + "/" + output_filename + ".wasm", working_directory + "/" + input_filename])
         return compile_command
 
-    def results_zip_appender(self, working_directory, results_zip_name, output_filename, mode, compression, compresslevel):
-        line_num = 1
+    def results_zip_appender(self, working_directory, results_zip_name, output_filename, compression, compresslevel):
         with open(GO_INSTALLATION_PATH + "misc/wasm/wasm_exec.html", "r") as html_file_src:
-            with open(working_directory + output_filename + ".html", "w") as html_file_dst:
-                for line in html_file_src:
+            with open(working_directory + "/" + output_filename + ".html", "w") as html_file_dst:
+                for line_num, line in enumerate(html_file_src, 1):
                     if line_num == 20:
                         html_file_dst.write(line.replace('wasm_exec.js', output_filename + ".js"))
                     elif line_num == 31:
@@ -43,9 +41,7 @@ class GolangCompilationHandler(CompilationHandler):
                     else:
                         html_file_dst.write(line)
 
-                    line_num += 1;
-
-        with ZipFile(file=working_directory + results_zip_name, mode=mode, compression=compression, compresslevel=compresslevel) as results_zip:
-            results_zip.write(working_directory + output_filename + ".html", output_filename + ".html")
+        with ZipFile(file=working_directory + "/" + results_zip_name, mode="a", compression=compression, compresslevel=compresslevel) as results_zip:
+            results_zip.write(working_directory + "/" + output_filename + ".html", output_filename + ".html")
             results_zip.write(GO_INSTALLATION_PATH + "misc/wasm/wasm_exec.js", output_filename + ".js")
-            results_zip.write(working_directory + output_filename + ".wasm", output_filename + ".wasm")
+            results_zip.write(working_directory + "/" + output_filename + ".wasm", output_filename + ".wasm")
