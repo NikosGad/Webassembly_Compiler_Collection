@@ -63,11 +63,7 @@ def login():
         return common.log_in_username_password_incorrect()
 
     app.logger.debug("Logged In User: " + str(user))
-    try:
-        token = authentication.Authentication.generate_token(user.id)
-    except Exception as e:
-        app.logger.exception("Error During Token Generation")
-        return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
+    token = authentication.Authentication.generate_token(user.id)
 
     app.logger.debug("The generated token is: " + str(token))
 
