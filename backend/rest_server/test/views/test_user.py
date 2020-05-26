@@ -165,26 +165,26 @@ class ViewUserTestCase(unittest.TestCase):
             with app.test_client() as c:
                 response = c.post(**mock_request)
 
-                self.assertEqual(response._status, "400 BAD REQUEST",
-                    msg="Failure with form: {form_dict}".format(
-                        form_dict=invalid_user_schema
-                    )
+            self.assertEqual(response._status, "400 BAD REQUEST",
+                msg="Failure with form: {form_dict}".format(
+                    form_dict=invalid_user_schema
                 )
-                self.assertEqual(response.headers.get("Content-Type"), "application/json",
-                    msg="Failure with form: {form_dict}".format(
-                        form_dict=invalid_user_schema
-                    )
+            )
+            self.assertEqual(response.headers.get("Content-Type"), "application/json",
+                msg="Failure with form: {form_dict}".format(
+                    form_dict=invalid_user_schema
                 )
-                self.assertEqual(response.headers.get("Access-Control-Allow-Origin"), "http://localhost:3535",
-                    msg="Failure with form: {form_dict}".format(
-                        form_dict=invalid_user_schema
-                    )
+            )
+            self.assertEqual(response.headers.get("Access-Control-Allow-Origin"), "http://localhost:3535",
+                msg="Failure with form: {form_dict}".format(
+                    form_dict=invalid_user_schema
                 )
-                self.assertEqual(response.get_json(), {"type": "SignUpError", "message": expected_response_list[index]},
-                    msg="Failure with form: {form_dict}".format(
-                        form_dict=invalid_user_schema
-                    )
+            )
+            self.assertEqual(response.get_json(), {"type": "SignUpError", "message": expected_response_list[index]},
+                msg="Failure with form: {form_dict}".format(
+                    form_dict=invalid_user_schema
                 )
+            )
 
     def test_signup__username_exists_error(self):
         mock_request = {
