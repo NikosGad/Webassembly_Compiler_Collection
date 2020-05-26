@@ -69,6 +69,7 @@ class ViewUserTestCase(unittest.TestCase):
                 "email": "test_user@email.com",
                 "created_at": test_time,
                 "updated_at": test_time,
+                "extra field": True,
             },
             {
                 "id": 1,
@@ -108,6 +109,7 @@ class ViewUserTestCase(unittest.TestCase):
         expected_response_list = [
             {
                 "created_at": ["Unknown field."],
+                "extra field": ["Unknown field."],
                 "id": ["Unknown field."],
                 "updated_at": ["Unknown field."],
             },
@@ -217,3 +219,90 @@ class ViewUserTestCase(unittest.TestCase):
         self.assertEqual(response.headers.get("Content-Type"), "application/json")
         self.assertEqual(response.headers.get("Access-Control-Allow-Origin"), "http://localhost:3535")
         self.assertEqual(response.get_json(), {"type": "UniqueEmailViolation", "message": "Email test_user_exists@mail.com already exists"})
+
+    def test_login__valid(self):
+        user_info_form_list = [
+            {
+                "username": "test_user_exists",
+                "password": "12345a",
+            },
+            self.existing_user_info,
+        ]
+
+        for user_info_form in user_info_form_list:
+            mock_request = {
+                "base_url": "http://127.0.0.1:8080",
+                "path": "/api/login",
+                "data": user_info_form,
+            }
+
+            with app.test_client() as c:
+                response = c.post(**mock_request)
+
+            self.assertEqual(response._status, "200 OK")
+            self.assertEqual(response.headers.get("Content-Type"), "application/json")
+            self.assertEqual(response.headers.get("Access-Control-Allow-Origin"), "http://localhost:3535")
+
+            response_json = response.get_json()
+            self.assertEqual(len(response_json.keys()), 2,
+                msg="Response json does not contain exactly 2 keys: {response_json}".format(
+                    response_json=response_json
+                )
+            )
+            self.assertEqual(response_json.get("message"), "OK")
+            self.assertIsNotNone(response_json.get("jwt"))
+            self.assertIsInstance(response_json.get("jwt"), str)
+            self.assertEqual(len(response_json.get("jwt").split(".")), 3, msg="JWToken should have three parts separated by a dot.")
+
+    def test_login__missing_form_fields(self):
+        user_info_form_list = [
+            {},
+            {
+                "username": "test_user_exists",
+            },
+            {
+                "password": "12345a",
+            }
+        ]
+
+        for user_info_form in user_info_form_list:
+            mock_request = {
+                "base_url": "http://127.0.0.1:8080",
+                "path": "/api/login",
+                "data": user_info_form,
+            }
+
+            with app.test_client() as c:
+                response = c.post(**mock_request)
+
+            self.assertEqual(response._status, "400 BAD REQUEST")
+            self.assertEqual(response.headers.get("Content-Type"), "application/json")
+            self.assertEqual(response.headers.get("Access-Control-Allow-Origin"), "http://localhost:3535")
+            self.assertEqual(response.get_json(), {"type": "LogInError", "message": "Both username and password are required to log in."})
+
+    def test_login__invalid_form_fields(self):
+        user_info_form_list = [
+            {
+                "username": "test_user",
+                "password": "12345a",
+            },
+            {
+                "username": "test_user_exists",
+                "password": "non-matching-password",
+            }
+        ]
+
+        for user_info_form in user_info_form_list:
+            mock_request = {
+                "base_url": "http://127.0.0.1:8080",
+                "path": "/api/login",
+                "data": user_info_form,
+            }
+
+            with app.test_client() as c:
+                response = c.post(**mock_request)
+
+            self.assertEqual(response._status, "400 BAD REQUEST")
+            self.assertEqual(response.headers.get("Content-Type"), "application/json")
+            self.assertEqual(response.headers.get("Access-Control-Allow-Origin"), "http://localhost:3535")
+            self.assertEqual(response.get_json(), {"type": "LogInError", "message": "Username, password or both are incorrect."})
