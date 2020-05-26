@@ -1,5 +1,7 @@
 import datetime
 from marshmallow import fields, Schema, validate
+import re
+
 from rest_server import db, bcr
 # from sqlalchemy.dialects.postgresql import JSON
 
@@ -55,17 +57,17 @@ class UserSchema(Schema):
         required=True,
         validate=[
             validate.Regexp(r"\A[A-Za-z0-9]+[A-Za-z0-9_ ]*[A-Za-z0-9]+\Z",
-                error="Username must contain only letters, numbers, _ and spaces. It must start and end with a letter. It must have length greater than 1."
+                error="Username must contain only latin letters, numbers, _ and spaces. It must start and end with a letter. It must have length greater than 1."
             )
         ]
     )
     password = fields.String(
         required=True,
         validate=[
-            validate.Length(min=6, error="Password length must be at least {min}"),
-            validate.Regexp(r"\A(\S*)\Z", error="Password must not contain white spaces"),
-            validate.Regexp(r".*\d", error="Password must contain at least 1 number(s)"),
-            validate.Regexp(r".*[A-Za-z]", error="Password must contain at least 1 letter(s)")
+            validate.Length(min=6, error="Password length must be at least {min}."),
+            validate.Regexp(r"\A(\S*)\Z", error="Password must not contain white spaces."),
+            validate.Regexp(r".*\d", re.DOTALL, error="Password must contain at least 1 number(s)."),
+            validate.Regexp(r".*[A-Za-z]", re.DOTALL, error="Password must contain at least 1 latin letter(s).")
         ]
     )
     email = fields.Email(required=True)
