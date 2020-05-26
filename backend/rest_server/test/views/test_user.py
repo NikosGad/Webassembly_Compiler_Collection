@@ -40,7 +40,7 @@ class ViewUserTestCase(unittest.TestCase):
                     user.delete()
 
         test_all_users = user_model.User.get_all_users()
-        if len(test_all_users) >1:
+        if len(test_all_users) > 1:
             raise Exception("Failed to restore users table in DB.")
 
     def test_signup__valid(self):
@@ -183,3 +183,37 @@ class ViewUserTestCase(unittest.TestCase):
                         form_dict=invalid_user_schema
                     )
                 )
+
+    def test_signup__username_exists_error(self):
+        mock_request = {
+            "base_url": "http://127.0.0.1:8080",
+            "path": "/api/signup",
+            "data": self.existing_user_info,
+        }
+
+        with app.test_client() as c:
+            response = c.post(**mock_request)
+
+        self.assertEqual(response._status, "400 BAD REQUEST")
+        self.assertEqual(response.headers.get("Content-Type"), "application/json")
+        self.assertEqual(response.headers.get("Access-Control-Allow-Origin"), "http://localhost:3535")
+        self.assertEqual(response.get_json(), {"type": "UniqueUsernameViolation", "message": "Username test_user_exists already exists"})
+
+    def test_signup__email_exists_error(self):
+        mock_request = {
+            "base_url": "http://127.0.0.1:8080",
+            "path": "/api/signup",
+            "data": {
+                "username": "test_user_new",
+                "password": "12345a",
+                "email": "test_user_exists@mail.com",
+            },
+        }
+
+        with app.test_client() as c:
+            response = c.post(**mock_request)
+
+        self.assertEqual(response._status, "400 BAD REQUEST")
+        self.assertEqual(response.headers.get("Content-Type"), "application/json")
+        self.assertEqual(response.headers.get("Access-Control-Allow-Origin"), "http://localhost:3535")
+        self.assertEqual(response.get_json(), {"type": "UniqueEmailViolation", "message": "Email test_user_exists@mail.com already exists"})
