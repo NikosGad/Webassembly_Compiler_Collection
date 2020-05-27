@@ -1,3 +1,4 @@
+import os
 import unittest
 
 from rest_server import app, authentication
@@ -18,6 +19,8 @@ class ViewCompileTestCase(unittest.TestCase):
         cls.test_user.create()
 
         cls.token_valid = authentication.Authentication.generate_token(1, 60)
+
+        cls.c_source_code_snippet_hello_c = os.path.dirname(__file__) + "/../test_source_code_snippets/hello.c"
 
     @classmethod
     def tearDownClass(cls):
@@ -74,3 +77,58 @@ class ViewCompileTestCase(unittest.TestCase):
         self.assertEqual(response.headers.get("Content-Type"), "application/json")
         self.assertEqual(response.headers.get("Access-Control-Allow-Origin"), "http://localhost:3535")
         self.assertEqual(response.get_json(), {"type": "LanguageNotSupportedError", "message": "Language invalid-language is not supported."})
+
+    def test_compile_C__missing_query_parameters(self):
+        data_list = [
+            {},
+            {
+                "code": (self.c_source_code_snippet_hello_c, None),
+            },
+            {
+                "compilation_options": '{"optimization_level": "O2", "iso_standard": "gnu11", "suppress_warnings": true, "output_filename": "-----hello"}',
+            },
+        ]
+
+        for data in data_list:
+            mock_request = {
+                "base_url": "http://127.0.0.1:8080",
+                "path": "/api/compile/C",
+                "data": data,
+            }
+
+            with app.test_client() as c:
+                response = c.post(**mock_request)
+
+            self.assertEqual(response._status, "400 BAD REQUEST")
+            self.assertEqual(response.headers.get("Content-Type"), "application/json")
+            self.assertEqual(response.headers.get("Access-Control-Allow-Origin"), "http://localhost:3535")
+            self.assertEqual(response.get_json(), {"type": "IncorrectCompileBodyError", "message": "A form data should be provided that contains a file with key 'code' and a compilation options json with key 'compilation_options'."})
+
+    def test_compile_store_C__missing_query_parameters(self):
+        data_list = [
+            {},
+            {
+                "code": (self.c_source_code_snippet_hello_c, None),
+            },
+            {
+                "compilation_options": '{"optimization_level": "O2", "iso_standard": "gnu11", "suppress_warnings": true, "output_filename": "-----hello"}',
+            },
+        ]
+
+        for data in data_list:
+            mock_request = {
+                "base_url": "http://127.0.0.1:8080",
+                "path": "/api/compile/C/store",
+                "headers": {
+                    "Authorization": "Bearer " + self.token_valid
+                },
+                "data": data,
+            }
+
+            with app.test_client() as c:
+                response = c.post(**mock_request)
+
+            self.assertEqual(response._status, "400 BAD REQUEST")
+            self.assertEqual(response.headers.get("Content-Type"), "application/json")
+            self.assertEqual(response.headers.get("Access-Control-Allow-Origin"), "http://localhost:3535")
+            self.assertEqual(response.get_json(), {"type": "IncorrectCompileBodyError", "message": "A form data should be provided that contains a file with key 'code' and a compilation options json with key 'compilation_options'."})
