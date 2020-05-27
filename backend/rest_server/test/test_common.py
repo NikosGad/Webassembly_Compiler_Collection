@@ -16,7 +16,7 @@ class CommonTestCase(unittest.TestCase):
                 "Origin": "http://localhost:3535"
             },
             "data": {
-                "code": (io.BytesIO('this is some dummy test content'.encode("utf8")), 'test.txt'),
+                "code": (io.BytesIO(b'this is some dummy test content'), 'test.txt'),
                 "compilation_options": '{"optimization_level": "O2", "iso_standard": "gnu11", "suppress_warnings": true, "output_filename": "-----hello"}'
             },
         }
