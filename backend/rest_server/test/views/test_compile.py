@@ -1,4 +1,5 @@
 import filecmp
+import io
 import os
 import shutil
 import unittest
@@ -168,7 +169,7 @@ class ViewCompileTestCase(unittest.TestCase):
         self.assertEqual(response._status, "200 OK")
         self.assertEqual(response.headers.get("Content-Type"), "application/zip")
         self.assertEqual(response.headers.get("Access-Control-Allow-Origin"), "http://localhost:3535")
-        # TODO: Assert response!
+        self.assertEqual(response.headers.get("Content-Disposition"), "attachment; filename=results.zip")
 
         root_upload_path_list = os.listdir(self.handler_c.root_upload_path)
         self.assertEqual(root_upload_path_list, ["unknown"],
@@ -205,5 +206,26 @@ class ViewCompileTestCase(unittest.TestCase):
         self.assertTrue(os.stat(uploaded_file_directory + "/hello.js").st_size != 0)
         self.assertTrue(os.stat(uploaded_file_directory + "/hello.wasm").st_size != 0)
 
-        with ZipFile(file=uploaded_file_directory + "/results.zip", mode="r") as test_zip:
-            self.assertEqual(test_zip.namelist(), ["hello.html", "hello.js", "hello.wasm"])
+        with ZipFile(file=uploaded_file_directory + "/results.zip", mode="r") as file_system_zip:
+            self.assertIsNone(file_system_zip.testzip())
+            self.assertEqual(file_system_zip.namelist(), ["hello.html", "hello.js", "hello.wasm"])
+            file_system_zip_infolist = file_system_zip.infolist()
+            self.assertEqual(os.stat(uploaded_file_directory + "/hello.html").st_size, file_system_zip_infolist[0].file_size)
+            self.assertEqual(os.stat(uploaded_file_directory + "/hello.js").st_size, file_system_zip_infolist[1].file_size)
+            self.assertEqual(os.stat(uploaded_file_directory + "/hello.wasm").st_size, file_system_zip_infolist[2].file_size)
+
+            with io.BytesIO(response.get_data()) as in_memory_response_zip:
+                with ZipFile(in_memory_response_zip, 'r') as response_zip:
+                    self.assertIsNone(response_zip.testzip())
+                    self.assertEqual(response_zip.namelist(), ["hello.html", "hello.js", "hello.wasm"])
+                    response_zip_infolist = response_zip.infolist()
+
+                    self.assertEqual(file_system_zip_infolist[0].file_size, response_zip_infolist[0].file_size,
+                        msg="HTML files do not have the same size inside the two zip files"
+                    )
+                    self.assertEqual(file_system_zip_infolist[1].file_size, response_zip_infolist[1].file_size,
+                        msg="JS files do not have the same size inside the two zip files"
+                    )
+                    self.assertEqual(file_system_zip_infolist[2].file_size, response_zip_infolist[2].file_size,
+                        msg="WASM files do not have the same size inside the two zip files"
+                    )
