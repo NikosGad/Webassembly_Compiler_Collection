@@ -26,6 +26,7 @@ class ViewCompileTestCase(unittest.TestCase):
         cls.token_valid = authentication.Authentication.generate_token(1, 60)
 
         cls.c_source_code_snippet_hello_c = os.path.dirname(__file__) + "/../test_source_code_snippets/hello.c"
+        cls.c_source_code_snippet_hello_error_c = os.path.dirname(__file__) + "/../test_source_code_snippets/hello_error.c"
 
         cls.handler_c = compilation_handlers_dictionary["C"]
 
@@ -254,3 +255,68 @@ class ViewCompileTestCase(unittest.TestCase):
         self.assertEqual(response.headers.get("Content-Type"), "application/json")
         self.assertEqual(response.headers.get("Access-Control-Allow-Origin"), "http://localhost:3535")
         self.assertEqual(response.get_json(), {"type": "JSONParseError", "message": "Bad JSON Format Error"})
+
+    def test_compile_C__erroneous_code(self):
+        mock_request = {
+            "base_url": "http://127.0.0.1:8080",
+            "path": "/api/compile/C",
+            "data": {
+                "code": (self.c_source_code_snippet_hello_error_c, "hello_error.c"),
+                "compilation_options": '{"optimization_level": "O2", "suppress_warnings": true, "iso_standard": "gnu11", "output_filename": "-----hello"}',
+            },
+        }
+
+        with app.test_client() as c:
+            response = c.post(**mock_request)
+
+        self.assertEqual(response._status, "400 BAD REQUEST")
+        self.assertEqual(response.headers.get("Content-Type"), "application/zip")
+        self.assertEqual(response.headers.get("Access-Control-Allow-Origin"), "http://localhost:3535")
+        self.assertEqual(response.headers.get("Content-Disposition"), "attachment; filename=results.zip")
+
+        root_upload_path_list = os.listdir(self.handler_c.root_upload_path)
+        self.assertEqual(root_upload_path_list, ["unknown"],
+            msg="Path {path} does not contain only the unknown folder: {root_upload_path_list}".format(
+                path=self.handler_c.root_upload_path,
+                root_upload_path_list=root_upload_path_list
+            )
+        )
+
+        unknown_directory = self.handler_c.root_upload_path + "/unknown"
+        unknown_directory_list = os.listdir(unknown_directory)
+        self.assertEqual(len(unknown_directory_list), 1,
+            msg="Path {path} does not contain exactly one uploaded file directory: {entry_list}".format(
+                path=unknown_directory,
+                entry_list=unknown_directory_list
+            )
+        )
+
+        uploaded_file_directory = unknown_directory + "/" + unknown_directory_list[0]
+        uploaded_file_directory_list = os.listdir(uploaded_file_directory)
+        self.assertEqual(len(uploaded_file_directory_list), 3,
+            msg="Path {path} does not contain exactly 5 files: {entry_list}".format(
+                path=uploaded_file_directory,
+                entry_list=uploaded_file_directory_list
+            )
+        )
+        self.assertIn("hello_error.c", uploaded_file_directory_list)
+        self.assertIn("stderr.txt", uploaded_file_directory_list)
+        self.assertIn("results.zip", uploaded_file_directory_list)
+        self.assertTrue(filecmp.cmp(uploaded_file_directory + "/hello_error.c", self.c_source_code_snippet_hello_error_c))
+        self.assertTrue(os.stat(uploaded_file_directory + "/stderr.txt").st_size != 0)
+
+        with ZipFile(file=uploaded_file_directory + "/results.zip", mode="r") as file_system_zip:
+            self.assertIsNone(file_system_zip.testzip())
+            self.assertEqual(file_system_zip.namelist(), ["stderr.txt"])
+            file_system_zip_infolist = file_system_zip.infolist()
+            self.assertEqual(os.stat(uploaded_file_directory + "/stderr.txt").st_size, file_system_zip_infolist[0].file_size)
+
+            with io.BytesIO(response.get_data()) as in_memory_response_zip:
+                with ZipFile(in_memory_response_zip, 'r') as response_zip:
+                    self.assertIsNone(response_zip.testzip())
+                    self.assertEqual(response_zip.namelist(), ["stderr.txt"])
+                    response_zip_infolist = response_zip.infolist()
+
+                    self.assertEqual(file_system_zip_infolist[0].file_size, response_zip_infolist[0].file_size,
+                        msg="STDERR files do not have the same size inside the two zip files"
+                    )
