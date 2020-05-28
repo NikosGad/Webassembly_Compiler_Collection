@@ -33,8 +33,23 @@ class ViewCompileTestCase(unittest.TestCase):
     def tearDownClass(cls):
         cls.test_user.delete()
 
+        for entry in os.listdir(cls.handler_c.root_upload_path):
+            entry_path = cls.handler_c.root_upload_path + "/" + entry
+            if os.path.isdir(entry_path):
+                shutil.rmtree(entry_path)
+            else:
+                os.remove(entry_path)
+
     def setUp(self):
-        pass
+        root_upload_path_list = os.listdir(self.handler_c.root_upload_path)
+
+        if root_upload_path_list != []:
+            raise Exception(
+                "Path {path} is not empty: {root_upload_path_list}".format(
+                    path=self.handler_c.root_upload_path,
+                    root_upload_path_list=root_upload_path_list
+                )
+            )
 
     def tearDown(self):
         for entry in os.listdir(self.handler_c.root_upload_path):
@@ -146,14 +161,6 @@ class ViewCompileTestCase(unittest.TestCase):
             self.assertEqual(response.get_json(), {"type": "IncorrectCompileBodyError", "message": "A form data should be provided that contains a file with key 'code' and a compilation options json with key 'compilation_options'."})
 
     def test_compile_C__valid(self):
-        root_upload_path_list = os.listdir(self.handler_c.root_upload_path)
-        self.assertEqual(root_upload_path_list, [],
-            msg="Path {path} is not empty: {root_upload_path_list}".format(
-                path=self.handler_c.root_upload_path,
-                root_upload_path_list=root_upload_path_list
-            )
-        )
-
         mock_request = {
             "base_url": "http://127.0.0.1:8080",
             "path": "/api/compile/C",
@@ -229,3 +236,21 @@ class ViewCompileTestCase(unittest.TestCase):
                     self.assertEqual(file_system_zip_infolist[2].file_size, response_zip_infolist[2].file_size,
                         msg="WASM files do not have the same size inside the two zip files"
                     )
+
+    def test_compile_C__invalid_compilation_options_json(self):
+        mock_request = {
+            "base_url": "http://127.0.0.1:8080",
+            "path": "/api/compile/C",
+            "data": {
+                "code": (self.c_source_code_snippet_hello_c, "hello.c"),
+                "compilation_options": '{"optimization_level": "O2", "iso_standard": "gnu11, "suppress_warnings": true, "output_filename": "-----hello"}',
+            },
+        }
+
+        with app.test_client() as c:
+            response = c.post(**mock_request)
+
+        self.assertEqual(response._status, "400 BAD REQUEST")
+        self.assertEqual(response.headers.get("Content-Type"), "application/json")
+        self.assertEqual(response.headers.get("Access-Control-Allow-Origin"), "http://localhost:3535")
+        self.assertEqual(response.get_json(), {"type": "JSONParseError", "message": "Bad JSON Format Error"})
