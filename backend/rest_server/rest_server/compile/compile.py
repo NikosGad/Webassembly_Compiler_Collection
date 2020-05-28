@@ -80,10 +80,10 @@ methods that a language specific compilation handler should implement."""
                 os.makedirs(upload_path)
                 app.logger.debug("Path generated: " + upload_path)
             except FileExistsError:
-                app.logger.exception("Path exists: " + upload_path)
+                app.logger.info("Path exists: " + upload_path)
                 return jsonify({"type": "FileExistsError", "message": "The uploaded file already exists"}), 400
 
-            client_file.save(upload_path + filename)
+            client_file.save(upload_path + "/" + filename)
 
             # DONT USE shell=True for security and vulnerabilities
             completed_compile_file_process = subprocess.run(compile_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
