@@ -7,18 +7,18 @@ import shutil
 import unittest
 from zipfile import ZipFile
 
-from flask import request
+from flask import g, request
 
 from rest_server import app
 from rest_server.compile.compile import CompilationHandler
-from rest_server.models import file_model
+from rest_server.models import user_model, file_model
 
 CURRENT_TEST_FILE_PATH = os.path.dirname(__file__) + "/test_compile.py"
 
 class NonAbstractCompilationHandler(CompilationHandler):
     """NonAbstractCompilationHandler class implements dummy methods for the abstract methods."""
     def compilation_options_parser(self, *args, **kwargs):
-        return [], "mock_output_name"
+        return ["mock_option_1", "mock_option_2"], "mock_output_name"
 
     def compilation_command_generator(self, *args, **kwargs):
         return []
@@ -54,18 +54,42 @@ class CompileTestCase(unittest.TestCase):
         cls.mock_root_upload_path = "/results/language"
         cls.c_source_code_snippet_hello_c = os.path.dirname(__file__) + "/../test_source_code_snippets/hello.c"
 
+        cls.user_info = {
+            "username": "test_user_compile",
+            "password": "12345a",
+            "email": "test@mail.com"
+        }
+
+        cls.test_user = user_model.User(**cls.user_info)
+        cls.test_user.id = cls.user_info["id"] = 1
+        cls.test_user.create()
+
     @classmethod
     def tearDownClass(cls):
+        cls.test_user.delete()
+
         if os.path.exists(cls.mock_root_upload_path):
             shutil.rmtree(cls.mock_root_upload_path)
+
+        test_all_files = file_model.SourceCodeFile.get_all_files()
+        for file in test_all_files:
+            file.delete()
 
     def setUp(self):
         if os.path.exists(self.mock_root_upload_path):
             raise Exception("Path {path} already exists before the testcase is executed".format(path=self.mock_root_upload_path))
 
+        test_all_files = file_model.SourceCodeFile.get_all_files()
+        if test_all_files != []:
+            raise Exception("There are leftovers in sourcecodefiles table in DB")
+
     def tearDown(self):
         if os.path.exists(self.mock_root_upload_path):
             shutil.rmtree(self.mock_root_upload_path)
+
+        test_all_files = file_model.SourceCodeFile.get_all_files()
+        for file in test_all_files:
+            file.delete()
 
     def test_CompilationHandler_generate_file_subpath(self):
         handler = NonAbstractCompilationHandler(self.mock_language, self.mock_root_upload_path)
@@ -204,7 +228,7 @@ class CompileTestCase(unittest.TestCase):
 
         test_all_files = file_model.SourceCodeFile.get_all_files()
         self.assertEqual(test_all_files, [],
-            msg="Files table in DB is not empty: {files}".format(
+            msg="Table sourcecodefiles in DB is not empty: {files}".format(
                 files=test_all_files
             )
         )
@@ -271,12 +295,12 @@ class CompileTestCase(unittest.TestCase):
                 response_zip_infolist = response_zip.infolist()
 
                 self.assertEqual(file_system_zip_infolist[0].file_size, response_zip_infolist[0].file_size,
-                    msg="STDOUT files do not have the same size inside the two zip files"
+                    msg="STDERR files do not have the same size inside the two zip files"
                 )
 
         test_all_files = file_model.SourceCodeFile.get_all_files()
         self.assertEqual(test_all_files, [],
-            msg="Files table in DB is not empty: {files}".format(
+            msg="Table sourcecodefiles in DB is not empty: {files}".format(
                 files=test_all_files
             )
         )
@@ -355,16 +379,174 @@ class CompileTestCase(unittest.TestCase):
 
         test_all_files = file_model.SourceCodeFile.get_all_files()
         self.assertEqual(test_all_files, [],
-            msg="Files table in DB is not empty: {files}".format(
+            msg="Table sourcecodefiles in DB is not empty: {files}".format(
                 files=test_all_files
             )
         )
 
     def test_CompilationHandler_compile__store_successful_command(self):
-        pass
+        handler = MockedCompilationHandlerWStdout(self.mock_language, self.mock_root_upload_path)
+
+        mock_request = {
+            "base_url": "http://127.0.0.1:8080",
+            "path": "/api/test/compile/method",
+            "data": {
+                "code": (self.c_source_code_snippet_hello_c, ".././-h../ello.c"),
+                "compilation_options": '{}',
+            },
+        }
+
+        with app.test_request_context(**mock_request):
+            g.user = {"id": self.user_info["id"]}
+            response = handler.compile(request.files["code"], request.form["compilation_options"], store=True)
+
+        self.assertEqual(response._status, "200 OK")
+        self.assertEqual(response.headers.get("Content-Type"), "application/zip")
+        self.assertEqual(response.headers.get("Content-Disposition"), "attachment; filename=results.zip")
+
+        root_upload_path_list = os.listdir(self.mock_root_upload_path)
+        self.assertEqual(root_upload_path_list, [str(self.user_info["id"])],
+            msg="Path {path} does not contain only the {user_id} folder: {root_upload_path_list}".format(
+                path=self.mock_root_upload_path,
+                user_id=self.user_info["id"],
+                root_upload_path_list=root_upload_path_list
+            )
+        )
+
+        user_directory = self.mock_root_upload_path + "/" + str(self.user_info["id"])
+        user_directory_list = os.listdir(user_directory)
+        self.assertEqual(user_directory_list, ["mock_subpath"],
+            msg="Path {path} does not contain only the mock_subpath file directory: {entry_list}".format(
+                path=user_directory,
+                entry_list=user_directory_list
+            )
+        )
+
+        uploaded_file_directory = user_directory + "/mock_subpath"
+        uploaded_file_directory_list = sorted(os.listdir(uploaded_file_directory))
+        self.assertEqual(uploaded_file_directory_list, ["-h.._ello.c", "results.zip", "stdout.txt"],
+            msg="Path {path} does not contain exactly 3 files: {entry_list}".format(
+                path=uploaded_file_directory,
+                entry_list=uploaded_file_directory_list
+            )
+        )
+
+        self.assertTrue(filecmp.cmp(uploaded_file_directory + "/-h.._ello.c", self.c_source_code_snippet_hello_c))
+
+        with open(uploaded_file_directory + "/stdout.txt", "r") as stdout_file:
+            self.assertEqual(stdout_file.read(), CURRENT_TEST_FILE_PATH + "\n\n")
+
+        with ZipFile(file=uploaded_file_directory + "/results.zip", mode="r") as file_system_zip:
+            self.assertIsNone(file_system_zip.testzip())
+            self.assertEqual(file_system_zip.namelist(), ["stdout.txt"])
+            file_system_zip_infolist = file_system_zip.infolist()
+            self.assertEqual(os.stat(uploaded_file_directory + "/stdout.txt").st_size, file_system_zip_infolist[0].file_size)
+
+            with ZipFile(response.response.file, 'r') as response_zip:
+                self.assertIsNone(response_zip.testzip())
+                self.assertEqual(response_zip.namelist(), ["stdout.txt"])
+                response_zip_infolist = response_zip.infolist()
+
+                self.assertEqual(file_system_zip_infolist[0].file_size, response_zip_infolist[0].file_size,
+                    msg="STDOUT files do not have the same size inside the two zip files"
+                )
+
+        test_all_files = file_model.SourceCodeFile.get_all_files()
+        self.assertEqual(len(test_all_files), 1,
+            msg="Table sourcecodefiles in DB does not contain exactly one file: {files}".format(
+                files=test_all_files
+            )
+        )
+
+        test_file = test_all_files[0]
+        self.assertEqual(test_file.user_id, self.user_info["id"])
+        self.assertEqual(test_file.name, "-h.._ello.c")
+        self.assertEqual(test_file.directory, "mock_subpath")
+        self.assertEqual(test_file.compilation_options, ["mock_option_1", "mock_option_2"])
+        self.assertEqual(test_file.language, self.mock_language)
+        self.assertEqual(test_file.status, "Successful")
 
     def test_CompilationHandler_compile__store_erroneous_command(self):
-        pass
+        handler = MockedCompilationHandlerWStderr(self.mock_language, self.mock_root_upload_path)
+
+        mock_request = {
+            "base_url": "http://127.0.0.1:8080",
+            "path": "/api/test/compile/method",
+            "data": {
+                "code": (self.c_source_code_snippet_hello_c, ".././-h../ello.c"),
+                "compilation_options": '{}',
+            },
+        }
+
+        with app.test_request_context(**mock_request):
+            g.user = {"id": self.user_info["id"]}
+            response = handler.compile(request.files["code"], request.form["compilation_options"], store=True)
+
+        self.assertEqual(response._status, "400 BAD REQUEST")
+        self.assertEqual(response.headers.get("Content-Type"), "application/zip")
+        self.assertEqual(response.headers.get("Content-Disposition"), "attachment; filename=results.zip")
+
+        root_upload_path_list = os.listdir(self.mock_root_upload_path)
+        self.assertEqual(root_upload_path_list, [str(self.user_info["id"])],
+            msg="Path {path} does not contain only the {user_id} folder: {root_upload_path_list}".format(
+                path=self.mock_root_upload_path,
+                user_id=self.user_info["id"],
+                root_upload_path_list=root_upload_path_list
+            )
+        )
+
+        user_directory = self.mock_root_upload_path + "/" + str(self.user_info["id"])
+        user_directory_list = os.listdir(user_directory)
+        self.assertEqual(user_directory_list, ["mock_subpath"],
+            msg="Path {path} does not contain only the mock_subpath file directory: {entry_list}".format(
+                path=user_directory,
+                entry_list=user_directory_list
+            )
+        )
+
+        uploaded_file_directory = user_directory + "/mock_subpath"
+        uploaded_file_directory_list = sorted(os.listdir(uploaded_file_directory))
+        self.assertEqual(uploaded_file_directory_list, ["-h.._ello.c", "results.zip", "stderr.txt"],
+            msg="Path {path} does not contain exactly 3 files: {entry_list}".format(
+                path=uploaded_file_directory,
+                entry_list=uploaded_file_directory_list
+            )
+        )
+
+        self.assertTrue(filecmp.cmp(uploaded_file_directory + "/-h.._ello.c", self.c_source_code_snippet_hello_c))
+
+        with open(uploaded_file_directory + "/stderr.txt", "r") as stderr_file:
+            self.assertEqual(stderr_file.read(), "ls: cannot access 'non-existing-path': No such file or directory\n\n")
+
+        with ZipFile(file=uploaded_file_directory + "/results.zip", mode="r") as file_system_zip:
+            self.assertIsNone(file_system_zip.testzip())
+            self.assertEqual(file_system_zip.namelist(), ["stderr.txt"])
+            file_system_zip_infolist = file_system_zip.infolist()
+            self.assertEqual(os.stat(uploaded_file_directory + "/stderr.txt").st_size, file_system_zip_infolist[0].file_size)
+
+            with ZipFile(response.response.file, 'r') as response_zip:
+                self.assertIsNone(response_zip.testzip())
+                self.assertEqual(response_zip.namelist(), ["stderr.txt"])
+                response_zip_infolist = response_zip.infolist()
+
+                self.assertEqual(file_system_zip_infolist[0].file_size, response_zip_infolist[0].file_size,
+                    msg="STDERR files do not have the same size inside the two zip files"
+                )
+
+        test_all_files = file_model.SourceCodeFile.get_all_files()
+        self.assertEqual(len(test_all_files), 1,
+            msg="Table sourcecodefiles in DB does not contain exactly one file: {files}".format(
+                files=test_all_files
+            )
+        )
+
+        test_file = test_all_files[0]
+        self.assertEqual(test_file.user_id, self.user_info["id"])
+        self.assertEqual(test_file.name, "-h.._ello.c")
+        self.assertEqual(test_file.directory, "mock_subpath")
+        self.assertEqual(test_file.compilation_options, ["mock_option_1", "mock_option_2"])
+        self.assertEqual(test_file.language, self.mock_language)
+        self.assertEqual(test_file.status, "Erroneous")
 
     def test_CompilationHandler_compile__unexpected_exception_handling(self):
         pass
