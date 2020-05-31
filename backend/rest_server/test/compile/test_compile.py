@@ -184,6 +184,9 @@ class CompileTestCase(unittest.TestCase):
 
         self.assertTrue(filecmp.cmp(uploaded_file_directory + "/hello.c", self.c_source_code_snippet_hello_c))
 
+        with open(uploaded_file_directory + "/stdout.txt", "r") as stdout_file:
+            self.assertEqual(stdout_file.read(), CURRENT_TEST_FILE_PATH + "\n\n")
+
         with ZipFile(file=uploaded_file_directory + "/results.zip", mode="r") as file_system_zip:
             self.assertIsNone(file_system_zip.testzip())
             self.assertEqual(file_system_zip.namelist(), ["stdout.txt"])
@@ -205,3 +208,163 @@ class CompileTestCase(unittest.TestCase):
                 files=test_all_files
             )
         )
+
+    def test_CompilationHandler_compile__with_stderr(self):
+        handler = MockedCompilationHandlerWStderr(self.mock_language, self.mock_root_upload_path)
+
+        mock_request = {
+            "base_url": "http://127.0.0.1:8080",
+            "path": "/api/test/compile/method",
+            "data": {
+                "code": (self.c_source_code_snippet_hello_c, "hello.c"),
+                "compilation_options": '{}',
+            },
+        }
+
+        with app.test_request_context(**mock_request):
+            response = handler.compile(request.files["code"], request.form["compilation_options"])
+
+        self.assertEqual(response._status, "400 BAD REQUEST")
+        self.assertEqual(response.headers.get("Content-Type"), "application/zip")
+        self.assertEqual(response.headers.get("Content-Disposition"), "attachment; filename=results.zip")
+
+        root_upload_path_list = os.listdir(self.mock_root_upload_path)
+        self.assertEqual(root_upload_path_list, ["unknown"],
+            msg="Path {path} does not contain only the unknown folder: {root_upload_path_list}".format(
+                path=self.mock_root_upload_path,
+                root_upload_path_list=root_upload_path_list
+            )
+        )
+
+        unknown_directory = self.mock_root_upload_path + "/unknown"
+        unknown_directory_list = os.listdir(unknown_directory)
+        self.assertEqual(unknown_directory_list, ["mock_subpath"],
+            msg="Path {path} does not contain only the mock_subpath file directory: {entry_list}".format(
+                path=unknown_directory,
+                entry_list=unknown_directory_list
+            )
+        )
+
+        uploaded_file_directory = unknown_directory + "/mock_subpath"
+        uploaded_file_directory_list = sorted(os.listdir(uploaded_file_directory))
+        self.assertEqual(uploaded_file_directory_list, ["hello.c", "results.zip", "stderr.txt"],
+            msg="Path {path} does not contain exactly 3 files: {entry_list}".format(
+                path=uploaded_file_directory,
+                entry_list=uploaded_file_directory_list
+            )
+        )
+
+        self.assertTrue(filecmp.cmp(uploaded_file_directory + "/hello.c", self.c_source_code_snippet_hello_c))
+
+        with open(uploaded_file_directory + "/stderr.txt", "r") as stderr_file:
+            self.assertEqual(stderr_file.read(), "ls: cannot access 'non-existing-path': No such file or directory\n\n")
+
+        with ZipFile(file=uploaded_file_directory + "/results.zip", mode="r") as file_system_zip:
+            self.assertIsNone(file_system_zip.testzip())
+            self.assertEqual(file_system_zip.namelist(), ["stderr.txt"])
+            file_system_zip_infolist = file_system_zip.infolist()
+            self.assertEqual(os.stat(uploaded_file_directory + "/stderr.txt").st_size, file_system_zip_infolist[0].file_size)
+
+            with ZipFile(response.response.file, 'r') as response_zip:
+                self.assertIsNone(response_zip.testzip())
+                self.assertEqual(response_zip.namelist(), ["stderr.txt"])
+                response_zip_infolist = response_zip.infolist()
+
+                self.assertEqual(file_system_zip_infolist[0].file_size, response_zip_infolist[0].file_size,
+                    msg="STDOUT files do not have the same size inside the two zip files"
+                )
+
+        test_all_files = file_model.SourceCodeFile.get_all_files()
+        self.assertEqual(test_all_files, [],
+            msg="Files table in DB is not empty: {files}".format(
+                files=test_all_files
+            )
+        )
+
+    def test_CompilationHandler_compile__with_stdout_and_stderr(self):
+        handler = MockedCompilationHandlerWStdoutWStderr(self.mock_language, self.mock_root_upload_path)
+
+        mock_request = {
+            "base_url": "http://127.0.0.1:8080",
+            "path": "/api/test/compile/method",
+            "data": {
+                "code": (self.c_source_code_snippet_hello_c, "hello.c"),
+                "compilation_options": '{}',
+            },
+        }
+
+        with app.test_request_context(**mock_request):
+            response = handler.compile(request.files["code"], request.form["compilation_options"])
+
+        self.assertEqual(response._status, "400 BAD REQUEST")
+        self.assertEqual(response.headers.get("Content-Type"), "application/zip")
+        self.assertEqual(response.headers.get("Content-Disposition"), "attachment; filename=results.zip")
+
+        root_upload_path_list = os.listdir(self.mock_root_upload_path)
+        self.assertEqual(root_upload_path_list, ["unknown"],
+            msg="Path {path} does not contain only the unknown folder: {root_upload_path_list}".format(
+                path=self.mock_root_upload_path,
+                root_upload_path_list=root_upload_path_list
+            )
+        )
+
+        unknown_directory = self.mock_root_upload_path + "/unknown"
+        unknown_directory_list = os.listdir(unknown_directory)
+        self.assertEqual(unknown_directory_list, ["mock_subpath"],
+            msg="Path {path} does not contain only the mock_subpath file directory: {entry_list}".format(
+                path=unknown_directory,
+                entry_list=unknown_directory_list
+            )
+        )
+
+        uploaded_file_directory = unknown_directory + "/mock_subpath"
+        uploaded_file_directory_list = sorted(os.listdir(uploaded_file_directory))
+        self.assertEqual(uploaded_file_directory_list, ["hello.c", "results.zip", "stderr.txt", "stdout.txt"],
+            msg="Path {path} does not contain exactly 4 files: {entry_list}".format(
+                path=uploaded_file_directory,
+                entry_list=uploaded_file_directory_list
+            )
+        )
+
+        self.assertTrue(filecmp.cmp(uploaded_file_directory + "/hello.c", self.c_source_code_snippet_hello_c))
+
+        with open(uploaded_file_directory + "/stdout.txt", "r") as stdout_file:
+            self.assertEqual(stdout_file.read(), CURRENT_TEST_FILE_PATH + "\n\n")
+
+        with open(uploaded_file_directory + "/stderr.txt", "r") as stderr_file:
+            self.assertEqual(stderr_file.read(), "ls: cannot access 'non-existing-path': No such file or directory\n\n")
+
+        with ZipFile(file=uploaded_file_directory + "/results.zip", mode="r") as file_system_zip:
+            self.assertIsNone(file_system_zip.testzip())
+            self.assertEqual(file_system_zip.namelist(), ["stdout.txt", "stderr.txt"])
+            file_system_zip_infolist = file_system_zip.infolist()
+            self.assertEqual(os.stat(uploaded_file_directory + "/stdout.txt").st_size, file_system_zip_infolist[0].file_size)
+            self.assertEqual(os.stat(uploaded_file_directory + "/stderr.txt").st_size, file_system_zip_infolist[1].file_size)
+
+            with ZipFile(response.response.file, 'r') as response_zip:
+                self.assertIsNone(response_zip.testzip())
+                self.assertEqual(response_zip.namelist(), ["stdout.txt", "stderr.txt"])
+                response_zip_infolist = response_zip.infolist()
+
+                self.assertEqual(file_system_zip_infolist[0].file_size, response_zip_infolist[0].file_size,
+                    msg="STDOUT files do not have the same size inside the two zip files"
+                )
+                self.assertEqual(file_system_zip_infolist[1].file_size, response_zip_infolist[1].file_size,
+                    msg="STDERR files do not have the same size inside the two zip files"
+                )
+
+        test_all_files = file_model.SourceCodeFile.get_all_files()
+        self.assertEqual(test_all_files, [],
+            msg="Files table in DB is not empty: {files}".format(
+                files=test_all_files
+            )
+        )
+
+    def test_CompilationHandler_compile__store_successful_command(self):
+        pass
+
+    def test_CompilationHandler_compile__store_erroneous_command(self):
+        pass
+
+    def test_CompilationHandler_compile__unexpected_exception_handling(self):
+        pass
