@@ -19,4 +19,3 @@ from . import models
 from . import views
 
 db.create_all()
-print("DB created!")
