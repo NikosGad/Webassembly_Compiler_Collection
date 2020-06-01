@@ -52,6 +52,7 @@ class CompileTestCase(unittest.TestCase):
     def setUpClass(cls):
         cls.mock_language = "language"
         cls.mock_root_upload_path = "/results/language"
+        os.makedirs(cls.mock_root_upload_path)
         cls.c_source_code_snippet_hello_c = os.path.dirname(__file__) + "/../test_source_code_snippets/hello.c"
 
         cls.user_info = {
@@ -76,8 +77,12 @@ class CompileTestCase(unittest.TestCase):
             file.delete()
 
     def setUp(self):
-        if os.path.exists(self.mock_root_upload_path):
-            raise Exception("Path {path} already exists before the testcase is executed".format(path=self.mock_root_upload_path))
+        if os.path.exists(self.mock_root_upload_path) and os.listdir(self.mock_root_upload_path) != []:
+            raise Exception("Path {path} is not empty before the testcase is executed: {entry_list}".format(
+                    path=self.mock_root_upload_path,
+                    entry_list=os.listdir(self.mock_root_upload_path),
+                )
+            )
 
         test_all_files = file_model.SourceCodeFile.get_all_files()
         if test_all_files != []:
@@ -85,7 +90,12 @@ class CompileTestCase(unittest.TestCase):
 
     def tearDown(self):
         if os.path.exists(self.mock_root_upload_path):
-            shutil.rmtree(self.mock_root_upload_path)
+            for entry in os.listdir(self.mock_root_upload_path):
+                entry_path = self.mock_root_upload_path + "/" + entry
+                if os.path.isdir(entry_path):
+                    shutil.rmtree(entry_path)
+                else:
+                    os.remove(entry_path)
 
         test_all_files = file_model.SourceCodeFile.get_all_files()
         for file in test_all_files:
@@ -121,6 +131,7 @@ class CompileTestCase(unittest.TestCase):
             '{"key": "value}',
             '{"key": v"alue}',
             '{"key": True}',
+            '{"key": }',
         ]
 
         for compilation_options_json in compilation_options_json_list:
@@ -548,5 +559,107 @@ class CompileTestCase(unittest.TestCase):
         self.assertEqual(test_file.language, self.mock_language)
         self.assertEqual(test_file.status, "Erroneous")
 
-    def test_CompilationHandler_compile__unexpected_exception_handling(self):
-        pass
+    def test_CompilationHandler_compile__unexpected_exception_handling_upload_path_created(self):
+        handler = NonAbstractCompilationHandler(self.mock_language, self.mock_root_upload_path)
+
+        mock_request = {
+            "base_url": "http://127.0.0.1:8080",
+            "path": "/api/test/compile/method",
+            "data": {
+                "code": (self.c_source_code_snippet_hello_c, ".././hello.c"),
+                "compilation_options": '{}',
+            },
+        }
+
+        with self.assertLogs(app.logger, level="INFO") as logs_list:
+            with app.test_request_context(**mock_request):
+                response, response_status = handler.compile(request.files["code"], request.form["compilation_options"])
+
+        self.assertEqual(response_status, 500)
+        self.assertEqual(response.headers.get("Content-Type"), "application/json")
+        self.assertEqual(response.response[0], b"{\"message\":\"Internal Unexpected Error\",\"type\":\"UnexpectedException\"}\n")
+
+        root_upload_path_list = os.listdir(self.mock_root_upload_path)
+        self.assertEqual(root_upload_path_list, ["unknown"],
+            msg="Path {path} does not contain only the unknown folder: {root_upload_path_list}".format(
+                path=self.mock_root_upload_path,
+                root_upload_path_list=root_upload_path_list
+            )
+        )
+
+        unknown_directory = self.mock_root_upload_path + "/unknown"
+        unknown_directory_list = os.listdir(unknown_directory)
+        self.assertEqual(unknown_directory_list, [],
+            msg="Path {path} is not empty: {entry_list}".format(
+                path=unknown_directory,
+                entry_list=unknown_directory_list
+            )
+        )
+
+        test_all_files = file_model.SourceCodeFile.get_all_files()
+        self.assertEqual(test_all_files, [],
+            msg="Table sourcecodefiles in DB is not empty: {files}".format(
+                files=test_all_files
+            )
+        )
+
+        self.assertEqual(len(logs_list.output), 4,
+            msg="There are expected exactly 4 log messages: {logs_list}".format(
+                logs_list=logs_list
+            )
+        )
+        self.assertIn("ERROR:", logs_list.output[0])
+        self.assertIn("Unexpected error occured during compile()", logs_list.output[0])
+        self.assertIn("WARNING:", logs_list.output[1])
+        self.assertIn("Asserting that no orphaned directory is created...", logs_list.output[1])
+        self.assertIn("WARNING:", logs_list.output[2])
+        self.assertIn("Detected orphaned directory:", logs_list.output[2])
+        self.assertIn("INFO:", logs_list.output[3])
+        self.assertIn("Orphaned directory deleted:", logs_list.output[3])
+
+    def test_CompilationHandler_compile__unexpected_exception_handling_upload_path_undeclared(self):
+        handler = NonAbstractCompilationHandler(self.mock_language, self.mock_root_upload_path)
+
+        mock_request = {
+            "base_url": "http://127.0.0.1:8080",
+            "path": "/api/test/compile/method",
+            "data": {
+                "code": (self.c_source_code_snippet_hello_c, ".././hello.c"),
+                "compilation_options": '{}',
+            },
+        }
+
+        with self.assertLogs(app.logger, level="INFO") as logs_list:
+            with app.test_request_context(**mock_request):
+                response, response_status = handler.compile(request.files["code"], request.form["compilation_options"], store=True)
+
+        self.assertEqual(response_status, 500)
+        self.assertEqual(response.headers.get("Content-Type"), "application/json")
+        self.assertEqual(response.response[0], b"{\"message\":\"Internal Unexpected Error\",\"type\":\"UnexpectedException\"}\n")
+
+        root_upload_path_list = os.listdir(self.mock_root_upload_path)
+        self.assertEqual(root_upload_path_list, [],
+            msg="Path {path} is not empty: {root_upload_path_list}".format(
+                path=self.mock_root_upload_path,
+                root_upload_path_list=root_upload_path_list
+            )
+        )
+
+        test_all_files = file_model.SourceCodeFile.get_all_files()
+        self.assertEqual(test_all_files, [],
+            msg="Table sourcecodefiles in DB is not empty: {files}".format(
+                files=test_all_files
+            )
+        )
+
+        self.assertEqual(len(logs_list.output), 3,
+            msg="There are expected exactly 3 log messages: {logs_list}".format(
+                logs_list=logs_list
+            )
+        )
+        self.assertIn("ERROR:", logs_list.output[0])
+        self.assertIn("Unexpected error occured during compile()", logs_list.output[0])
+        self.assertIn("WARNING:", logs_list.output[1])
+        self.assertIn("Asserting that no orphaned directory is created...", logs_list.output[1])
+        self.assertIn("INFO:", logs_list.output[2])
+        self.assertIn("No orphaned directory is created", logs_list.output[2])
