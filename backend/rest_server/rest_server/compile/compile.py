@@ -4,6 +4,7 @@ import datetime
 import hashlib
 import json
 import os
+import shutil
 import subprocess
 
 from flask import g, jsonify, make_response, request, send_from_directory
@@ -24,22 +25,22 @@ methods that a language specific compilation handler should implement."""
         self.language = language
         self.root_upload_path = root_upload_path
 
-    def __repr__(self):
+    def __repr__(self): # pragma: no cover
         return "<Object of {} at {}: CompilationHandler({!r}, {!r})>".format(self.__class__, hex(id(self)), self.language, self.root_upload_path)
 
     @abc.abstractmethod
     def compilation_options_parser(self, *args, **kwargs):
-        pass
+        pass # pragma: no cover
 
     @abc.abstractmethod
     def compilation_command_generator(self, *args, **kwargs):
-        pass
+        pass # pragma: no cover
 
     @abc.abstractmethod
     def results_zip_appender(self, *args, **kwargs):
-        pass
+        pass # pragma: no cover
 
-    def generate_file_subpath(self, client_file):
+    def _generate_file_subpath(self, client_file):
         sha256_hash = hashlib.sha256()
 
         for byte_block in iter(lambda: client_file.read(4096),b""):
@@ -55,7 +56,7 @@ methods that a language specific compilation handler should implement."""
             filename = secure_filename(client_file.filename)
             app.logger.debug("Secure Filename: " + filename)
 
-            subpath = self.generate_file_subpath(client_file)
+            subpath = self._generate_file_subpath(client_file)
             if store:
                 user_id = str(g.user["id"])
             else:
@@ -142,16 +143,8 @@ methods that a language specific compilation handler should implement."""
 
             if os.path.isdir(upload_path):
                 app.logger.warning("Detected orphaned directory: " + upload_path)
-                completed_delete_process = subprocess.run(["rm", "-r", upload_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                if completed_delete_process.stdout:
-                    app.logger.warning(completed_delete_process.stdout.decode(encoding="utf-8"))
-
-                if completed_delete_process.returncode != 0:
-                    app.logger.error("UNABLE TO DELETE ORPHANED DIRECTORY: " + upload_path)
-                    if completed_delete_process.stderr:
-                        app.logger.error(completed_delete_process.stderr.decode(encoding="utf-8"))
-                else:
-                    app.logger.info("Orphaned directory deleted: " + upload_path)
+                shutil.rmtree(upload_path)
+                app.logger.info("Orphaned directory deleted: " + upload_path)
             else:
                 app.logger.info("No orphaned directory is created")
 
