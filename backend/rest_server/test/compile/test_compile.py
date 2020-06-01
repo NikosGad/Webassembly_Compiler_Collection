@@ -28,7 +28,7 @@ class NonAbstractCompilationHandler(CompilationHandler):
 
 class MockedCompilationHandler(NonAbstractCompilationHandler):
     """MockedCompilationHandler class mocks up all the CompilationHandler methods except the compile method."""
-    def generate_file_subpath(self, client_file):
+    def _generate_file_subpath(self, client_file):
         return "mock_subpath"
 
 class MockedCompilationHandlerWStdout(MockedCompilationHandler):
@@ -105,7 +105,7 @@ class CompileTestCase(unittest.TestCase):
         handler = NonAbstractCompilationHandler(self.mock_language, self.mock_root_upload_path)
 
         with open(self.c_source_code_snippet_hello_c, "rb") as test_file:
-            result = handler.generate_file_subpath(test_file)
+            result = handler._generate_file_subpath(test_file)
 
             expected_sha256_hash = hashlib.sha256(test_file.read()).hexdigest()
 
