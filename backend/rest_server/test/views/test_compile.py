@@ -111,7 +111,7 @@ class ViewCompileTestCase(unittest.TestCase):
             self.assertEqual(response.headers.get("Access-Control-Allow-Origin"), "http://localhost:3535")
             self.assertEqual(response.get_json(), {"type": "LanguageNotSupportedError", "message": "Language invalid-language is not supported."})
 
-    def test_compile_C_and_compile_store_C__missing_query_parameters(self):
+    def test_compile_C_and_compile_store_C__missing_form_and_files_parameters(self):
         data_list = [
             {},
             {
