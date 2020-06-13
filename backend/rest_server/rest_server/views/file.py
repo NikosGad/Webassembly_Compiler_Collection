@@ -24,7 +24,7 @@ def get_personal_file_content():
     if not compilation_handler:
         return jsonify({"type": "GetFileError", "message": "Language {} is not supported.".format(language)}), 400
 
-    path = compilation_handler.root_upload_path + str(g.user["id"]) + "/" + secured_directory + "/"
+    path = compilation_handler.root_upload_path + "/" + str(g.user["id"]) + "/" + secured_directory + "/"
 
     if not os.path.isfile(path + secured_name):
         app.logger.debug("File: {} does not exist".format(path + secured_name))
