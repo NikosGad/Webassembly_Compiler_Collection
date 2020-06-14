@@ -65,7 +65,7 @@ def delete_personal_file_directory(file_id):
     if not file:
         return jsonify({"type": "FileNotFound", "message": "The file you are trying to delete does not exist"}), 404
 
-    directory_path = compilation_handlers_dictionary[file.language].root_upload_path + str(g.user["id"]) + "/" + file.directory
+    directory_path = compilation_handlers_dictionary[file.language].root_upload_path + "/" + str(g.user["id"]) + "/" + file.directory
 
     if not os.path.isdir(directory_path):
         app.logger.error("Inconsistency during delete of file: {}\nPath {} does not exist".format(file, directory_path))
