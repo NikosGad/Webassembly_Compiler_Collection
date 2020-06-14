@@ -73,7 +73,7 @@ class ViewFileTestCase(unittest.TestCase):
         cls.file_info_3 = {
             "user_id":              2,
             "name":                 "test_name_2",
-            "directory":            "test_directory_4",
+            "directory":            "test_directory_3",
             "compilation_options":  [],
             "language":             cls.mock_language,
             "status":               "test_status_2",
@@ -401,3 +401,235 @@ class ViewFileTestCase(unittest.TestCase):
             self.assertEqual(response_file_list[i]["status"], test_file_list[i]["status"])
             self.assertIsInstance(response_file_list[i]["created_at"], str, msg="json_agg should convert the datetime to string")
             self.assertIsInstance(response_file_list[i]["updated_at"], str, msg="json_agg should convert the datetime to string")
+
+class ViewFileDeleteTestCase(unittest.TestCase):
+    """Testsuite for views/file.py module that checks the delete file view."""
+    @classmethod
+    def setUpClass(cls):
+        cls.mock_language = "language_view_file"
+        cls.mock_root_upload_path = "/results/language_view_file"
+
+        cls.full_file_path = cls.mock_root_upload_path + "/1/mock_subpath"
+        cls.file_name = "hello.c"
+
+        cls.c_source_code_snippet_hello_c = os.path.dirname(__file__) + "/../test_source_code_snippets/hello.c"
+
+        os.makedirs(cls.full_file_path)
+        shutil.copyfile(cls.c_source_code_snippet_hello_c, cls.full_file_path + "/" + cls.file_name)
+
+        handler = MockedCompilationHandler(cls.mock_language, cls.mock_root_upload_path)
+        compilation_handlers_dictionary[cls.mock_language] = handler
+
+        cls.user_info_1 = {
+            "username": "test_user_view_file_1",
+            "password": "12345a",
+            "email":    "test1@mail.com"
+        }
+
+        cls.user_info_2 = {
+            "username": "test_user_view_file_2",
+            "password": "12345a",
+            "email":    "test2@mail.com"
+        }
+
+        cls.file_info_1 = {
+            "user_id":              1,
+            "name":                 "hello.c",
+            "directory":            "mock_subpath",
+            "compilation_options":  ["mock_option_1", "mock_option_2"],
+            "language":             cls.mock_language,
+            "status":               "test_status_1",
+        }
+
+        cls.file_info_2 = {
+        "user_id":              1,
+        "name":                 "test_name_2",
+        "directory":            "test_directory_2",
+        "compilation_options":  [],
+        "language":             cls.mock_language,
+        "status":               "test_status_2",
+        }
+
+        cls.file_info_3 = {
+        "user_id":              2,
+        "name":                 "test_name_3",
+        "directory":            "test_directory_3",
+        "compilation_options":  [],
+        "language":             cls.mock_language,
+        "status":               "test_status_3",
+        }
+
+        cls.test_user_1 = user_model.User(**cls.user_info_1)
+        cls.test_user_1.id = cls.user_info_1["id"] = 1
+        cls.test_user_2 = user_model.User(**cls.user_info_2)
+        cls.test_user_2.id = cls.user_info_2["id"] = 2
+
+        cls.test_file_1 = file_model.SourceCodeFile(**cls.file_info_1)
+        cls.test_file_1.id = cls.file_info_1["id"] = 1
+        cls.test_file_2 = file_model.SourceCodeFile(**cls.file_info_2)
+        cls.test_file_2.id = cls.file_info_2["id"] = 2
+        cls.test_file_3 = file_model.SourceCodeFile(**cls.file_info_3)
+        cls.test_file_3.id = cls.file_info_3["id"] = 3
+
+        cls.test_user_1.create()
+        cls.test_user_2.create()
+        cls.test_file_1.create()
+        cls.test_file_2.create()
+        cls.test_file_3.create()
+
+        cls.token_valid_1 = authentication.Authentication.generate_token(1, 60)
+
+    @classmethod
+    def tearDownClass(cls):
+        test_all_files = file_model.SourceCodeFile.get_all_files()
+        for file in test_all_files:
+            file.delete()
+
+        test_all_users = user_model.User.get_all_users()
+        for user in test_all_users:
+            user.delete()
+
+        del compilation_handlers_dictionary[cls.mock_language]
+
+        if os.path.exists(cls.mock_root_upload_path):
+            shutil.rmtree(cls.mock_root_upload_path)
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_delete_personal_file_directory(self):
+        mock_request = {
+            "base_url": "http://127.0.0.1:8080",
+            "path": "/api/files/personal_file/1",
+            "headers": {
+                "Authorization": "Bearer " + self.token_valid_1
+            },
+        }
+
+        with self.assertLogs(app.logger, level="INFO") as logs_list:
+            with app.test_client() as c:
+                response = c.delete(**mock_request)
+
+        self.assertEqual(response._status, "200 OK")
+        self.assertEqual(response.headers.get("Content-Type"), "application/json")
+        self.assertEqual(response.headers.get("Access-Control-Allow-Origin"), "http://localhost:3535")
+        self.assertEqual(response.get_json(), {"message": "OK"})
+        self.assertEqual(os.listdir(self.mock_root_upload_path + "/1"), [])
+        self.assertIsNone(file_model.SourceCodeFile.get_file_by_file_id_and_user_id(1, 1))
+
+        self.assertEqual(len(logs_list.output), 2,
+            msg="There are expected exactly 2 log messages: {logs_list}".format(
+                logs_list=logs_list
+            )
+        )
+        self.assertIn("INFO:", logs_list.output[0])
+        self.assertIn("Deleted directory: ", logs_list.output[0])
+        self.assertIn("INFO:", logs_list.output[1])
+        self.assertIn("Deleted file from DB: ", logs_list.output[1])
+
+    def test_delete_personal_file_directory__invalid_file_id(self):
+        invalid_file_id_list = [
+            "alphanumerical_file_id",
+            "-1",
+            "0",
+        ]
+
+        for invalid_file_id in invalid_file_id_list:
+            mock_request = {
+                "base_url": "http://127.0.0.1:8080",
+                "path": "/api/files/personal_file/" + invalid_file_id,
+                "headers": {
+                    "Authorization": "Bearer " + self.token_valid_1
+                },
+            }
+
+            with app.test_client() as c:
+                response = c.delete(**mock_request)
+
+            self.assertEqual(response._status, "400 BAD REQUEST",
+                msg="Failure with file_id: {file_id}".format(
+                    file_id=invalid_file_id
+                )
+            )
+            self.assertEqual(response.headers.get("Content-Type"), "application/json",
+                msg="Failure with file_id: {file_id}".format(
+                    file_id=invalid_file_id
+                )
+            )
+            self.assertEqual(response.headers.get("Access-Control-Allow-Origin"), "http://localhost:3535",
+                msg="Failure with file_id: {file_id}".format(
+                    file_id=invalid_file_id
+                )
+            )
+            self.assertEqual(response.get_json(), {"type": "FileIDTypeError", "message": "File ID value should be a positive integer"},
+                msg="Failure with file_id: {file_id}".format(
+                    file_id=invalid_file_id
+                )
+            )
+
+    def test_delete_personal_file_directory__file_does_not_exist_in_db(self):
+        mock_request = {
+            "base_url": "http://127.0.0.1:8080",
+            "path": "/api/files/personal_file/4",
+            "headers": {
+                "Authorization": "Bearer " + self.token_valid_1
+            },
+        }
+
+        with app.test_client() as c:
+            response = c.delete(**mock_request)
+
+        self.assertEqual(response._status, "404 NOT FOUND")
+        self.assertEqual(response.headers.get("Content-Type"), "application/json")
+        self.assertEqual(response.headers.get("Access-Control-Allow-Origin"), "http://localhost:3535")
+        self.assertEqual(response.get_json(), {"type": "FileNotFound", "message": "The file you are trying to delete does not exist"})
+
+    def test_delete_personal_file_directory__delete_other_users_file(self):
+        mock_request = {
+            "base_url": "http://127.0.0.1:8080",
+            "path": "/api/files/personal_file/3",
+            "headers": {
+                "Authorization": "Bearer " + self.token_valid_1
+            },
+        }
+
+        with app.test_client() as c:
+            response = c.delete(**mock_request)
+
+        self.assertEqual(response._status, "404 NOT FOUND")
+        self.assertEqual(response.headers.get("Content-Type"), "application/json")
+        self.assertEqual(response.headers.get("Access-Control-Allow-Origin"), "http://localhost:3535")
+        self.assertEqual(response.get_json(), {"type": "FileNotFound", "message": "The file you are trying to delete does not exist"})
+        self.assertIsNotNone(file_model.SourceCodeFile.get_file_by_file_id_and_user_id(3, 2))
+
+    def test_delete_personal_file_directory__inconsistency_file_exists_in_db_not_in_fs(self):
+        mock_request = {
+            "base_url": "http://127.0.0.1:8080",
+            "path": "/api/files/personal_file/2",
+            "headers": {
+                "Authorization": "Bearer " + self.token_valid_1
+            },
+        }
+
+        with self.assertLogs(app.logger, level="INFO") as logs_list:
+            with app.test_client() as c:
+                response = c.delete(**mock_request)
+
+        self.assertEqual(response._status, "200 OK")
+        self.assertEqual(response.headers.get("Content-Type"), "application/json")
+        self.assertEqual(response.headers.get("Access-Control-Allow-Origin"), "http://localhost:3535")
+        self.assertEqual(response.get_json(), {"message": "OK"})
+        self.assertIsNone(file_model.SourceCodeFile.get_file_by_file_id_and_user_id(2, 1))
+
+        self.assertEqual(len(logs_list.output), 2,
+            msg="There are expected exactly 2 log messages: {logs_list}".format(
+                logs_list=logs_list
+            )
+        )
+        self.assertIn("ERROR:", logs_list.output[0])
+        self.assertIn("Inconsistency during delete of file: ", logs_list.output[0])
+        self.assertIn("INFO:", logs_list.output[1])
+        self.assertIn("Deleted file from DB: ", logs_list.output[1])
