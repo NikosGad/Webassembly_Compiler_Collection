@@ -28,28 +28,84 @@ class ViewFileTestCase(unittest.TestCase):
     def setUpClass(cls):
         cls.mock_language = "language_view_file"
         cls.mock_root_upload_path = "/results/language_view_file"
-        os.makedirs(cls.mock_root_upload_path)
+
+        cls.full_file_path = cls.mock_root_upload_path + "/1/mock_subpath"
+        cls.file_name = "hello.c"
+
+        cls.c_source_code_snippet_hello_c = os.path.dirname(__file__) + "/../test_source_code_snippets/hello.c"
+
+        os.makedirs(cls.full_file_path)
+        shutil.copyfile(cls.c_source_code_snippet_hello_c, cls.full_file_path + "/" + cls.file_name)
 
         handler = MockedCompilationHandler(cls.mock_language, cls.mock_root_upload_path)
         compilation_handlers_dictionary[cls.mock_language] = handler
 
-        cls.c_source_code_snippet_hello_c = os.path.dirname(__file__) + "/../test_source_code_snippets/hello.c"
-
-        cls.user_info = {
-            "username": "test_user_compile",
+        cls.user_info_1 = {
+            "username": "test_user_view_file_1",
             "password": "12345a",
-            "email": "test@mail.com"
+            "email":    "test1@mail.com"
         }
 
-        cls.test_user = user_model.User(**cls.user_info)
-        cls.test_user.id = cls.user_info["id"] = 1
-        cls.test_user.create()
+        cls.user_info_2 = {
+            "username": "test_user_view_file_2",
+            "password": "12345a",
+            "email":    "test2@mail.com"
+        }
+
+        cls.file_info_1 = {
+            "user_id":              1,
+            "name":                 "hello.c",
+            "directory":            "mock_subpath",
+            "compilation_options":  ["mock_option_1", "mock_option_2"],
+            "language":             cls.mock_language,
+            "status":               "test_status_1",
+        }
+
+        cls.file_info_2 = {
+            "user_id":              1,
+            "name":                 "test_name_2",
+            "directory":            "test_directory_2",
+            "compilation_options":  [],
+            "language":             "mock_language_2",
+            "status":               "test_status_2",
+        }
+
+        cls.file_info_3 = {
+            "user_id":              2,
+            "name":                 "test_name_2",
+            "directory":            "test_directory_4",
+            "compilation_options":  [],
+            "language":             cls.mock_language,
+            "status":               "test_status_2",
+        }
+
+        cls.test_user_1 = user_model.User(**cls.user_info_1)
+        cls.test_user_1.id = cls.user_info_1["id"] = 1
+        cls.test_user_2 = user_model.User(**cls.user_info_2)
+        cls.test_user_2.id = cls.user_info_2["id"] = 2
+
+        cls.test_file_1 = file_model.SourceCodeFile(**cls.file_info_1)
+        cls.test_file_1.id = cls.file_info_1["id"] = 1
+        cls.test_file_2 = file_model.SourceCodeFile(**cls.file_info_2)
+        cls.test_file_2.id = cls.file_info_2["id"] = 2
+        cls.test_file_3 = file_model.SourceCodeFile(**cls.file_info_3)
+        cls.test_file_3.id = cls.file_info_3["id"] = 3
+
+        cls.test_user_1.create()
+        cls.test_user_2.create()
+        cls.test_file_1.create()
+        cls.test_file_2.create()
+        cls.test_file_3.create()
 
         cls.token_valid_1 = authentication.Authentication.generate_token(1, 60)
 
     @classmethod
     def tearDownClass(cls):
-        cls.test_user.delete()
+        cls.test_file_1.delete()
+        cls.test_file_2.delete()
+        cls.test_file_3.delete()
+        cls.test_user_1.delete()
+        cls.test_user_2.delete()
 
         del compilation_handlers_dictionary[cls.mock_language]
 
@@ -57,15 +113,10 @@ class ViewFileTestCase(unittest.TestCase):
             shutil.rmtree(cls.mock_root_upload_path)
 
     def setUp(self):
-        self.full_file_path = self.mock_root_upload_path + "/1/mock_subpath"
-        self.file_name = "hello.c"
-
-        os.makedirs(self.full_file_path)
-        shutil.copyfile(self.c_source_code_snippet_hello_c, self.full_file_path + "/" + self.file_name)
+        pass
 
     def tearDown(self):
-        if os.path.exists(self.full_file_path):
-            shutil.rmtree(self.full_file_path)
+        pass
 
     def test_get_personal_file_content(self):
         mock_request = {
@@ -292,3 +343,61 @@ class ViewFileTestCase(unittest.TestCase):
                     query_parameters_dict=insecured_query_parameters
                 )
             )
+
+    def test_get_personal_files(self):
+        mock_request = {
+            "base_url": "http://127.0.0.1:8080",
+            "path": "/api/files/all_personal",
+            "headers": {
+                "Authorization": "Bearer " + self.token_valid_1
+            },
+        }
+
+        with app.test_client() as c:
+            response = c.get(**mock_request)
+
+        self.assertEqual(response._status, "200 OK")
+        self.assertEqual(response.headers.get("Content-Type"), "application/json")
+        self.assertEqual(response.headers.get("Access-Control-Allow-Origin"), "http://localhost:3535")
+        response_json_as_dict = response.get_json()
+
+        self.assertEqual(sorted(response_json_as_dict.keys()), sorted([self.file_info_1["language"], self.file_info_2["language"]]),
+            msg="Dictionary of languages has different keys\nReturned: {returned}\nExpected= {expected}".format(
+                returned=response_json_as_dict,
+                expected=sorted([self.file_info_1["language"], self.file_info_2["language"]]),
+            )
+        )
+
+        language_1_list = response_json_as_dict[self.file_info_1["language"]]
+        language_2_list = response_json_as_dict[self.file_info_2["language"]]
+
+        self.assertIsInstance(language_1_list, list)
+        self.assertEqual(len(language_1_list), 1,
+            msg="The list should contain only one file\nReturned: {returned}".format(
+                returned=language_1_list
+            )
+        )
+        self.assertIsInstance(language_2_list, list)
+        self.assertEqual(len(language_2_list), 1,
+            msg="The list should contain only one file\nReturned: {returned}".format(
+                returned=language_2_list
+            )
+        )
+
+        response_file_1 = language_1_list[0]
+        response_file_2 = language_2_list[0]
+
+        response_file_list = [response_file_1, response_file_2]
+        test_file_list = [self.file_info_1, self.file_info_2]
+
+        for i in range(2):
+            self.assertEqual(len(response_file_list[i].keys()), len(test_file_list[i].keys()) + 2)
+            self.assertEqual(response_file_list[i]["id"], test_file_list[i]["id"])
+            self.assertEqual(response_file_list[i]["user_id"], test_file_list[i]["user_id"])
+            self.assertEqual(response_file_list[i]["name"], test_file_list[i]["name"])
+            self.assertEqual(response_file_list[i]["directory"], test_file_list[i]["directory"])
+            self.assertEqual(response_file_list[i]["compilation_options"], test_file_list[i]["compilation_options"])
+            self.assertEqual(response_file_list[i]["language"], test_file_list[i]["language"])
+            self.assertEqual(response_file_list[i]["status"], test_file_list[i]["status"])
+            self.assertIsInstance(response_file_list[i]["created_at"], str, msg="json_agg should convert the datetime to string")
+            self.assertIsInstance(response_file_list[i]["updated_at"], str, msg="json_agg should convert the datetime to string")
