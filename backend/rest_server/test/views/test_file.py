@@ -526,7 +526,7 @@ class ViewFileDeleteTestCase(unittest.TestCase):
             )
         )
         self.assertIn("INFO:", logs_list.output[0])
-        self.assertIn("Deleted directory: ", logs_list.output[0])
+        self.assertIn("Deleted file from FS: " + str(self.test_file_1) + "\nin path: " + self.full_file_path, logs_list.output[0])
         self.assertIn("INFO:", logs_list.output[1])
         self.assertIn("Deleted file from DB: ", logs_list.output[1])
 
