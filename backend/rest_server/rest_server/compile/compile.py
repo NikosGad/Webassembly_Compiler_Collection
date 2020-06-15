@@ -67,7 +67,7 @@ methods that a language specific compilation handler should implement."""
             try:
                 compilation_options_dict = json.loads(compilation_options_json)
             except Exception:
-                app.logger.debug("An error occured while loading compilation options json")
+                app.logger.info("An error occured while loading incorrect compilation options json")
                 return jsonify({"type": "JSONParseError", "message": "Bad JSON Format Error"}), 400
 
             parsed_compilation_options, secured_output_filename = self.compilation_options_parser(**compilation_options_dict)
@@ -79,9 +79,9 @@ methods that a language specific compilation handler should implement."""
 
             try:
                 os.makedirs(upload_path)
-                app.logger.debug("Path generated: " + upload_path)
+                app.logger.info("Path generated: " + upload_path)
             except FileExistsError:
-                app.logger.info("Path exists: " + upload_path)
+                app.logger.error("Path exists: " + upload_path)
                 return jsonify({"type": "FileExistsError", "message": "The uploaded file already exists"}), 400
 
             client_file.save(upload_path + "/" + filename)
@@ -97,7 +97,7 @@ methods that a language specific compilation handler should implement."""
                 with open(upload_path + "/stderr.txt", "w") as f_err:
                     print(completed_compile_file_process.stderr.decode(encoding="utf-8"), file=f_err)
 
-            app.logger.debug("Compilation return code: " + str(completed_compile_file_process.returncode))
+            app.logger.info("Compilation return code in path {path}: {return_code}".format(path=upload_path, return_code=str(completed_compile_file_process.returncode)))
 
             with ZipFile(file=upload_path + "/" + RESULTS_ZIP_NAME, mode="w", compression=COMPRESSION, compresslevel=COMPRESSLEVEL) as results_zip:
                 if completed_compile_file_process.stdout:
@@ -126,6 +126,7 @@ methods that a language specific compilation handler should implement."""
                 }
                 file_db = file_model.SourceCodeFile(**file_dictionary)
                 file_db.create()
+                app.logger.info("File in path {path} is saved in DB".format(path=upload_path))
 
             response = make_response(send_from_directory(upload_path, RESULTS_ZIP_NAME, as_attachment=True), return_status_code)
             response.headers["Content-Type"] = "application/zip"
