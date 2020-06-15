@@ -77,7 +77,7 @@ class Authentication():
 
             try:
                 payload = Authentication.decode_token(authorization_jwt)
-            except Exception:
+            except Exception: # pragma: no cover
                 app.logger.exception("Error During Token Decode: " + authorization_jwt)
                 response = make_response(jsonify({"type": "AuthorizationJWTViolation", "message": "Error During Token Decode"}), 401)
 

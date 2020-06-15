@@ -35,7 +35,7 @@ def signup():
     try:
         user = user_model.User(**valid_sign_up_form)
         user.create()
-    except Exception:
+    except Exception: # pragma: no cover
         app.logger.exception("An error occured during: user.create()")
         return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
 
