@@ -1,3 +1,4 @@
+import time
 import unittest
 
 import coverage
@@ -14,6 +15,7 @@ def main():
 
     if result.wasSuccessful():
         cov.stop()
+        time.sleep(2)
         cov.report(show_missing=True)
         return 0
     else:
