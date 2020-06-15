@@ -52,43 +52,38 @@ def delete_personal_file_directory(file_id):
         file_id_int = int(file_id)
         if file_id_int <= 0:
             raise ValueError
-    except ValueError as e:
-        return jsonify({"type": "FileIDTypeError", "message": "File ID value should be a positive integer"}), 400
 
-    try:
         file = file_model.SourceCodeFile.get_file_by_file_id_and_user_id(file_id_int, g.user["id"])
         app.logger.debug("Retrieved File: " + str(file))
-    except Exception as e:
-        app.logger.exception("Unexpected Error Getting File with ID: {} for User ID: {} from DB in Delete File".format(file_id_int, g.user.get("id")))
-        return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
 
-    if not file:
-        return jsonify({"type": "FileNotFound", "message": "The file you are trying to delete does not exist"}), 404
+        if not file:
+            return jsonify({"type": "FileNotFound", "message": "The file you are trying to delete does not exist"}), 404
 
-    directory_path = compilation_handlers_dictionary[file.language].root_upload_path + "/" + str(g.user["id"]) + "/" + file.directory
+        directory_path = compilation_handlers_dictionary[file.language].root_upload_path + "/" + str(g.user["id"]) + "/" + file.directory
 
-    if not os.path.isdir(directory_path):
-        app.logger.error("Inconsistency during delete of file: {}\nPath {} does not exist".format(file, directory_path))
-    else:
-        app.logger.debug("Deleting path: " + directory_path)
-        completed_delete_process = subprocess.run(["rm", "-r", directory_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-        if completed_delete_process.stdout:
-            app.logger.info(completed_delete_process.stdout.decode(encoding="utf-8"))
-
-        if completed_delete_process.returncode != 0:
-            app.logger.error("Failed to delete directory")
-            if completed_delete_process.stderr:
-                app.logger.error(completed_delete_process.stderr.decode(encoding="utf-8"))
-
-            return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
+        if not os.path.isdir(directory_path):
+            app.logger.error("Inconsistency during delete of file: {}\nPath {} does not exist".format(file, directory_path))
         else:
-            app.logger.info("Deleted directory: " + directory_path)
+            app.logger.debug("Deleting path: " + directory_path)
+            completed_delete_process = subprocess.run(["rm", "-r", directory_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    try:
+            if completed_delete_process.stdout:
+                app.logger.info(completed_delete_process.stdout.decode(encoding="utf-8"))
+
+            if completed_delete_process.returncode != 0:
+                app.logger.error("Failed to delete directory")
+                if completed_delete_process.stderr:
+                    app.logger.error(completed_delete_process.stderr.decode(encoding="utf-8"))
+
+                return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
+            else:
+                app.logger.info("Deleted directory: " + directory_path)
+
         file.delete()
         app.logger.info("Deleted file from DB: " + str(file))
         return jsonify({"message": "OK"}), 200
+    except ValueError:
+        return jsonify({"type": "FileIDTypeError", "message": "File ID value should be a positive integer"}), 400
     except Exception as e:
-        app.logger.exception("Unexpected Error Deleting File with ID: {} from DB in Delete File".format(file_id_int))
+        app.logger.exception("Unexpected Error Occured During delete_personal_file_directory()")
         return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
