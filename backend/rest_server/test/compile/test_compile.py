@@ -144,17 +144,27 @@ class CompileTestCase(unittest.TestCase):
                 },
             }
 
-            with app.test_request_context(**mock_request):
-                response, response_status = handler.compile(request.files["code"], request.form["compilation_options"])
+            with self.assertLogs(app.logger, level="INFO") as logs_list:
+                with app.test_request_context(**mock_request):
+                    response, response_status = handler.compile(request.files["code"], request.form["compilation_options"])
 
             self.assertEqual(response_status, 400)
             self.assertEqual(response.headers.get("Content-Type"), "application/json")
             self.assertEqual(response.response[0], b"{\"message\":\"Bad JSON Format Error\",\"type\":\"JSONParseError\"}\n")
 
+            self.assertEqual(len(logs_list.output), 1,
+                msg="There are expected exactly 1 log messages: {logs_list}".format(
+                    logs_list=logs_list
+                )
+            )
+            self.assertIn("INFO:", logs_list.output[0])
+            self.assertIn("An error occured while loading incorrect compilation options json", logs_list.output[0])
+
     def test_CompilationHandler_compile__subpath_exists(self):
         handler = MockedCompilationHandlerWStdout(self.mock_language, self.mock_root_upload_path)
 
-        os.makedirs(self.mock_root_upload_path + "/unknown/mock_subpath")
+        existing_path = self.mock_root_upload_path + "/unknown/mock_subpath"
+        os.makedirs(existing_path)
 
         mock_request = {
             "base_url": "http://127.0.0.1:8080",
@@ -165,12 +175,21 @@ class CompileTestCase(unittest.TestCase):
             },
         }
 
-        with app.test_request_context(**mock_request):
-            response, response_status = handler.compile(request.files["code"], request.form["compilation_options"])
+        with self.assertLogs(app.logger, level="INFO") as logs_list:
+            with app.test_request_context(**mock_request):
+                response, response_status = handler.compile(request.files["code"], request.form["compilation_options"])
 
         self.assertEqual(response_status, 400)
         self.assertEqual(response.headers.get("Content-Type"), "application/json")
         self.assertEqual(response.response[0], b"{\"message\":\"The uploaded file already exists\",\"type\":\"FileExistsError\"}\n")
+
+        self.assertEqual(len(logs_list.output), 1,
+            msg="There are expected exactly 1 log messages: {logs_list}".format(
+                logs_list=logs_list
+            )
+        )
+        self.assertIn("ERROR:", logs_list.output[0])
+        self.assertIn("Path exists: " + existing_path, logs_list.output[0])
 
     def test_CompilationHandler_compile__with_stdout(self):
         handler = MockedCompilationHandlerWStdout(self.mock_language, self.mock_root_upload_path)
@@ -184,8 +203,9 @@ class CompileTestCase(unittest.TestCase):
             },
         }
 
-        with app.test_request_context(**mock_request):
-            response = handler.compile(request.files["code"], request.form["compilation_options"])
+        with self.assertLogs(app.logger, level="INFO") as logs_list:
+            with app.test_request_context(**mock_request):
+                response = handler.compile(request.files["code"], request.form["compilation_options"])
 
         self.assertEqual(response._status, "200 OK")
         self.assertEqual(response.headers.get("Content-Type"), "application/zip")
@@ -244,6 +264,16 @@ class CompileTestCase(unittest.TestCase):
             )
         )
 
+        self.assertEqual(len(logs_list.output), 2,
+            msg="There are expected exactly 2 log messages: {logs_list}".format(
+                logs_list=logs_list
+            )
+        )
+        self.assertIn("INFO:", logs_list.output[0])
+        self.assertIn("Path generated: {path}".format(path=uploaded_file_directory), logs_list.output[0])
+        self.assertIn("INFO:", logs_list.output[1])
+        self.assertIn("Compilation return code in path {path}: 0".format(path=uploaded_file_directory), logs_list.output[1])
+
     def test_CompilationHandler_compile__with_stderr(self):
         handler = MockedCompilationHandlerWStderr(self.mock_language, self.mock_root_upload_path)
 
@@ -256,8 +286,9 @@ class CompileTestCase(unittest.TestCase):
             },
         }
 
-        with app.test_request_context(**mock_request):
-            response = handler.compile(request.files["code"], request.form["compilation_options"])
+        with self.assertLogs(app.logger, level="INFO") as logs_list:
+            with app.test_request_context(**mock_request):
+                response = handler.compile(request.files["code"], request.form["compilation_options"])
 
         self.assertEqual(response._status, "400 BAD REQUEST")
         self.assertEqual(response.headers.get("Content-Type"), "application/zip")
@@ -316,6 +347,16 @@ class CompileTestCase(unittest.TestCase):
             )
         )
 
+        self.assertEqual(len(logs_list.output), 2,
+            msg="There are expected exactly 2 log messages: {logs_list}".format(
+                logs_list=logs_list
+            )
+        )
+        self.assertIn("INFO:", logs_list.output[0])
+        self.assertIn("Path generated: {path}".format(path=uploaded_file_directory), logs_list.output[0])
+        self.assertIn("INFO:", logs_list.output[1])
+        self.assertIn("Compilation return code in path {path}: 2".format(path=uploaded_file_directory), logs_list.output[1])
+
     def test_CompilationHandler_compile__with_stdout_and_stderr(self):
         handler = MockedCompilationHandlerWStdoutWStderr(self.mock_language, self.mock_root_upload_path)
 
@@ -328,8 +369,9 @@ class CompileTestCase(unittest.TestCase):
             },
         }
 
-        with app.test_request_context(**mock_request):
-            response = handler.compile(request.files["code"], request.form["compilation_options"])
+        with self.assertLogs(app.logger, level="INFO") as logs_list:
+            with app.test_request_context(**mock_request):
+                response = handler.compile(request.files["code"], request.form["compilation_options"])
 
         self.assertEqual(response._status, "400 BAD REQUEST")
         self.assertEqual(response.headers.get("Content-Type"), "application/zip")
@@ -395,6 +437,16 @@ class CompileTestCase(unittest.TestCase):
             )
         )
 
+        self.assertEqual(len(logs_list.output), 2,
+            msg="There are expected exactly 2 log messages: {logs_list}".format(
+                logs_list=logs_list
+            )
+        )
+        self.assertIn("INFO:", logs_list.output[0])
+        self.assertIn("Path generated: {path}".format(path=uploaded_file_directory), logs_list.output[0])
+        self.assertIn("INFO:", logs_list.output[1])
+        self.assertIn("Compilation return code in path {path}: 2".format(path=uploaded_file_directory), logs_list.output[1])
+
     def test_CompilationHandler_compile__store_successful_command(self):
         handler = MockedCompilationHandlerWStdout(self.mock_language, self.mock_root_upload_path)
 
@@ -407,9 +459,10 @@ class CompileTestCase(unittest.TestCase):
             },
         }
 
-        with app.test_request_context(**mock_request):
-            g.user = {"id": self.user_info["id"]}
-            response = handler.compile(request.files["code"], request.form["compilation_options"], store=True)
+        with self.assertLogs(app.logger, level="INFO") as logs_list:
+            with app.test_request_context(**mock_request):
+                g.user = {"id": self.user_info["id"]}
+                response = handler.compile(request.files["code"], request.form["compilation_options"], store=True)
 
         self.assertEqual(response._status, "200 OK")
         self.assertEqual(response.headers.get("Content-Type"), "application/zip")
@@ -477,6 +530,18 @@ class CompileTestCase(unittest.TestCase):
         self.assertEqual(test_file.language, self.mock_language)
         self.assertEqual(test_file.status, "Successful")
 
+        self.assertEqual(len(logs_list.output), 3,
+            msg="There are expected exactly 3 log messages: {logs_list}".format(
+                logs_list=logs_list
+            )
+        )
+        self.assertIn("INFO:", logs_list.output[0])
+        self.assertIn("Path generated: {path}".format(path=uploaded_file_directory), logs_list.output[0])
+        self.assertIn("INFO:", logs_list.output[1])
+        self.assertIn("Compilation return code in path {path}: 0".format(path=uploaded_file_directory), logs_list.output[1])
+        self.assertIn("INFO:", logs_list.output[2])
+        self.assertIn("File in path {path} is saved in DB".format(path=uploaded_file_directory), logs_list.output[2])
+
     def test_CompilationHandler_compile__store_erroneous_command(self):
         handler = MockedCompilationHandlerWStderr(self.mock_language, self.mock_root_upload_path)
 
@@ -489,9 +554,10 @@ class CompileTestCase(unittest.TestCase):
             },
         }
 
-        with app.test_request_context(**mock_request):
-            g.user = {"id": self.user_info["id"]}
-            response = handler.compile(request.files["code"], request.form["compilation_options"], store=True)
+        with self.assertLogs(app.logger, level="INFO") as logs_list:
+            with app.test_request_context(**mock_request):
+                g.user = {"id": self.user_info["id"]}
+                response = handler.compile(request.files["code"], request.form["compilation_options"], store=True)
 
         self.assertEqual(response._status, "400 BAD REQUEST")
         self.assertEqual(response.headers.get("Content-Type"), "application/zip")
@@ -559,6 +625,18 @@ class CompileTestCase(unittest.TestCase):
         self.assertEqual(test_file.language, self.mock_language)
         self.assertEqual(test_file.status, "Erroneous")
 
+        self.assertEqual(len(logs_list.output), 3,
+            msg="There are expected exactly 3 log messages: {logs_list}".format(
+                logs_list=logs_list
+            )
+        )
+        self.assertIn("INFO:", logs_list.output[0])
+        self.assertIn("Path generated: {path}".format(path=uploaded_file_directory), logs_list.output[0])
+        self.assertIn("INFO:", logs_list.output[1])
+        self.assertIn("Compilation return code in path {path}: 2".format(path=uploaded_file_directory), logs_list.output[1])
+        self.assertIn("INFO:", logs_list.output[2])
+        self.assertIn("File in path {path} is saved in DB".format(path=uploaded_file_directory), logs_list.output[2])
+
     def test_CompilationHandler_compile__unexpected_exception_handling_upload_path_created(self):
         handler = NonAbstractCompilationHandler(self.mock_language, self.mock_root_upload_path)
 
@@ -603,19 +681,22 @@ class CompileTestCase(unittest.TestCase):
             )
         )
 
-        self.assertEqual(len(logs_list.output), 4,
-            msg="There are expected exactly 4 log messages: {logs_list}".format(
+        self.assertEqual(len(logs_list.output), 5,
+            msg="There are expected exactly 5 log messages: {logs_list}".format(
                 logs_list=logs_list
             )
         )
-        self.assertIn("ERROR:", logs_list.output[0])
-        self.assertIn("Unexpected error occured during compile()", logs_list.output[0])
-        self.assertIn("WARNING:", logs_list.output[1])
-        self.assertIn("Asserting that no orphaned directory is created...", logs_list.output[1])
+        self.assertIn("INFO:", logs_list.output[0])
+        self.assertIn("Path generated: ", logs_list.output[0])
+        generated_path = logs_list.output[0].split(" ")[2]
+        self.assertIn("ERROR:", logs_list.output[1])
+        self.assertIn("Unexpected error occured during compile()", logs_list.output[1])
         self.assertIn("WARNING:", logs_list.output[2])
-        self.assertIn("Detected orphaned directory:", logs_list.output[2])
-        self.assertIn("INFO:", logs_list.output[3])
-        self.assertIn("Orphaned directory deleted:", logs_list.output[3])
+        self.assertIn("Asserting that no orphaned directory is created...", logs_list.output[2])
+        self.assertIn("WARNING:", logs_list.output[3])
+        self.assertIn("Detected orphaned directory: {path}".format(path=generated_path), logs_list.output[3])
+        self.assertIn("INFO:", logs_list.output[4])
+        self.assertIn("Orphaned directory deleted: {path}".format(path=generated_path), logs_list.output[4])
 
     def test_CompilationHandler_compile__unexpected_exception_handling_upload_path_undeclared(self):
         handler = NonAbstractCompilationHandler(self.mock_language, self.mock_root_upload_path)
