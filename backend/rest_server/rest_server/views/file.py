@@ -1,5 +1,5 @@
 import os
-import subprocess
+import shutil
 
 from flask import g, jsonify, make_response, request, send_from_directory
 from werkzeug.utils import secure_filename
@@ -41,7 +41,7 @@ def get_personal_files():
         files = file_model.SourceCodeFile.get_files_per_language_by_user_id(g.user["id"])
         app.logger.debug(files)
         return jsonify(dict(files)), 200
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         app.logger.exception("Error Getting Personal Files for UserID: {}".format(g.user.get("id")))
         return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
 
@@ -65,25 +65,14 @@ def delete_personal_file_directory(file_id):
             app.logger.error("Inconsistency during delete of file: {}\nPath {} does not exist".format(file, directory_path))
         else:
             app.logger.debug("Deleting path: " + directory_path)
-            completed_delete_process = subprocess.run(["rm", "-r", directory_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-            if completed_delete_process.stdout:
-                app.logger.info(completed_delete_process.stdout.decode(encoding="utf-8"))
-
-            if completed_delete_process.returncode != 0:
-                app.logger.error("Failed to delete directory")
-                if completed_delete_process.stderr:
-                    app.logger.error(completed_delete_process.stderr.decode(encoding="utf-8"))
-
-                return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
-            else:
-                app.logger.info("Deleted directory: " + directory_path)
+            shutil.rmtree(directory_path)
+            app.logger.info("Deleted file from FS: {file}\nin path: {directory_path}".format(file=file, directory_path=directory_path))
 
         file.delete()
         app.logger.info("Deleted file from DB: " + str(file))
         return jsonify({"message": "OK"}), 200
     except ValueError:
         return jsonify({"type": "FileIDTypeError", "message": "File ID value should be a positive integer"}), 400
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         app.logger.exception("Unexpected Error Occured During delete_personal_file_directory()")
         return jsonify({"type": "UnexpectedException", "message": "Internal Unexpected Error"}), 500
