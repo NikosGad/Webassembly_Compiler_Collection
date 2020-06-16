@@ -51,6 +51,9 @@ methods that a language specific compilation handler should implement."""
 
         return str(datetime.datetime.utcnow().strftime("%Y%m%d%H%M%S%f")) + "_" + sha256_hash.hexdigest()
 
+    def _format_full_file_path(self, user_id, unique_file_subpath):
+        return self.root_upload_path + "/" + user_id + "/" + unique_file_subpath[-3:] + "/" + unique_file_subpath
+
     def compile(self, client_file, compilation_options_json, store=False):
         try:
             filename = secure_filename(client_file.filename)
@@ -62,7 +65,7 @@ methods that a language specific compilation handler should implement."""
             else:
                 user_id = "unknown"
 
-            upload_path = self.root_upload_path + "/" + user_id + "/" + subpath
+            upload_path = self._format_full_file_path(user_id, subpath) #self.root_upload_path + "/" + user_id + "/" + subpath
 
             try:
                 compilation_options_dict = json.loads(compilation_options_json)
