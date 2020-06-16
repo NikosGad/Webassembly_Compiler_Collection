@@ -24,13 +24,13 @@ def get_personal_file_content():
     if not compilation_handler:
         return jsonify({"type": "GetFileError", "message": "Language {} is not supported.".format(language)}), 400
 
-    path = compilation_handler.root_upload_path + "/" + str(g.user["id"]) + "/" + secured_directory + "/"
+    path = compilation_handler._format_full_file_path(str(g.user["id"]), secured_directory)
 
-    if not os.path.isfile(path + secured_name):
-        app.logger.debug("File: {} does not exist".format(path + secured_name))
+    if not os.path.isfile(path + "/" + secured_name):
+        app.logger.debug("File: {} does not exist".format(path + "/" + secured_name))
         return jsonify({"type": "FileNotFound", "message": "The file could not be found. Are you sure it should exists? If this was an existing file that belonged to you, please try to delete it and re-upload it."}), 404
 
-    app.logger.debug("File exists in path: " + path + secured_name)
+    app.logger.debug("File exists in path: " + path + "/" + secured_name)
     response = make_response(send_from_directory(path, secured_name, as_attachment=True), 200)
     return response
 
@@ -59,7 +59,7 @@ def delete_personal_file_directory(file_id):
         if not file:
             return jsonify({"type": "FileNotFound", "message": "The file you are trying to delete does not exist"}), 404
 
-        directory_path = compilation_handlers_dictionary[file.language].root_upload_path + "/" + str(g.user["id"]) + "/" + file.directory
+        directory_path = compilation_handlers_dictionary[file.language]._format_full_file_path(str(g.user["id"]), file.directory)
 
         if not os.path.isdir(directory_path):
             app.logger.error("Inconsistency during delete of file: {}\nPath {} does not exist".format(file, directory_path))
