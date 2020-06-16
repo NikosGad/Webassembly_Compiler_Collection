@@ -177,13 +177,22 @@ class ViewCompileTestCase(unittest.TestCase):
         unknown_directory = self.handler_c.root_upload_path + "/unknown"
         unknown_directory_list = os.listdir(unknown_directory)
         self.assertEqual(len(unknown_directory_list), 1,
-            msg="Path {path} does not contain exactly one uploaded file directory: {entry_list}".format(
+            msg="Path {path} does not contain exactly one level_1 uploaded file directory: {entry_list}".format(
                 path=unknown_directory,
                 entry_list=unknown_directory_list
             )
         )
 
-        uploaded_file_directory = unknown_directory + "/" + unknown_directory_list[0]
+        unknown_directory_level_1 = unknown_directory + "/" + unknown_directory_list[0]
+        unknown_directory_level_1_list = os.listdir(unknown_directory_level_1)
+        self.assertEqual(len(unknown_directory_level_1_list), 1,
+            msg="Path {path} does not contain only the level_2 file directory: {entry_list}".format(
+                path=unknown_directory_level_1,
+                entry_list=unknown_directory_level_1_list
+            )
+        )
+
+        uploaded_file_directory = unknown_directory_level_1 + "/" + unknown_directory_level_1_list[0]
         uploaded_file_directory_list = os.listdir(uploaded_file_directory)
         self.assertEqual(len(uploaded_file_directory_list), 5,
             msg="Path {path} does not contain exactly 5 files: {entry_list}".format(
@@ -258,13 +267,22 @@ class ViewCompileTestCase(unittest.TestCase):
         user_directory = self.handler_c.root_upload_path + "/" + str(self.user_info["id"])
         user_directory_list = os.listdir(user_directory)
         self.assertEqual(len(user_directory_list), 1,
-            msg="Path {path} does not contain exactly one uploaded file directory: {entry_list}".format(
+            msg="Path {path} does not contain exactly one level_1 uploaded file directory: {entry_list}".format(
                 path=user_directory,
                 entry_list=user_directory_list
             )
         )
 
-        uploaded_file_directory = user_directory + "/" + user_directory_list[0]
+        user_directory_level_1 = user_directory + "/" + user_directory_list[0]
+        user_directory_level_1_list = os.listdir(user_directory_level_1)
+        self.assertEqual(len(user_directory_level_1_list), 1,
+            msg="Path {path} does not contain only the level_2 file directory: {entry_list}".format(
+                path=user_directory_level_1,
+                entry_list=user_directory_level_1_list
+            )
+        )
+
+        uploaded_file_directory = user_directory_level_1 + "/" + user_directory_level_1_list[0]
         uploaded_file_directory_list = os.listdir(uploaded_file_directory)
         self.assertEqual(len(uploaded_file_directory_list), 5,
             msg="Path {path} does not contain exactly 5 files: {entry_list}".format(

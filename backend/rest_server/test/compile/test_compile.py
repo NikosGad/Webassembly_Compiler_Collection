@@ -163,7 +163,7 @@ class CompileTestCase(unittest.TestCase):
     def test_CompilationHandler_compile__subpath_exists(self):
         handler = MockedCompilationHandlerWStdout(self.mock_language, self.mock_root_upload_path)
 
-        existing_path = self.mock_root_upload_path + "/unknown/mock_subpath"
+        existing_path = handler._format_full_file_path("unknown", "mock_subpath")
         os.makedirs(existing_path)
 
         mock_request = {
@@ -221,14 +221,23 @@ class CompileTestCase(unittest.TestCase):
 
         unknown_directory = self.mock_root_upload_path + "/unknown"
         unknown_directory_list = os.listdir(unknown_directory)
-        self.assertEqual(unknown_directory_list, ["mock_subpath"],
-            msg="Path {path} does not contain only the mock_subpath file directory: {entry_list}".format(
+        self.assertEqual(unknown_directory_list, ["ath"],
+            msg="Path {path} does not contain only the ath file directory: {entry_list}".format(
                 path=unknown_directory,
                 entry_list=unknown_directory_list
             )
         )
 
-        uploaded_file_directory = unknown_directory + "/mock_subpath"
+        unknown_directory_level_1 = unknown_directory + "/ath"
+        unknown_directory_level_1_list = os.listdir(unknown_directory_level_1)
+        self.assertEqual(unknown_directory_level_1_list, ["mock_subpath"],
+            msg="Path {path} does not contain only the mock_subpath file directory: {entry_list}".format(
+                path=unknown_directory_level_1,
+                entry_list=unknown_directory_level_1_list
+            )
+        )
+
+        uploaded_file_directory = unknown_directory_level_1 + "/mock_subpath"
         uploaded_file_directory_list = sorted(os.listdir(uploaded_file_directory))
         self.assertEqual(uploaded_file_directory_list, ["hello.c", "results.zip", "stdout.txt"],
             msg="Path {path} does not contain exactly 3 files: {entry_list}".format(
@@ -304,14 +313,23 @@ class CompileTestCase(unittest.TestCase):
 
         unknown_directory = self.mock_root_upload_path + "/unknown"
         unknown_directory_list = os.listdir(unknown_directory)
-        self.assertEqual(unknown_directory_list, ["mock_subpath"],
-            msg="Path {path} does not contain only the mock_subpath file directory: {entry_list}".format(
+        self.assertEqual(unknown_directory_list, ["ath"],
+            msg="Path {path} does not contain only the ath file directory: {entry_list}".format(
                 path=unknown_directory,
                 entry_list=unknown_directory_list
             )
         )
 
-        uploaded_file_directory = unknown_directory + "/mock_subpath"
+        unknown_directory_level_1 = unknown_directory + "/ath"
+        unknown_directory_level_1_list = os.listdir(unknown_directory_level_1)
+        self.assertEqual(unknown_directory_level_1_list, ["mock_subpath"],
+            msg="Path {path} does not contain only the mock_subpath file directory: {entry_list}".format(
+                path=unknown_directory_level_1,
+                entry_list=unknown_directory_level_1_list
+            )
+        )
+
+        uploaded_file_directory = unknown_directory_level_1 + "/mock_subpath"
         uploaded_file_directory_list = sorted(os.listdir(uploaded_file_directory))
         self.assertEqual(uploaded_file_directory_list, ["hello.c", "results.zip", "stderr.txt"],
             msg="Path {path} does not contain exactly 3 files: {entry_list}".format(
@@ -387,14 +405,23 @@ class CompileTestCase(unittest.TestCase):
 
         unknown_directory = self.mock_root_upload_path + "/unknown"
         unknown_directory_list = os.listdir(unknown_directory)
-        self.assertEqual(unknown_directory_list, ["mock_subpath"],
-            msg="Path {path} does not contain only the mock_subpath file directory: {entry_list}".format(
+        self.assertEqual(unknown_directory_list, ["ath"],
+            msg="Path {path} does not contain only the ath file directory: {entry_list}".format(
                 path=unknown_directory,
                 entry_list=unknown_directory_list
             )
         )
 
-        uploaded_file_directory = unknown_directory + "/mock_subpath"
+        unknown_directory_level_1 = unknown_directory + "/ath"
+        unknown_directory_level_1_list = os.listdir(unknown_directory_level_1)
+        self.assertEqual(unknown_directory_level_1_list, ["mock_subpath"],
+            msg="Path {path} does not contain only the mock_subpath file directory: {entry_list}".format(
+                path=unknown_directory_level_1,
+                entry_list=unknown_directory_level_1_list
+            )
+        )
+
+        uploaded_file_directory = unknown_directory_level_1 + "/mock_subpath"
         uploaded_file_directory_list = sorted(os.listdir(uploaded_file_directory))
         self.assertEqual(uploaded_file_directory_list, ["hello.c", "results.zip", "stderr.txt", "stdout.txt"],
             msg="Path {path} does not contain exactly 4 files: {entry_list}".format(
@@ -479,14 +506,23 @@ class CompileTestCase(unittest.TestCase):
 
         user_directory = self.mock_root_upload_path + "/" + str(self.user_info["id"])
         user_directory_list = os.listdir(user_directory)
-        self.assertEqual(user_directory_list, ["mock_subpath"],
-            msg="Path {path} does not contain only the mock_subpath file directory: {entry_list}".format(
+        self.assertEqual(user_directory_list, ["ath"],
+            msg="Path {path} does not contain only the ath file directory: {entry_list}".format(
                 path=user_directory,
                 entry_list=user_directory_list
             )
         )
 
-        uploaded_file_directory = user_directory + "/mock_subpath"
+        user_directory_level_1 = user_directory + "/ath"
+        user_directory_level_1_list = os.listdir(user_directory_level_1)
+        self.assertEqual(user_directory_level_1_list, ["mock_subpath"],
+            msg="Path {path} does not contain only the mock_subpath file directory: {entry_list}".format(
+                path=user_directory_level_1,
+                entry_list=user_directory_level_1_list
+            )
+        )
+
+        uploaded_file_directory = user_directory_level_1 + "/mock_subpath"
         uploaded_file_directory_list = sorted(os.listdir(uploaded_file_directory))
         self.assertEqual(uploaded_file_directory_list, ["-h.._ello.c", "results.zip", "stdout.txt"],
             msg="Path {path} does not contain exactly 3 files: {entry_list}".format(
@@ -574,14 +610,23 @@ class CompileTestCase(unittest.TestCase):
 
         user_directory = self.mock_root_upload_path + "/" + str(self.user_info["id"])
         user_directory_list = os.listdir(user_directory)
-        self.assertEqual(user_directory_list, ["mock_subpath"],
-            msg="Path {path} does not contain only the mock_subpath file directory: {entry_list}".format(
+        self.assertEqual(user_directory_list, ["ath"],
+            msg="Path {path} does not contain only the ath file directory: {entry_list}".format(
                 path=user_directory,
                 entry_list=user_directory_list
             )
         )
 
-        uploaded_file_directory = user_directory + "/mock_subpath"
+        user_directory_level_1 = user_directory + "/ath"
+        user_directory_level_1_list = os.listdir(user_directory_level_1)
+        self.assertEqual(user_directory_level_1_list, ["mock_subpath"],
+            msg="Path {path} does not contain only the mock_subpath file directory: {entry_list}".format(
+                path=user_directory_level_1,
+                entry_list=user_directory_level_1_list
+            )
+        )
+
+        uploaded_file_directory = user_directory_level_1 + "/mock_subpath"
         uploaded_file_directory_list = sorted(os.listdir(uploaded_file_directory))
         self.assertEqual(uploaded_file_directory_list, ["-h.._ello.c", "results.zip", "stderr.txt"],
             msg="Path {path} does not contain exactly 3 files: {entry_list}".format(
@@ -667,10 +712,19 @@ class CompileTestCase(unittest.TestCase):
 
         unknown_directory = self.mock_root_upload_path + "/unknown"
         unknown_directory_list = os.listdir(unknown_directory)
-        self.assertEqual(unknown_directory_list, [],
-            msg="Path {path} is not empty: {entry_list}".format(
+        self.assertEqual(unknown_directory_list, ["e17"],
+            msg="Path {path} does not contain only the e17 file directory: {entry_list}".format(
                 path=unknown_directory,
                 entry_list=unknown_directory_list
+            )
+        )
+
+        unknown_directory_level_1 = unknown_directory + "/e17"
+        unknown_directory_level_1_list = os.listdir(unknown_directory_level_1)
+        self.assertEqual(unknown_directory_level_1_list, [],
+            msg="Path {path} is not empty: {entry_list}".format(
+                path=unknown_directory_level_1,
+                entry_list=unknown_directory_level_1_list
             )
         )
 
