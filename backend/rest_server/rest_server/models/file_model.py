@@ -59,7 +59,7 @@ class SourceCodeFile(db.Model):
         return db.session.query(SourceCodeFile).all()
 
     def __repr__(self):
-        return '<id {}, user_id {}, name {}, directory {}, compilation_options {}, language {}, created_at {}, updated_at {}>'.format(self.id, self.user_id, self.name, self.directory, self.compilation_options, self.language, self.created_at, self.updated_at)
+        return '<id {}, user_id {}, name {}, directory {}, compilation_options {}, language {}, status {}, created_at {}, updated_at {}>'.format(self.id, self.user_id, self.name, self.directory, self.compilation_options, self.language, self.status, self.created_at, self.updated_at)
 
 class SourceCodeFileSchema(Schema):
     id = fields.Int(dump_only=True, required=True)
