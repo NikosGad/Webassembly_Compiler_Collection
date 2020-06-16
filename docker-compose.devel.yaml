@@ -34,8 +34,8 @@ services:
         user: ${APP_USER}
         container_name: wasmcc
         environment:
-            - UPLOAD_PATH_EMSCRIPTEN=${ROOT_RESULTS_DIR}/${EMSCRIPTEN}/
-            - UPLOAD_PATH_GOLANG=${ROOT_RESULTS_DIR}/${GOLANG}/src/
+            - UPLOAD_PATH_EMSCRIPTEN=${ROOT_RESULTS_DIR}/${EMSCRIPTEN}
+            - UPLOAD_PATH_GOLANG=${ROOT_RESULTS_DIR}/${GOLANG}/src
             - GOOS=js
             - GOARCH=wasm
             - GOCACHE=${ROOT_RESULTS_DIR}/${GOLANG}/dev_tools/.cache/go-build
