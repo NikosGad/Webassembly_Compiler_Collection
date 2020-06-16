@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 function usage() {
-    echo "deploy.sh [--delete-images branch] [--help|-h]"
+    echo "deploy.sh [--delete-images branch] [--run-tests] [--help|-h]"
 }
 
 while [[ "$1" != "" ]]; do
@@ -29,6 +29,12 @@ while [[ "$1" != "" ]]; do
                 usage
                 exit 1
             fi
+            ;;
+        --run-tests )
+            docker-compose -f docker-compose.test.yaml up --abort-on-container-exit
+            return_value=$?
+            docker-compose -f docker-compose.test.yaml down
+            exit ${return_value}
             ;;
         --help | -h )
             usage
