@@ -122,6 +122,15 @@ class CompileTestCase(unittest.TestCase):
         self.assertIsInstance(datetime.datetime.strptime(result_split[0], "%Y%m%d%H%M%S%f"), datetime.datetime)
         self.assertEqual(result_split[1], expected_sha256_hash)
 
+    def test_CompilationHandler_format_full_file_path(self):
+        handler = NonAbstractCompilationHandler(self.mock_language, self.mock_root_upload_path)
+
+        returned_result = handler._format_full_file_path("user42", "subpath_abcdefg")
+
+        expected_result = self.mock_root_upload_path + "/user42/efg/subpath_abcdefg"
+
+        self.assertEqual(returned_result, expected_result)
+
     def test_CompilationHandler_compile__invalid_compilation_options(self):
         handler = MockedCompilationHandlerWStdout(self.mock_language, self.mock_root_upload_path)
         compilation_options_json_list = [
