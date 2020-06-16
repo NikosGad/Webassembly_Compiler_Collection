@@ -65,7 +65,7 @@ methods that a language specific compilation handler should implement."""
             else:
                 user_id = "unknown"
 
-            upload_path = self._format_full_file_path(user_id, subpath) #self.root_upload_path + "/" + user_id + "/" + subpath
+            upload_path = self._format_full_file_path(user_id, subpath)
 
             try:
                 compilation_options_dict = json.loads(compilation_options_json)
