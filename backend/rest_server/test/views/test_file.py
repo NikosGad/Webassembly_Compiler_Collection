@@ -29,16 +29,16 @@ class ViewFileTestCase(unittest.TestCase):
         cls.mock_language = "language_view_file"
         cls.mock_root_upload_path = "/results/language_view_file"
 
-        cls.full_file_path = cls.mock_root_upload_path + "/1/mock_subpath"
+        handler = MockedCompilationHandler(cls.mock_language, cls.mock_root_upload_path)
+        compilation_handlers_dictionary[cls.mock_language] = handler
+
+        cls.full_file_path = handler._format_full_file_path("1", "mock_subpath")
         cls.file_name = "hello.c"
 
         cls.c_source_code_snippet_hello_c = os.path.dirname(__file__) + "/../test_source_code_snippets/hello.c"
 
         os.makedirs(cls.full_file_path)
         shutil.copyfile(cls.c_source_code_snippet_hello_c, cls.full_file_path + "/" + cls.file_name)
-
-        handler = MockedCompilationHandler(cls.mock_language, cls.mock_root_upload_path)
-        compilation_handlers_dictionary[cls.mock_language] = handler
 
         cls.user_info_1 = {
             "username": "test_user_view_file_1",
@@ -409,16 +409,16 @@ class ViewFileDeleteTestCase(unittest.TestCase):
         cls.mock_language = "language_view_file"
         cls.mock_root_upload_path = "/results/language_view_file"
 
-        cls.full_file_path = cls.mock_root_upload_path + "/1/mock_subpath"
+        handler = MockedCompilationHandler(cls.mock_language, cls.mock_root_upload_path)
+        compilation_handlers_dictionary[cls.mock_language] = handler
+
+        cls.full_file_path = handler._format_full_file_path("1", "mock_subpath")
         cls.file_name = "hello.c"
 
         cls.c_source_code_snippet_hello_c = os.path.dirname(__file__) + "/../test_source_code_snippets/hello.c"
 
         os.makedirs(cls.full_file_path)
         shutil.copyfile(cls.c_source_code_snippet_hello_c, cls.full_file_path + "/" + cls.file_name)
-
-        handler = MockedCompilationHandler(cls.mock_language, cls.mock_root_upload_path)
-        compilation_handlers_dictionary[cls.mock_language] = handler
 
         cls.user_info_1 = {
             "username": "test_user_view_file_1",
@@ -517,7 +517,8 @@ class ViewFileDeleteTestCase(unittest.TestCase):
         self.assertEqual(response.headers.get("Content-Type"), "application/json")
         self.assertEqual(response.headers.get("Access-Control-Allow-Origin"), "http://localhost:3535")
         self.assertEqual(response.get_json(), {"message": "OK"})
-        self.assertEqual(os.listdir(self.mock_root_upload_path + "/1"), [])
+        self.assertEqual(os.listdir(self.mock_root_upload_path + "/1"), ["ath"])
+        self.assertEqual(os.listdir(self.mock_root_upload_path + "/1/ath"), [])
         self.assertIsNone(file_model.SourceCodeFile.get_file_by_file_id_and_user_id(1, 1))
 
         self.assertEqual(len(logs_list.output), 2,
