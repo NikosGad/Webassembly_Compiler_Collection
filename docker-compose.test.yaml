@@ -6,7 +6,7 @@ services:
             dockerfile: Dockerfile
         image: ucrm_db:${IMAGE_VERSION}
         container_name: ucrm_db
-        # user: ${APP_USER}
+        user: postgres
         environment:
             - POSTGRES_PASSWORD=example
             - POSTGRES_USER=database
