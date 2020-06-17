@@ -23,6 +23,7 @@ services:
             dockerfile: Dockerfile-nginx
         image: nginx:${IMAGE_VERSION}
         container_name: nginx
+        user: nginx
         ports:
             - "${FRONTEND_HOST_PORT}:${FRONTEND_CONTAINER_PORT}"
             - "${BACKEND_HOST_PORT}:${BACKEND_CONTAINER_PORT}"
