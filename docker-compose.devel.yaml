@@ -34,6 +34,8 @@ services:
         user: ${APP_USER}
         container_name: wasmcc
         environment:
+            - SYSTEM_IP=${SYSTEM_IP}
+            - HOST_FRONTEND_ADDRESS=${SYSTEM_IP}:${FRONTEND_HOST_PORT}
             - UPLOAD_PATH_EMSCRIPTEN=${ROOT_RESULTS_DIR}/${EMSCRIPTEN}
             - UPLOAD_PATH_GOLANG=${ROOT_RESULTS_DIR}/${GOLANG}/src
             - GOOS=js
