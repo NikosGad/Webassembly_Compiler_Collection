@@ -23,10 +23,8 @@ services:
             dockerfile: Dockerfile
         image: angular_cli:${IMAGE_VERSION}
         container_name: angular_cli
-        environment:
-            - API_URL=http://${SYSTEM_IP}:${BACKEND_HOST_PORT}
         ports:
-            - "${FRONTEND_HOST_PORT}:4200"
+            - "${FRONTEND_HOST_PORT_DEVEL}:4200"
         volumes:
             - "/home/nikos/HMMY\ EMP/Diploma\ Thesis/Webassembly_Compiler_Collection/frontend/app-frontend:/home/node/app-frontend"
         command: bash -c "ng serve --host 0.0.0.0"
@@ -36,8 +34,8 @@ services:
         user: server
         container_name: wasmcc
         environment:
-            - SYSTEM_IP=${SYSTEM_IP}
-            - HOST_FRONTEND_ADDRESS=${SYSTEM_IP}:${FRONTEND_HOST_PORT}
+            - SYSTEM_IP=localhost
+            - HOST_FRONTEND_ADDRESS=localhost:${FRONTEND_HOST_PORT_DEVEL}
             - UPLOAD_PATH_EMSCRIPTEN=${ROOT_RESULTS_DIR}/${EMSCRIPTEN}
             - UPLOAD_PATH_GOLANG=${ROOT_RESULTS_DIR}/${GOLANG}/src
             - GOOS=js
@@ -49,7 +47,7 @@ services:
             - POSTGRES_USER=database
             - JWT_SECRET_KEY=jwt_secret_key
         ports:
-            - "${BACKEND_HOST_PORT}:${BACKEND_CONTAINER_PORT}"
+            - "8080:8080"
         volumes:
             - "./backend/rest_server:/app"
             - "${HOST_RESULTS_DIR_PREFIX}/wasmcc_results${ROOT_RESULTS_DIR_DEVEL}:/results"
