@@ -1,17 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {SourceCodeFile} from './models/source-code-file';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SourceCodeFileService {
-  private scheme = "http"
-  private domain = "127.0.0.1"
-  private port = "8080"
-  private backend_address = this.scheme + "://" + this.domain + ":" + this.port
-  private url_compile = this.backend_address + "/api/compile"
-  private url_files = this.backend_address + "/api/files"
+  private url_compile = environment.apiUrl + "/api/compile"
+  private url_files = environment.apiUrl + "/api/files"
 
   constructor(private http: HttpClient) { }
 

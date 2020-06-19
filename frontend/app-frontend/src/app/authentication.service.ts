@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +23,7 @@ export class AuthenticationService {
     formData.append("username", userInfo.username);
     formData.append("password", userInfo.password);
 
-    return this.http.post('http://127.0.0.1:8080/api/login', formData).pipe(
+    return this.http.post(environment.apiUrl + '/api/login', formData).pipe(
       map((response:any) => {
         console.log("Login Request Response:", response);
         console.log("Local Storage Before Login:", localStorage);
