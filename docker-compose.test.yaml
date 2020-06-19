@@ -18,8 +18,8 @@ services:
         user: server
         container_name: wasmcc
         environment:
-            - SYSTEM_IP=${SYSTEM_IP}
-            - HOST_FRONTEND_ADDRESS=${SYSTEM_IP}:${FRONTEND_HOST_PORT}
+            - SYSTEM_IP=localhost
+            - HOST_FRONTEND_ADDRESS=localhost:3535
             - UPLOAD_PATH_EMSCRIPTEN=${ROOT_RESULTS_DIR}/${EMSCRIPTEN}
             - UPLOAD_PATH_GOLANG=${ROOT_RESULTS_DIR}/${GOLANG}/src
             - GOOS=js
@@ -30,8 +30,6 @@ services:
             - POSTGRES_PASSWORD=example
             - POSTGRES_USER=database
             - JWT_SECRET_KEY=jwt_secret_key
-        ports:
-            - "${BACKEND_HOST_PORT}:${BACKEND_CONTAINER_PORT}"
         volumes:
             - "./backend/rest_server:/app"
             - "${HOST_RESULTS_DIR_PREFIX}/wasmcc_results${ROOT_RESULTS_DIR_TEST}:/results"
