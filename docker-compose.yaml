@@ -13,8 +13,8 @@ services:
         container_name: ucrm_db
         user: postgres
         environment:
-            - POSTGRES_PASSWORD=example
-            - POSTGRES_USER=database
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+            - POSTGRES_USER=${POSTGRES_USER}
         volumes:
             - "${HOST_RESULTS_DIR_PREFIX}/wasmcc_volumes/database_volume_prod:/var/lib/postgresql/data"
     nginx:
@@ -27,8 +27,8 @@ services:
             - API_URL=http://${SYSTEM_IP}:${BACKEND_HOST_PORT}
         user: nginx
         ports:
-            - "${FRONTEND_HOST_PORT}:${FRONTEND_CONTAINER_PORT}"
-            - "${BACKEND_HOST_PORT}:${BACKEND_CONTAINER_PORT}"
+            - "${FRONTEND_HOST_PORT}:8443"
+            - "${BACKEND_HOST_PORT}:8080"
         command: bash -c "envsubst < /usr/share/nginx/html/assets/env.template.js > /usr/share/nginx/html/assets/env.js && nginx -g 'daemon off;'"
         depends_on:
             - rest_server
@@ -47,11 +47,11 @@ services:
             - GOCACHE=${ROOT_RESULTS_DIR}/${GOLANG}/dev_tools/.cache/go-build
             - GOENV=${ROOT_RESULTS_DIR}/${GOLANG}/dev_tools/.config/go/env
             - GO_INSTALLATION_PATH=/usr/local/go/
-            - POSTGRES_PASSWORD=example
-            - POSTGRES_USER=database
-            - JWT_SECRET_KEY=jwt_secret_key
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+            - POSTGRES_USER=${POSTGRES_USER}
+            - JWT_SECRET_KEY=${JWT_SECRET_KEY}
         expose:
-            - ${BACKEND_CONTAINER_PORT}
+            - "8080"
         volumes:
             - "${HOST_RESULTS_DIR_PREFIX}/wasmcc_results${ROOT_RESULTS_DIR}:/results"
         command: bash -c "until python database_accepts_connections.py; do sleep 5; done; uwsgi --ini /app/uwsgi.ini"
