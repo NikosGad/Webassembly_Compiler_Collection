@@ -23,6 +23,8 @@ services:
             dockerfile: Dockerfile-nginx
         image: nginx:${IMAGE_VERSION}
         container_name: nginx
+        environment:
+            - API_URL=http://${SYSTEM_IP}:${BACKEND_HOST_PORT}
         user: nginx
         ports:
             - "${FRONTEND_HOST_PORT}:${FRONTEND_CONTAINER_PORT}"

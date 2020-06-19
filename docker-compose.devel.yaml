@@ -23,6 +23,8 @@ services:
             dockerfile: Dockerfile
         image: angular_cli:${IMAGE_VERSION}
         container_name: angular_cli
+        environment:
+            - API_URL=http://${SYSTEM_IP}:${BACKEND_HOST_PORT}
         ports:
             - "${FRONTEND_HOST_PORT}:4200"
         volumes:
