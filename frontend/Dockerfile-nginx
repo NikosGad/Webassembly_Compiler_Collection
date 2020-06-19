@@ -23,4 +23,5 @@ COPY --from=build-stage /home/node/app-frontend/dist /usr/share/nginx/html
 
 RUN chown -R nginx:nginx /var/cache/nginx\
  && touch /var/run/nginx.pid\
- && chown -R nginx:nginx /var/run/nginx.pid
+ && chown -R nginx:nginx /var/run/nginx.pid\
+ && chown nginx:nginx /usr/share/nginx/html/assets/env.js
