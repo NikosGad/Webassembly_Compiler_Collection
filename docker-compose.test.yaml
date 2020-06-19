@@ -14,8 +14,8 @@ services:
             - "${HOST_RESULTS_DIR_PREFIX}/wasmcc_volumes/database_volume_test:/var/lib/postgresql/data"
     rest_server:
         build: ./backend/rest_server
-        image: ${APP}:${IMAGE_VERSION}
-        user: ${APP_USER}
+        image: rest_server:${IMAGE_VERSION}
+        user: server
         container_name: wasmcc
         environment:
             - SYSTEM_IP=${SYSTEM_IP}
