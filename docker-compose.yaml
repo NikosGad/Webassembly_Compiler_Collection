@@ -29,6 +29,7 @@ services:
         ports:
             - "${FRONTEND_HOST_PORT}:${FRONTEND_CONTAINER_PORT}"
             - "${BACKEND_HOST_PORT}:${BACKEND_CONTAINER_PORT}"
+        command: bash -c "envsubst < /usr/share/nginx/html/assets/env.template.js > /usr/share/nginx/html/assets/env.js && nginx -g 'daemon off;'"
         depends_on:
             - rest_server
     rest_server:
