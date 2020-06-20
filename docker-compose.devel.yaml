@@ -16,7 +16,7 @@ services:
             - POSTGRES_PASSWORD=example
             - POSTGRES_USER=database
         volumes:
-            - "${HOST_RESULTS_DIR_PREFIX}/wasmcc_volumes/database_volume:/var/lib/postgresql/data"
+            - "${HOST_RESULTS_DIR_PREFIX}/wasmcc_volumes${ROOT_DB_DIR_DEVEL}:/var/lib/postgresql/data"
     nginx:
         build:
             context: ./frontend/

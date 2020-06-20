@@ -11,7 +11,7 @@ services:
             - POSTGRES_PASSWORD=example
             - POSTGRES_USER=database
         volumes:
-            - "${HOST_RESULTS_DIR_PREFIX}/wasmcc_volumes/database_volume_test:/var/lib/postgresql/data"
+            - "${HOST_RESULTS_DIR_PREFIX}/wasmcc_volumes${ROOT_DB_DIR_TEST}:/var/lib/postgresql/data"
     rest_server:
         build: ./backend/rest_server
         image: rest_server:${IMAGE_VERSION}
