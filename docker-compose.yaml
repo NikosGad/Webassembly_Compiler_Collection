@@ -1,10 +1,5 @@
 version: "3"
 services:
-    adminer:
-        image: adminer
-        container_name: adminer
-        ports:
-            - "8000:8080"
     ucrm_db:
         build:
             context: ./backend/database
