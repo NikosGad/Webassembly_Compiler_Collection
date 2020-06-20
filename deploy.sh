@@ -250,6 +250,14 @@ while [[ "$1" != "" ]]; do
             docker-compose -f docker-compose.test.yaml down
             exit $?
             ;;
+        --build )
+            docker-compose build
+            exit $?
+            ;;
+        --build-devel )
+            docker-compose -f docker-compose.devel.yaml build
+            exit $?
+            ;;
         --help | -h )
             usage
             exit 0
