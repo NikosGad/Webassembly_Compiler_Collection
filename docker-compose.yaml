@@ -31,7 +31,6 @@ services:
         build: ./backend/rest_server
         image: rest_server:${IMAGE_VERSION}
         user: server
-        container_name: wasmcc
         environment:
             - SYSTEM_IP=${SYSTEM_IP}
             - HOST_FRONTEND_ADDRESS=${SYSTEM_IP}:${FRONTEND_HOST_PORT}
