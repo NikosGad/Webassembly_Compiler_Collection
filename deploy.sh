@@ -229,7 +229,7 @@ while [[ "$1" != "" ]]; do
         --deploy )
             source .env;
             create_volumes production
-            docker-compose up -d
+            docker-compose up -d --scale rest_server=3
             exit $?
             ;;
         --deploy-devel )
