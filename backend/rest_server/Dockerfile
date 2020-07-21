@@ -1,7 +1,7 @@
 FROM trzeci/emscripten-slim:sdk-tag-1.39.4-64bit as emscriptensdk
 
 # Base Python Image
-FROM python:3.8-slim-buster
+FROM python:3.8.3-slim-buster
 
 # For more info on multi stage build to extend emscripten-slim with changing
 # base image, visit: https://hub.docker.com/r/trzeci/emscripten-slim
