@@ -64,7 +64,7 @@ export class FileUploadComponent implements OnInit {
     if (this.language == "C") {
       compilation_options = this.c_compilation_options;
     }
-    else if (this.language == "C++") {
+    else if (this.language == "Cpp") {
       compilation_options = this.cpp_compilation_options;
     }
     else if (this.language == "Golang") {
